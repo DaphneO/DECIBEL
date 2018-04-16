@@ -47,7 +47,6 @@ def get_all_songs():
     for midi_file_name in all_midis:
         midi_key = int(midi_file_name.split('-')[0])
         all_songs[midi_key].add_midi_path(midi_file_name)
-        all_songs[midi_key].add_synthesized_midi_path(midi_file_name.replace('.mid', '.wav'))
     return all_songs
 
 

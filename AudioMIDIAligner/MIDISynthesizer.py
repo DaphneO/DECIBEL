@@ -32,8 +32,12 @@ def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=220500):
             midi_file_name = os.path.basename(midi_file_path_from).replace('.mid', '')
             # Construct the path to write to
             wav_file_path_to = os.path.join(wav_directory, midi_file_name + '.wav')
-            # Only convert if this wav file does not yet exist
-            if not os.path.isfile(wav_file_path_to):
+            # Check if we already synthesized this file
+            if os.path.isfile(wav_file_path_to):
+                # We already synthesized this file in a previous run and will not do it again. Just add the path
+                all_songs[song_nr].full_synthesized_midi_paths.append(wav_file_path_to)
+            else:
+                # The wav file does not yet exist, so we still have to synthesize this file
                 try:
                     # Synthesize the midi
                     _synthesize_midi_to_wav(midi_file_name, wav_file_path_to, sampling_rate)

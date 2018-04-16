@@ -20,5 +20,4 @@ Synthesizer.synthesize_all_midis_to_wav(all_songs, FileHandler.SYNTHMIDI_FOLDER)
 #
 # ALL_CHORDS_LIST = ChordTemplateGenerator.generate_chroma_major_minor_sevenths()
 
-
 i = 9
