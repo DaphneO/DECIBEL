@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 import pretty_midi
 from Chords import *
-import ChordTemplateGenerator
+# import ChordTemplateGenerator
 import scipy.spatial.distance as ssd
-from os import listdir
-import FileHandler
+# from os import listdir
+# import FileHandler
 
 
 class Event:
-    def __init__(self, start_time, end_time):
+    def __init__(self, start_time, end_time, all_chords_list):
+        self.all_chords_list = all_chords_list
         self.start_time = start_time
         self.end_time = end_time
         self.duration = end_time - start_time
+        if self.duration > 10.0:
+            stop = True
         self.notes = []
         self.pitches = set()
         self.pitch_classes = set()
@@ -43,7 +46,7 @@ class Event:
     def find_most_likely_chord(self):
         smallest_distance = 2
         best_matching_chord_str = 'X'
-        for [key_note, chord_type, chord_template] in ALL_CHORDS_LIST:
+        for [key_note, chord_type, chord_template] in self.all_chords_list:
             cosine_distance = ssd.cosine(self.chroma, chord_template)
             if cosine_distance < smallest_distance:
                 smallest_distance = cosine_distance
@@ -58,8 +61,10 @@ class Event:
 
 
 class MIDI:
-    def __init__(self, midi_path, partition_method='bar'):
+    def __init__(self, midi_path, alignment, all_chords_list, partition_method='bar'):
+        self.all_chords_list = all_chords_list
         self.midi_data = pretty_midi.PrettyMIDI(midi_path)
+        self.midi_data.adjust_times(alignment[0], alignment[1])
         self.midi_data.remove_invalid_notes()
         self.events = dict()
         self.find_events(partition_method)
@@ -75,7 +80,7 @@ class MIDI:
 
         # Create events
         for i in range(0, len(partition_points) - 1):
-            self.events[partition_points[i]] = Event(partition_points[i], partition_points[i + 1])
+            self.events[partition_points[i]] = Event(partition_points[i], partition_points[i + 1], self.all_chords_list)
 
         # Add each note to the corresponding events
         for instrument in self.midi_data.instruments:
@@ -106,7 +111,8 @@ class MIDI:
         new_events = dict()
         current_event = self.events[0]
         last_added = False
-        for event_key in self.events:
+        sorted_keys = sorted(self.events)
+        for event_key in sorted_keys:
             if self.events[event_key].most_likely_chord == current_event.most_likely_chord:
                 current_event.end_time = self.events[event_key].end_time
                 last_added = False
@@ -121,10 +127,14 @@ class MIDI:
 
     def export_chords(self, path_string):
         with open(path_string, 'w') as write_file:
-            for event_key in self.events:
+            sorted_events = sorted(self.events)
+            for event_key in sorted_events:
                 event = self.events[event_key]
+                chord_string = str(event.most_likely_chord)
+                if chord_string == 'None':
+                    chord_string = 'N'
                 write_file.write(str(event.start_time) + ' ' + str(event.end_time) + ' ' +
-                                 str(event.most_likely_chord) + '\n')
+                                 chord_string + '\n')
 
     def _partition_by_note_events(self):
         partition_points = [0]
@@ -150,12 +160,14 @@ class MIDI:
         return bars
 
 
-def classify_all_midis(all_songs):
+def classify_all_aligned_midis(all_songs, all_chords_list):
     for song_key in all_songs:
         song = all_songs[song_key]
-        for midi_path in song.full_midi_paths:
+        if song.best_midi_alignment is not None and song.best_midi_alignment.best_score < 2:
+            # We have a best alignment. Use this to align the MIDI to the audio
+            midi_path = song.best_midi_alignment.best_midi.replace('SynthMIDI', 'MIDI').replace('.wav', '.mid')
             try:
-                midi = MIDI(midi_path, 'bar')
+                midi = MIDI(midi_path, song.best_midi_alignment.best_path, all_chords_list, 'bar')
                 midi.concatenate_events()
                 all_songs[song_key].midi_labs.append(midi)
                 midi.export_chords(midi_path.replace('MIDI','MIDIlabs').replace('.mid', '.lab'))
@@ -163,8 +175,8 @@ def classify_all_midis(all_songs):
                 print(midi_path + " went wrong...")
 
 
-ALL_CHORDS_LIST = ChordTemplateGenerator.generate_chroma_major_minor_sevenths()
-all_songs = FileHandler.get_all_songs()
-classify_all_midis(all_songs)
-
-klaar = True
+# ALL_CHORDS_LIST = ChordTemplateGenerator.generate_chroma_major_minor_sevenths()
+# all_songs = FileHandler.get_all_songs()
+# classify_all_midis(all_songs)
+#
+# klaar = True

@@ -1,8 +1,10 @@
 import librosa
 import numpy as np
 import numba
-import pretty_midi
 import scipy.spatial
+from os import path
+import FileHandler
+
 
 FS = 22050
 NOTE_START = 36
@@ -169,18 +171,30 @@ def compute_cqt(audio_data):
 
 
 class Alignment:
-    def __init__(self, song):
+    def __init__(self, best_score, best_midi, best_path):
+        self.best_score = best_score
+        self.best_midi = best_midi
+        self.best_path = best_path
+
+    @classmethod
+    def calculate_alignment(cls, song):
+        best_score = 2
+        best_midi = None
+        best_path = None
+        if len(song.full_synthesized_midi_paths) == 0:
+            return cls(best_score, best_path, best_midi)
         audio_data, _ = librosa.load(song.full_audio_path, sr=FS)
         audio_cqt, audio_times = compute_cqt(audio_data)
-        self.best_score = 2
-        self.best_path = None
-        self.best_midi = None
         for full_synthesized_midi_path in song.full_synthesized_midi_paths:
-            p, q, score = align_midi(audio_cqt, full_synthesized_midi_path)
-            if score < self.best_score:
-                self.best_score = score
-                self.best_path = (p, q)
-                self.best_midi = full_synthesized_midi_path
+            try:
+                p, q, score = align_midi(audio_cqt, full_synthesized_midi_path)
+                if score < best_score:
+                    best_score = score
+                    best_midi = full_synthesized_midi_path
+                    best_path = (p, q)
+            except librosa.util.exceptions.ParameterError:
+                pass
+        return cls(best_score, best_path, best_midi)
 
     def write_alignment_result(self, wp):
         with open(wp, 'w') as write_file:
@@ -189,13 +203,32 @@ class Alignment:
             for i in range(0, len(self.best_path[0])):
                 write_file.write('{0} {1} {2}\n'.format(str(i), str(self.best_path[0][i]), str(self.best_path[1][i])))
 
+    @classmethod
+    def from_alignment_file(cls, file_path):
+        with open(file_path, 'r') as read_file:
+            lines = read_file.readlines()
+            best_score = float(lines[0])
+            best_midi = lines[1].replace('\n','')
+            p = []
+            q = []
+            for line in lines[2:]:
+                line_parts = line.split()
+                p.append(int(line_parts[1]))
+                q.append(int(line_parts[2].replace('\n','')))
+            return cls(best_score, best_midi, (p, q))
 
 
 def align_midis(all_songs):
     for song_nr in all_songs:
-        a = Alignment(all_songs[song_nr])
-        a.write_alignment_result('E:\\Data\\alignmentpath.txt')
-        klaar = True
+        write_path = path.join(FileHandler.ALIGNMENTS_FOLDER, str(song_nr) + '.txt')
+        if not path.isfile(write_path):
+            a = Alignment.calculate_alignment(all_songs[song_nr])
+            if a.best_score < 2:
+                a.write_alignment_result(path.join(FileHandler.ALIGNMENTS_FOLDER, str(song_nr) + '.txt'))
+                all_songs[song_nr].best_midi_alignment = a
+        else:
+            all_songs[song_nr].best_midi_alignment = Alignment.from_alignment_file(write_path)
+
 
 def align_midi(audio_cqt, full_synthesized_midi_path):
     midi_audio, _ = librosa.load(full_synthesized_midi_path, sr=FS)

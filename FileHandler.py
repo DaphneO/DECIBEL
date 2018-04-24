@@ -17,6 +17,7 @@ CHORDLABS_FOLDER = path.join(DATA_PATH, 'ChordLabs')
 MIDILABS_FOLDER = path.join(DATA_PATH, 'MIDIlabs')
 SYNTHMIDI_FOLDER = path.join(DATA_PATH, 'SynthMIDI')
 TABS_FOLDER = path.join(DATA_PATH, 'Tabs')
+ALIGNMENTS_FOLDER = path.join(DATA_PATH, 'Alignments')
 
 INDEX_PATH = path.join(DATA_PATH, 'IndexAudio.csv')
 TAB_INDEX_PATH = path.join(DATA_PATH, 'IndexTabs.csv')

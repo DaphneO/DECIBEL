@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
 import re
+import mir_eval
 
 PITCH_CLASSES = ['C', 'C#', 'D', 'Eb', 'E', 'F',
                  'F#', 'G', 'G#', 'A', 'Bb', 'B']
@@ -213,14 +214,20 @@ class Chord:
         return hash((self.root_note, self.bass_degree, self.components_degree_list))
 
     def __str__(self):
-        result = [str(self.root_note)]
-        result.append('(')
+        components = []
         for component in self.components_degree_list:
-            result.append(str(component))
-        result.append(')')
-        result.append('/')
-        result.append(str(self.bass_degree))
-        return ''.join(result)
+            components.append(str(component))
+        chord_string = mir_eval.chord.join(str(self.root_note), '', components, str(self.bass_degree))
+        return chord_string
+
+        # result = [str(self.root_note)]
+        # result.append('(')
+        # for component in self.components_degree_list:
+        #     result.append(str(component))
+        # result.append(')')
+        # result.append('/')
+        # result.append(str(self.bass_degree))
+        # return ''.join(result)
 
     @staticmethod
     def _component_list_from_common_tab_shorthand(shorthand_string):
@@ -323,7 +330,7 @@ class Chord:
 
         # Find the bass degree
         if match_chord_string.group('bass_degree') is None:
-            bass_degree = Interval(0)
+            bass_degree = Interval(1)
         else:
             bass_degree = Interval.from_harte_interval(match_chord_string.group('bass_degree'))
 
@@ -354,7 +361,7 @@ class Chord:
         # Bass note
         bass_note_string = chord_parts.group('bass_note_str')
         if bass_note_string is None:
-            bass_interval = Interval(0)
+            bass_interval = Interval(1)
         else:
             bass_note_pitch_class = PitchClass.from_harte_pitch_class(bass_note_string)
             bass_interval = Interval.from_pitch_class_distances(root_note_pitch_class, bass_note_pitch_class)

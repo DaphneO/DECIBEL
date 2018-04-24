@@ -45,3 +45,6 @@ def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=220500):
                     all_songs[song_nr].full_synthesized_midi_paths.append(wav_file_path_to)
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
+
+
+_synthesize_midi_to_wav('E:\\Data\\MIDI\\001-001.mid', 'E:\\Data\\MIDI\\001-001.wav')
