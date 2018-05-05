@@ -6,7 +6,7 @@ from Song import Song
 
 # Find DATA_PATH
 if platform == 'linux2':  # Lubuntu laptop
-    DATA_PATH = "/home/daphne/Documents/Data"
+    DATA_PATH = "/media/daphne/Seagate Expansion Drive/Data"
 else:  # Windows laptop
     DATA_PATH = "E:\Data"
 
@@ -22,11 +22,16 @@ ALIGNMENTS_FOLDER = path.join(DATA_PATH, 'Alignments')
 INDEX_PATH = path.join(DATA_PATH, 'IndexAudio.csv')
 TAB_INDEX_PATH = path.join(DATA_PATH, 'IndexTabs.csv')
 
+SOUND_FONT_PATH = '/usr/share/sounds/sf2/FluidR3_GM.sf2'
+
+MIDILABS_RESULTS_PATH = path.join(DATA_PATH, 'MidiLabsResults.csv')
+MIDILABS_CHORD_PROBABILITY_PATH = path.join(DATA_PATH, 'MidiLabsChordProbabilities.csv')
+
 
 def get_all_songs():
     # Import all songs, assign full paths
     all_songs = dict()
-    with open(INDEX_PATH, 'r') as index_csv:
+    with open(INDEX_PATH, 'rb') as index_csv:
         index_csv_reader = csv.reader(index_csv, delimiter=';')
         for key_data_row in index_csv_reader:
             if len(key_data_row) >= 4:
@@ -80,3 +85,7 @@ def get_midi_path_list():
         if midi_file.endswith(".mid"):
             result.append(midi_file)
     return result
+
+
+def get_file_name_from_full_path(full_path):
+    return path.basename(full_path).split('.')[0]

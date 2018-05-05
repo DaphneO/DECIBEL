@@ -217,7 +217,18 @@ class Chord:
         components = []
         for component in self.components_degree_list:
             components.append(str(component))
-        chord_string = mir_eval.chord.join(str(self.root_note), '', components, str(self.bass_degree))
+        if sorted(components) == ['3', '7']:
+            chord_string = mir_eval.chord.join(str(self.root_note), 'min', [], str(self.bass_degree))
+        elif sorted(components) == ['4', '7']:
+            chord_string = mir_eval.chord.join(str(self.root_note), '', [], str(self.bass_degree))
+        elif sorted(components) == ['10', '3', '7']:
+            chord_string = mir_eval.chord.join(str(self.root_note), 'min7', [], str(self.bass_degree))
+        elif sorted(components) == ['11', '4', '7']:
+            chord_string = mir_eval.chord.join(str(self.root_note), 'maj7', [], str(self.bass_degree))
+        elif sorted(components) == ['10', '4', '7']:
+            chord_string = mir_eval.chord.join(str(self.root_note), '7', [], str(self.bass_degree))
+        else:
+            chord_string = mir_eval.chord.join(str(self.root_note), '', components, str(self.bass_degree))
         return chord_string
 
         # result = [str(self.root_note)]

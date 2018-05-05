@@ -5,7 +5,7 @@ import scipy.spatial
 from os import path
 import FileHandler
 
-
+# CQT parameters
 FS = 22050
 NOTE_START = 36
 N_NOTES = 48
@@ -14,60 +14,30 @@ HOP_LENGTH = 1024
 GULLY = .96
 
 
-def dtw(distance_matrix, gully=1., additive_penalty=0.,
-        multiplicative_penalty=1., mask=None, inplace=True):
-    """ Compute the dynamic time warping distance between two sequences given a
-    distance matrix.  The score is unnormalized.
-
-    Parameters
-    ----------
-    distance_matrix : np.ndarray
-        Distances between two sequences.
-    gully : float
-        Sequences must match up to this porportion of shorter sequence. Default
-        1., which means the entirety of the shorter sequence must be matched
-        to part of the longer sequence.
-    additive_penalty : int or float
-        Additive penalty for non-diagonal moves. Default 0. means no penalty.
-    multiplicative_penalty : int or float
-        Multiplicative penalty for non-diagonal moves. Default 1. means no
-        penalty.
-    mask : np.ndarray
-        A boolean matrix, such that ``mask[i, j] == 1`` when the index ``i, j``
-        should be allowed in the DTW path and ``mask[i, j] == 0`` otherwise.
-        If None (default), don't apply a mask - this is more efficient than
-        providing a mask of all 1s.
-    inplace : bool
-        When ``inplace == True`` (default), `distance_matrix` will be modified
-        in-place when computing path costs.  When ``inplace == False``,
-        `distance_matrix` will not be modified.
-
-    Returns
-    -------
-    x_indices : np.ndarray
-        Indices of the lowest-cost path in the first dimension of the distance
-        matrix.
-    y_indices : np.ndarray
-        Indices of the lowest-cost path in the second dimension of the distance
-        matrix.
-    score : float
-        DTW score of lowest cost path through the distance matrix, including
-        penalties.
+def dtw(distance_matrix, gully=1., additive_penalty=0., multiplicative_penalty=1.):
+    # type: (np.ndarray, float, float, float) -> (np.ndarray, np.ndarray, score)
+    """ Compute the dynamic time warping distance between two sequences given a distance matrix.
+    DTW score of lowest cost path through the distance matrix, including
+    penalties.
+    :param distance_matrix: Distances between two sequences
+    :param gully: Sequences must match up to this proportion of the shorter sequence.
+    Default value is 1, which means that the entirety of the shorter sequence must be matched to a part of the
+    longer sequence.
+    :param additive_penalty: Additive penalty for non-diagonal moves.
+    Default value is 0, which means no penalty.
+    :param multiplicative_penalty: Multiplicative penalty for non-diagonal moves.
+    Default value is 1, which means no penalty.
+    :return: Lowest cost path through the distance matrix. Penalties are included, the score is not yet normalized.
     """
     if np.isnan(distance_matrix).any():
         raise ValueError('NaN values found in distance matrix.')
-    if not inplace:
-        distance_matrix = distance_matrix.copy()
+    distance_matrix = distance_matrix.copy()
     # Pre-allocate path length matrix
     traceback = np.empty(distance_matrix.shape, np.uint8)
-    # Don't use masked DTW routine if no mask was provided
-    if mask is None:
-        # Populate distance matrix with lowest cost path
-        dtw_core(distance_matrix, additive_penalty, multiplicative_penalty,
-                 traceback)
+    # Populate distance matrix with lowest cost path
+    dtw_core(distance_matrix, additive_penalty, multiplicative_penalty, traceback)
     if gully < 1.:
-        # Allow the end of the path to start within gully percentage of the
-        # smaller distance matrix dimension
+        # Allow the end of the path to start within gully percentage of the smaller distance matrix dimension
         gully = int(gully*min(distance_matrix.shape))
     else:
         # When gully is 1 require matching the entirety of the smaller sequence
@@ -120,23 +90,15 @@ def dtw(distance_matrix, gully=1., additive_penalty=0.,
 
 @numba.jit(nopython=True)
 def dtw_core(dist_mat, add_pen, mul_pen, traceback):
+    # type: (np.ndarray, float, float, np.ndarray) -> ()
     """Core dynamic programming routine for DTW.
-
     `dist_mat` and `traceback` will be modified in-place.
-
-    Parameters
-    ----------
-    dist_mat : np.ndarray
-        Distance matrix to update with lowest-cost path to each entry.
-    add_pen : int or float
-        Additive penalty for non-diagonal moves.
-    mul_pen : int or float
-        Multiplicative penalty for non-diagonal moves.
-    traceback : np.ndarray
-        Matrix to populate with the lowest-cost traceback from each entry.
+    :param dist_mat: Distance matrix to update with lowest-cost path to each entry
+    :param add_pen: Additive penalty for non-diagonal moves
+    :param mul_pen: Multiplicative penalty for non-diagonal moves
+    :param traceback: Matrix to populate with the lowest-cost traceback for each entry
     """
     # At each loop iteration, we are computing lowest cost to D[i + 1, j + 1]
-    # TOOD: Would probably be faster if xrange(1, dist_mat.shape[0])
     for i in range(dist_mat.shape[0] - 1):
         for j in range(dist_mat.shape[1] - 1):
             # Diagonal move (which has no penalty) is lowest
@@ -157,7 +119,11 @@ def dtw_core(dist_mat, add_pen, mul_pen, traceback):
 
 
 def compute_cqt(audio_data):
-    """ Compute the CQT and frame times for some audio data """
+    # type: (np.ndarray) -> (np.ndarray, np.ndarray)
+    """ Compute the normalized log-amplitude CQT (Constant-Q transform) and frame times for the audio data
+    :param audio_data: The audio data for which we compute the CQT
+    :return: The CQT for the audio data and the time of each frame
+    """
     # Compute CQT
     cqt = librosa.cqt(audio_data, sr=FS, fmin=librosa.midi_to_hz(NOTE_START),
                       n_bins=N_NOTES, hop_length=HOP_LENGTH, tuning=0.)
@@ -171,85 +137,105 @@ def compute_cqt(audio_data):
 
 
 class Alignment:
-    def __init__(self, best_score, best_midi, best_path):
-        self.best_score = best_score
-        self.best_midi = best_midi
-        self.best_path = best_path
+    def __init__(self, score, midi, alignment_path):
+        # type: (float, str, (np.ndarray, np.ndarray)) -> ()
+        """
+        Initiates Alignment
+        :param score: Quality of the alignment between 0 (perfect) and 1 (terrible)
+        :param midi: Name of midi file of the alignment
+        :param alignment_path: Optimal alignment path
+        """
+        self.score = score
+        self.midi = midi
+        self.alignment_path = alignment_path
 
     @classmethod
-    def calculate_alignment(cls, song):
-        best_score = 2
-        best_midi = None
-        best_path = None
-        if len(song.full_synthesized_midi_paths) == 0:
-            return cls(best_score, best_path, best_midi)
-        audio_data, _ = librosa.load(song.full_audio_path, sr=FS)
-        audio_cqt, audio_times = compute_cqt(audio_data)
-        for full_synthesized_midi_path in song.full_synthesized_midi_paths:
-            try:
-                p, q, score = align_midi(audio_cqt, full_synthesized_midi_path)
-                if score < best_score:
-                    best_score = score
-                    best_midi = full_synthesized_midi_path
-                    best_path = (p, q)
-            except librosa.util.exceptions.ParameterError:
-                pass
-        return cls(best_score, best_path, best_midi)
+    def align_midi(cls, audio_cqt, audio_times, full_synthesized_midi_path):
+        # type: (np.ndarray, np.ndarray, str) -> cls
+        """
+        Align audio (specified by CQT) to synthesized midi (specified by path), return path and score of the alignment
+        :param audio_cqt: The CQT of the audio of the alignment
+        :param audio_times: Array of times of the audio (from compute_cqt function)
+        :param full_synthesized_midi_path: The path to the synthesized midi file
+        :return: Optimal Alignment
+        """
+        # Open the synthesized midi file
+        midi_audio, _ = librosa.load(full_synthesized_midi_path, sr=FS)
+        # Compute log-magnitude CQT of the synthesized midi file
+        midi_cqt, midi_times = compute_cqt(midi_audio)
+        # Compute the distance matrix of the midi and audio CQTs, using cosine distance
+        distance_matrix = scipy.spatial.distance.cdist(midi_cqt, audio_cqt, 'cosine')
+        penalty = float(np.median(np.ravel(distance_matrix)))
+        # Get lowest cost path in the distance matrix
+        p, q, score = dtw(distance_matrix, GULLY, penalty)
+        # Normalize by path length and the distance matrix sub-matrix within the path
+        score = score / len(p)
+        score = score / distance_matrix[p.min():p.max(), q.min():q.max()].mean()
+        return cls(score, full_synthesized_midi_path, (midi_times[p], audio_times[q]))
 
-    def write_alignment_result(self, wp):
-        with open(wp, 'w') as write_file:
+    def write_alignment_result(self, write_path):
+        # type: (str) -> ()
+        """
+        Write the Alignment to a file, in which the first line contains the score, the second contains the midi path
+        and on the remaining lines we find the best alignment path
+        :param write_path: Path to the file we'll write to
+        """
+        with open(write_path, 'w') as write_file:
             write_file.write(
-                '{0}\n{1}\n'.format(str(self.best_score), str(self.best_midi)))
-            for i in range(0, len(self.best_path[0])):
-                write_file.write('{0} {1} {2}\n'.format(str(i), str(self.best_path[0][i]), str(self.best_path[1][i])))
+                '{0}\n{1}\n'.format(str(self.score), str(self.midi)))
+            for i in range(0, len(self.alignment_path[0])):
+                write_file.write('{0} {1} {2}\n'.format(str(i),
+                                                        str(self.alignment_path[0][i]), str(self.alignment_path[1][i])))
 
     @classmethod
     def from_alignment_file(cls, file_path):
+        # type: (str) -> cls
+        """
+        Read the alignment from a file
+        :param file_path: Path to the alignment file
+        :return: The alignment, read from a file
+        """
         with open(file_path, 'r') as read_file:
             lines = read_file.readlines()
-            best_score = float(lines[0])
-            best_midi = lines[1].replace('\n','')
+            score = float(lines[0])
+            midi = lines[1].replace('\n', '')
             p = []
             q = []
             for line in lines[2:]:
                 line_parts = line.split()
-                p.append(int(line_parts[1]))
-                q.append(int(line_parts[2].replace('\n','')))
-            return cls(best_score, best_midi, (p, q))
+                p.append(float(line_parts[1]))
+                q.append(float(line_parts[2].replace('\n', '')))
+            return cls(score, midi, (p, q))
 
 
 def align_midis(all_songs):
+    # type: (dict)-> ()
+    """
+    Add the alignments to the midi files to all_songs
+    :param all_songs: All songs in our dataset
+    """
     for song_nr in all_songs:
-        write_path = path.join(FileHandler.ALIGNMENTS_FOLDER, str(song_nr) + '.txt')
-        if not path.isfile(write_path):
-            a = Alignment.calculate_alignment(all_songs[song_nr])
-            if a.best_score < 2:
-                a.write_alignment_result(path.join(FileHandler.ALIGNMENTS_FOLDER, str(song_nr) + '.txt'))
-                all_songs[song_nr].best_midi_alignment = a
-        else:
-            all_songs[song_nr].best_midi_alignment = Alignment.from_alignment_file(write_path)
-
-
-def align_midi(audio_cqt, full_synthesized_midi_path):
-    midi_audio, _ = librosa.load(full_synthesized_midi_path, sr=FS)
-    # Compute log-magnitude CQT
-    midi_cqt, midi_times = compute_cqt(midi_audio)
-    # Nearly all high-performing systems used cosine distance
-    distance_matrix = scipy.spatial.distance.cdist(
-        midi_cqt, audio_cqt, 'cosine')
-    penalty = float(np.median(np.ravel(distance_matrix)))
-    # Get lowest cost path
-    p, q, score = dtw(
-        distance_matrix,
-        # The gully for all high-performing systems was near 1
-        GULLY,
-        # The penalty was also near 1.0*median(distance_matrix)
-        penalty,
-        # Don't modify the distance matrix in place, as we will
-        # use it to normalize the score below
-        inplace=False)
-    # Normalize by path length
-    score = score/len(p)
-    # Normalize by distance matrix submatrix within path
-    score = score/distance_matrix[p.min():p.max(), q.min():q.max()].mean()
-    return p, q, score
+        song = all_songs[song_nr]
+        audio_loaded = False
+        audio_cqt = np.ndarray([])
+        audio_times = np.ndarray([])
+        for midi_path in song.full_synthesized_midi_paths:
+            midi_file_name = FileHandler.get_file_name_from_full_path(midi_path)
+            write_path = path.join(FileHandler.ALIGNMENTS_FOLDER, midi_file_name + '.txt')
+            if not path.isfile(write_path):
+                # There is no alignment yet for this audio-midi combination, so let's calculate the alignment
+                try:
+                    if not audio_loaded:
+                        # Load audio if it is not loaded yet
+                        audio_data, _ = librosa.load(song.full_audio_path, sr=FS)
+                        audio_cqt, audio_times = compute_cqt(audio_data)
+                        audio_loaded = True
+                    a = Alignment.align_midi(audio_cqt, audio_times, midi_path)
+                    a.write_alignment_result(write_path)
+                    song.midi_alignments.append(a)
+                except:
+                    pass
+            else:
+                # We already calculated this alignment so we can read a previous result
+                a = Alignment.from_alignment_file(write_path)
+                song.midi_alignments.append(a)

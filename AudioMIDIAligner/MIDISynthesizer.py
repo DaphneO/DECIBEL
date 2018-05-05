@@ -2,9 +2,10 @@ import librosa
 import pretty_midi
 import os.path
 import sys
+import FileHandler
 
 
-def _synthesize_midi_to_wav(midi_file_path_from, wav_file_path_to, sampling_rate=220500):
+def _synthesize_midi_to_wav(midi_file_path_from, wav_file_path_to, sampling_rate=22050):
     """
     Converts a midi file, specified to its path, to a waveform and writes the result as a wav file
     :param midi_file_path_from: Path to the midi file which will be converted
@@ -12,11 +13,11 @@ def _synthesize_midi_to_wav(midi_file_path_from, wav_file_path_to, sampling_rate
     :param sampling_rate: Sampling rate of the audio
     """
     midi_object = pretty_midi.PrettyMIDI(midi_file_path_from)
-    midi_audio = midi_object.fluidsynth(sampling_rate)
+    midi_audio = midi_object.fluidsynth(sampling_rate, FileHandler.SOUND_FONT_PATH)
     librosa.output.write_wav(wav_file_path_to, midi_audio, sampling_rate)
 
 
-def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=220500):
+def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=22050):
     """
     Converts all midis belonging to all_songs to a waveform, writes the result to a wav file in wav_directory, adds
     paths to wav files to all_songs
@@ -40,11 +41,11 @@ def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=220500):
                 # The wav file does not yet exist, so we still have to synthesize this file
                 try:
                     # Synthesize the midi
-                    _synthesize_midi_to_wav(midi_file_name, wav_file_path_to, sampling_rate)
+                    _synthesize_midi_to_wav(midi_file_path_from, wav_file_path_to, sampling_rate)
                     # We succeeded in synthesizing the midi, so we add this path to the full_synthesized_midi_paths
                     all_songs[song_nr].full_synthesized_midi_paths.append(wav_file_path_to)
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
 
 
-_synthesize_midi_to_wav('E:\\Data\\MIDI\\001-001.mid', 'E:\\Data\\MIDI\\001-001.wav')
+# _synthesize_midi_to_wav('/home/daphne/Downloads/b1.mid', '/home/daphne/Downloads/b1.wav')

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import pretty_midi
 from Chords import *
-# import ChordTemplateGenerator
-import scipy.spatial.distance as ssd
-# from os import listdir
-# import FileHandler
+import FileHandler
+from os import path
 
 
 class Event:
@@ -13,13 +11,12 @@ class Event:
         self.start_time = start_time
         self.end_time = end_time
         self.duration = end_time - start_time
-        if self.duration > 10.0:
-            stop = True
         self.notes = []
         self.pitches = set()
         self.pitch_classes = set()
         self.chroma = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.most_likely_chord = None
+        self.most_likely_chord_score = -10
 
     def add_note(self, note):
         assert isinstance(note, pretty_midi.Note)
@@ -44,17 +41,42 @@ class Event:
             self.chroma = [i / s for i in self.chroma]
 
     def find_most_likely_chord(self):
-        smallest_distance = 2
+        best_matching_chord_score = -2.99
         best_matching_chord_str = 'X'
+        best_key_note_weight = 0
         for [key_note, chord_type, chord_template] in self.all_chords_list:
-            cosine_distance = ssd.cosine(self.chroma, chord_template)
-            if cosine_distance < smallest_distance:
-                smallest_distance = cosine_distance
-                best_matching_chord_str = PITCH_CLASSES[key_note][0] + chord_type
+            chord_score = self._score_compared_to_template(chord_template)
+            if chord_score > best_matching_chord_score or \
+                (chord_score == best_matching_chord_score and self.chroma[key_note] > best_key_note_weight):
+                best_matching_chord_score = chord_score
+                best_matching_chord_str = PITCH_CLASSES[key_note] + chord_type
+                best_key_note_weight = self.chroma[key_note]
         if best_matching_chord_str == 'X':
             self.most_likely_chord = None
+            self.most_likely_chord_score = best_matching_chord_score
         else:
             self.most_likely_chord = Chord.from_common_tab_notation_string(best_matching_chord_str)
+            self.most_likely_chord_score = best_matching_chord_score
+
+    def _score_compared_to_template(self, template):
+        if sum(self.chroma) > 0:
+            interesting = True
+        p = 0
+        n = 0
+        # Iterate over chroma elements, sum matching and missing weights
+        for i in range(12):
+            if self.chroma[i] > 0:
+                # This note is in the chroma. Let's see if it is in the template
+                if template[i] == 1:
+                    p += self.chroma[i]
+                else:
+                    n += self.chroma[i]
+        m = 0
+        # Count the number of unmatched template elements
+        for i in range(12):
+            if template[i] == 1 and self.chroma[i] == 0:
+                m += 1
+        return p - n - m  # Higher scores means higher similarity, so a better matching template!
 
     def __str__(self):
         return str(self.start_time)[:5] + '-' + str(self.end_time)[:5] + ':' + str(self.most_likely_chord)
@@ -94,10 +116,11 @@ class MIDI:
                         start_index += 1
                     # Add this note to each event during which it sounds
                     last_index = start_index
+                    self.events[partition_points[last_index]].add_note(note)
                     while last_index < len(partition_points) - 1 \
-                            and note.end >= self.events[partition_points[last_index]].end_time:
-                        self.events[partition_points[last_index]].add_note(note)
+                            and note.end > self.events[partition_points[last_index]].end_time:
                         last_index += 1
+                        self.events[partition_points[last_index]].add_note(note)
 
         # Normalize each event
         for event_key in self.events:
@@ -125,7 +148,9 @@ class MIDI:
 
         self.events = new_events
 
-    def export_chords(self, path_string):
+    def export_chords(self, midi_name, path_string, chord_probability_write_object):
+        chord_probability_count = 0
+        chord_probability_sum = 0.0
         with open(path_string, 'w') as write_file:
             sorted_events = sorted(self.events)
             for event_key in sorted_events:
@@ -135,6 +160,10 @@ class MIDI:
                     chord_string = 'N'
                 write_file.write(str(event.start_time) + ' ' + str(event.end_time) + ' ' +
                                  chord_string + '\n')
+                chord_probability_count += 1
+                chord_probability_sum += event.most_likely_chord_score
+        chord_probability_write_object.write(
+            '{0} {1}\n'.format(midi_name, str(chord_probability_sum / chord_probability_count)))
 
     def _partition_by_note_events(self):
         partition_points = [0]
@@ -161,22 +190,21 @@ class MIDI:
 
 
 def classify_all_aligned_midis(all_songs, all_chords_list):
-    for song_key in all_songs:
-        song = all_songs[song_key]
-        if song.best_midi_alignment is not None and song.best_midi_alignment.best_score < 2:
-            # We have a best alignment. Use this to align the MIDI to the audio
-            midi_path = song.best_midi_alignment.best_midi.replace('SynthMIDI', 'MIDI').replace('.wav', '.mid')
-            try:
-                midi = MIDI(midi_path, song.best_midi_alignment.best_path, all_chords_list, 'bar')
-                midi.concatenate_events()
-                all_songs[song_key].midi_labs.append(midi)
-                midi.export_chords(midi_path.replace('MIDI','MIDIlabs').replace('.mid', '.lab'))
-            except:
-                print(midi_path + " went wrong...")
-
-
-# ALL_CHORDS_LIST = ChordTemplateGenerator.generate_chroma_major_minor_sevenths()
-# all_songs = FileHandler.get_all_songs()
-# classify_all_midis(all_songs)
-#
-# klaar = True
+    with open(FileHandler.MIDILABS_CHORD_PROBABILITY_PATH, 'a') as chord_probability_write_file:
+        for song_key in all_songs:
+            song = all_songs[song_key]
+            for alignment in song.midi_alignments:
+                synthesized_midi_path = alignment.midi
+                midi_name = FileHandler.get_file_name_from_full_path(synthesized_midi_path)
+                midi_path = path.join(FileHandler.MIDI_FOLDER, midi_name + '.mid')
+                write_path = path.join(FileHandler.MIDILABS_FOLDER, midi_name + '.lab')
+                if not path.isfile(write_path):
+                    try:
+                        aligned_midi = MIDI(midi_path, alignment.alignment_path, all_chords_list, 'bar')
+                        aligned_midi.concatenate_events()
+                        aligned_midi.export_chords(midi_name, write_path, chord_probability_write_file)
+                        song.midi_labs.append(write_path)
+                    except:
+                        print(midi_name + " went wrong")
+                else:
+                    song.midi_labs.append(write_path)

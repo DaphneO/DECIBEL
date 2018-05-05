@@ -14,7 +14,7 @@ class Song:
         self.full_tab_paths = []
         self.chord_labs = []
         self.midi_labs = []
-        self.best_midi_alignment = None
+        self.midi_alignments = []
 
     def add_midi_path(self, midi_path):
         self.full_midi_paths.append(FileHandler.get_full_midi_path(midi_path))
