@@ -4,7 +4,7 @@ import random
 import FileHandler
 
 
-def sample(all_songs):
+def _sample(all_songs):
     # type: (dict) -> (dict, dict)
     """
     Sample songs randomly into a training set and a test set
@@ -30,9 +30,29 @@ def sample(all_songs):
     return train_songs, test_songs
 
 
-def train(all_songs, chords_list):
-    training_set, test_set = sample(all_songs)
+def train_and_test(all_songs, chords_list):
+    # Sample
+    training_set, test_set = _sample(all_songs)
+
+    # Train
     hmm_parameters = HMMParameters(training_set, chords_list)
+
+    # Test
+    with open(FileHandler.LOG_LIKELIHOODS_PATH, 'a') as write_log_likelihoods:
+        for song_key in all_songs:
+            if all_songs[song_key].audio_features_path != '':
+                # There are audio features for this path
+                for full_tab_path in all_songs[song_key].full_tab_paths:
+                    tab_chord_path = FileHandler.get_chords_from_tab_filename(full_tab_path)
+                    tab_write_path = FileHandler.get_full_tab_chord_labs_path(full_tab_path)
+                    if not FileHandler.file_exists(tab_write_path):
+                        log_likelihood, transposition_semitone = \
+                            hmm_parameters.jump_alignment(tab_chord_path, all_songs[song_key].audio_features_path,
+                                                          tab_write_path)
+                        if log_likelihood is not None:
+                            # We found an alignment, write this to our log-likelihoods file
+                            write_log_likelihoods.write(str(song_key) + ';' + tab_write_path + ';' +
+                                                        str(transposition_semitone) + ';' + str(log_likelihood) + '\n')
 
 
 class HMMParameters:
@@ -166,7 +186,16 @@ class HMMParameters:
     def _calculate_altered_transition_matrix(self, nr_of_chords_in_tab, chord_ids, is_first_in_line, is_last_in_line,
                                              p_f, p_b):
         # type: (int, np.array, np.array, np.array, float, float) -> np.ndarray
-        
+        """
+        Calculate an altered transition matrix for the jump alignment algorithm
+        :param nr_of_chords_in_tab: Number of chords in the tab file
+        :param chord_ids: Numbers of the chords (indexes in the alphabet)
+        :param is_first_in_line: Boolean array: is this chord first in its line?
+        :param is_last_in_line: Boolean array: is this chord last in its line?
+        :param p_f: Forward probability
+        :param p_b: Backward probability
+        :return: New transition matrix
+        """
         altered_transition_matrix = np.zeros((nr_of_chords_in_tab, nr_of_chords_in_tab))
         for i in range(nr_of_chords_in_tab):
             for j in range(nr_of_chords_in_tab):
@@ -187,6 +216,11 @@ class HMMParameters:
 
     def chord_label_to_chord_str(self, chord_label):
         # type: (int) -> str
+        """
+        Translate the integer chord label to a chord string
+        :param chord_label: Chord index in the alphabet (integer)
+        :return: Chord string (str)
+        """
         if chord_label == 0:
             return 'N'
         return str(Chords.Chord.from_common_tab_notation_string(self.alphabet[chord_label]))
@@ -213,7 +247,17 @@ class HMMParameters:
         # TODO: implement for other alphabets
         return 0
 
-    def jump_alignment(self, chords_from_tab_file_path, audio_features_path, lab_write_path, p_f=0.5, p_b=0.6):
+    def jump_alignment(self, chords_from_tab_file_path, audio_features_path, lab_write_path, p_f=0.05, p_b=0.05):
+        # type: (str, str, str, float, float) -> (float, int)
+        """
+        Calculate the optimal alignment between tab file and audio
+        :param chords_from_tab_file_path: Path to chords from tab file
+        :param audio_features_path: Path to audio features
+        :param lab_write_path: Path to the file to write the chord labels to
+        :param p_f: Forward probability
+        :param p_b: Backward probability
+        :return: best likelihood and best transposition
+        """
         # Load chord information from chords_from_tab_file_path
         nr_of_chords_in_tab, chord_ids, is_first_in_line, is_last_in_line = \
             self._read_tab_file_path(chords_from_tab_file_path)
@@ -248,16 +292,18 @@ class HMMParameters:
             g = np.zeros((nr_beats, nr_of_chords_in_tab))
             tr = np.zeros((nr_beats, nr_of_chords_in_tab), dtype='uint8')
             for j in range(nr_of_chords_in_tab):
-                g[0, j] = log_emission_probability_matrix[transposed_chord_ids[j], 0] + np.log(self.init[transposed_chord_ids[j]])
+                g[0, j] = log_emission_probability_matrix[transposed_chord_ids[j], 0] + \
+                          np.log(self.init[transposed_chord_ids[j]])
             for i in range(1, nr_beats):
                 for j in range(nr_of_chords_in_tab):
-                    max = -float('inf')
+                    maximum = -float('inf')
                     max_chord = -1
                     for c in range(nr_of_chords_in_tab):
-                        if altered_transition_matrix[c, j] > 0 and g[i - 1, c] + np.log(altered_transition_matrix[c, j]) > max:
-                            max = g[i - 1, c] + np.log(altered_transition_matrix[c, j])
+                        if altered_transition_matrix[c, j] > 0 and g[i - 1, c] + \
+                                np.log(altered_transition_matrix[c, j]) > maximum:
+                            maximum = g[i - 1, c] + np.log(altered_transition_matrix[c, j])
                             max_chord = c
-                    g[i, j] = log_emission_probability_matrix[transposed_chord_ids[j], i] + max
+                    g[i, j] = log_emission_probability_matrix[transposed_chord_ids[j], i] + maximum
                     tr[i, j] = max_chord
 
             # Find log likelihood and best last chord

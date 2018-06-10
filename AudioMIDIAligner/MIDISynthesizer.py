@@ -1,6 +1,5 @@
 import librosa
 import pretty_midi
-import os.path
 import sys
 import FileHandler
 
@@ -17,12 +16,11 @@ def _synthesize_midi_to_wav(midi_file_path_from, wav_file_path_to, sampling_rate
     librosa.output.write_wav(wav_file_path_to, midi_audio, sampling_rate)
 
 
-def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=22050):
+def synthesize_all_midis_to_wav(all_songs, sampling_rate=22050):
     """
     Converts all midis belonging to all_songs to a waveform, writes the result to a wav file in wav_directory, adds
     paths to wav files to all_songs
     :param all_songs: All songs in our data set
-    :param wav_directory: Path to the directory where we will write the wav files
     :param sampling_rate: Sampling rate of the audio
     """
     for song_nr in all_songs:
@@ -30,11 +28,11 @@ def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=22050):
         all_songs[song_nr].full_synthesized_midi_paths = []
         for midi_file_path_from in midi_file_paths:
             # Extract the filename (e.g. '001-001') from the path
-            midi_file_name = os.path.basename(midi_file_path_from).replace('.mid', '')
+            midi_file_name = FileHandler.get_file_name_from_full_path(midi_file_path_from)
             # Construct the path to write to
-            wav_file_path_to = os.path.join(wav_directory, midi_file_name + '.wav')
+            wav_file_path_to = FileHandler.get_full_synthesized_midi_path(midi_file_name)
             # Check if we already synthesized this file
-            if os.path.isfile(wav_file_path_to):
+            if FileHandler.file_exists(wav_file_path_to):
                 # We already synthesized this file in a previous run and will not do it again. Just add the path
                 all_songs[song_nr].full_synthesized_midi_paths.append(wav_file_path_to)
             else:
@@ -45,7 +43,4 @@ def synthesize_all_midis_to_wav(all_songs, wav_directory, sampling_rate=22050):
                     # We succeeded in synthesizing the midi, so we add this path to the full_synthesized_midi_paths
                     all_songs[song_nr].full_synthesized_midi_paths.append(wav_file_path_to)
                 except:
-                    print("Unexpected error:", sys.exc_info()[0])
-
-
-# _synthesize_midi_to_wav('/home/daphne/Downloads/b1.mid', '/home/daphne/Downloads/b1.wav')
+                    print(midi_file_name + " could not be synthesized due to this error:", sys.exc_info()[0])

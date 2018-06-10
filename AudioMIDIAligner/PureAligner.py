@@ -2,7 +2,6 @@ import librosa
 import numpy as np
 import numba
 import scipy.spatial
-from os import path
 import FileHandler
 
 # CQT parameters
@@ -221,8 +220,8 @@ def align_midis(all_songs):
         audio_times = np.ndarray([])
         for midi_path in song.full_synthesized_midi_paths:
             midi_file_name = FileHandler.get_file_name_from_full_path(midi_path)
-            write_path = path.join(FileHandler.ALIGNMENTS_FOLDER, midi_file_name + '.txt')
-            if not path.isfile(write_path):
+            write_path = FileHandler.get_full_alignment_path(midi_file_name)
+            if not FileHandler.file_exists(write_path):
                 # There is no alignment yet for this audio-midi combination, so let's calculate the alignment
                 try:
                     if not audio_loaded:
@@ -234,7 +233,7 @@ def align_midis(all_songs):
                     a.write_alignment_result(write_path)
                     song.midi_alignments.append(a)
                 except:
-                    pass
+                    print(write_path + " failed.")
             else:
                 # We already calculated this alignment so we can read a previous result
                 a = Alignment.from_alignment_file(write_path)

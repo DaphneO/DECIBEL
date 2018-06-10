@@ -31,6 +31,16 @@ CHORD_TEMPLATES_OTHER = [
 
 
 def _generate_chroma(chord_template_list):
+    # type: ((str, list[int])) -> list[(int, str, list[int])]
+    """
+    Generate a list of chord templates (key-mode-chroma tuples), based on the chord template list.
+    :param chord_template_list: list of names and intervals forming chords
+    :return: List of chord templates: (key, mode-str, chroma-list) tuples
+    >>> _generate_chroma(CHORD_TEMPLATES_MAJOR_MINOR)[0]
+    [0, '', [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]]
+    >>> _generate_chroma(CHORD_TEMPLATES_MAJOR_MINOR)[23]
+    [11, 'm', [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1]]
+    """
     result = []
     for chord_template in chord_template_list:
         for key_note in range(0, 12):
@@ -42,12 +52,24 @@ def _generate_chroma(chord_template_list):
 
 
 def generate_chroma_major_minor():
+    """
+    Generate a list of major and minor chord templates
+    :return: List of chord templates: (key, mode-str, chroma-list) tuples
+    """
     return _generate_chroma(CHORD_TEMPLATES_MAJOR_MINOR)
 
 
 def generate_chroma_major_minor_sevenths():
+    """
+    Generate a list of major, minor and sevenths chord templates
+    :return: List of chord templates: (key, mode-str, chroma-list) tuples
+    """
     return _generate_chroma(CHORD_TEMPLATES_MAJOR_MINOR + CHORD_TEMPLATES_SEVENTHS)
 
 
 def generate_chroma_all_chords():
+    """
+    Generate a list of all kinds of chord templates
+    :return: List of chord templates: (key, mode-str, chroma-list) tuples
+    """
     return _generate_chroma(CHORD_TEMPLATES_MAJOR_MINOR + CHORD_TEMPLATES_SEVENTHS + CHORD_TEMPLATES_OTHER)

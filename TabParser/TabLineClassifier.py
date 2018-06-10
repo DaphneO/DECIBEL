@@ -1,78 +1,22 @@
-from os import listdir
+# -*- coding: utf-8 -*-
+# import FileHandler
+# from os import listdir
 import re
-from enum import Enum
-import json
-
-
-class LineType(Enum):
-    """Possible types of a line in a chord or tab file"""
-    ChordDefinition = 1
-    CapoChange = 2
-    TuningDefinition = 3
-    StructuralMarker = 4
-    StructureLayout = 5
-    ChordsAndLyrics = 6
-    Chords = 7
-    Lyrics = 8
-    Tablature = 9
-    StrokePattern = 10
-    Empty = 11
-    Undefined = 12
-
-
-PUBLIC_ENUMS = {
-    'LineType': LineType
-}
-
-
-class EnumEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if type(obj) in PUBLIC_ENUMS.values():
-            return {'__enum__': str(obj)}
-        return json.JSONEncoder.default(self, obj)
-
-
-def as_enum(d):
-    if '__enum__' in d:
-        name, member = d['__enum__'].split('.')
-        return getattr(PUBLIC_ENUMS[name], member)
-    else:
-        return d
-
-
-def export_line_types(line_types, path='E:\Data\Tabs\LineTypes.json'):
-    """Export the line types to a json file"""
-    with open(path, 'w', encoding='utf8') as write_file:
-        json.dump(line_types, write_file, cls=EnumEncoder)
-
-
-def import_line_types(path='E:\Data\Tabs\LineTypes.json'):
-    """Import the line types from a json file"""
-    with open(path, 'r', encoding='utf8') as read_file:
-        return json.load(read_file, object_hook=as_enum)
-
-
-def classify_all_tabs():
-    """Find line types for all tabs in our data set."""
-    from_dir = 'E:\Data\Tabs'
-    result = {}
-    path_list = listdir(from_dir)
-    for path in path_list:
-        if path.endswith('.txt'):
-            line_types = classify_lines('E:\Data\Tabs\\' + path)
-            result[path] = line_types
-    return result
+from LineClasses import LineType, Line
 
 
 def classify_lines(chord_sheet_path):
-    """Classify all lines in chord_sheet_path to a LineType"""
+    """Classify all lines in chord_sheet_path to a Line"""
     result = []
-    with open(chord_sheet_path, 'r', encoding='utf-8') as chord_sheet:
+    with open(chord_sheet_path, 'r') as chord_sheet:
         content = chord_sheet.readlines()
-        for line in content:
-            line = line.replace('\n', '')
-            line_type = LineType(classify_line_type(line))
-            result.append([line_type, line])
+        line_nr = 0
+        for line_content in content:
+            line_content = line_content.rstrip()
+            line_type = LineType(classify_line_type(line_content))
+            line = Line(line_nr, line_content, line_type)
+            result.append(line)
+            line_nr += 1
     return result
 
 
@@ -133,11 +77,15 @@ def _contains_any_of(word, substring_list):
 
 
 def _word_is_chord(word):
-    """Check if word is a chord"""
+    """Check if word is a chord
+
+    >>> _word_is_chord('Cmaj')
+    True
+    """
     word = word.lower()
     if len(word) >= 10:
         return False
-    if word[0] not in 'abcdefg':
+    if word[0] not in 'abcdefgn':
         return False
     if re.match(r'.*[0-9]{4}.*', word):
         return False
@@ -199,7 +147,13 @@ def _is_lyrics_line(line):
 
 
 def _is_aaaaaah(word):
-    """Check if a word contains at least three of the same letters after each other and no non-letter characters"""
+    """Check if a word contains at least three of the same letters after each other and no non-letter characters
+
+    >>> _is_aaaaaah('aaaaaaah')
+    True
+    >>> _is_aaaaaah('aah')
+    False
+    """
     previous_char = 'N'
     nr_same_char = 0
     for c in word:
@@ -228,20 +182,6 @@ def _is_chords_and_lyrics_line(line):
     return _is_lyrics_line(line2)
 
 
-# t = classify_line_type('  A|-------------------------------|-------------------------------|')
-# # w = word_is_chord('Ebsus2/Ab')
-# # l = find_chords('                          E(7?)')
-# # w2 = is_normal_word('Can't')
-# # y = contains_chord_definition('G|345678')
-# lt = get_all_line_types()
-# txt = json.dumps(lt, cls=EnumEncoder)
-# # lt2 = json.loads(txt, object_hook=as_enum)
-# export_line_types(lt)
-# lt2 = import_line_types()
-#
-# g = (lt == lt2)
-# # export_line_types(lt)
-# # lt = import_line_types()
-# # st = segment_line_type_list(lt.popitem()[1])
-# #res = classify_lines('We Are The Champions Acoustic_Chords.txt')
-# i = 10
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
