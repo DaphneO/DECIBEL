@@ -1,0 +1,49 @@
+1530515544368	geckodriver	INFO	geckodriver 0.21.0
+1530515544371	geckodriver	INFO	Listening on 127.0.0.1:52235
+1530515545389	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.EP7h6mCqVCLS"
+1530515546791	Marionette	INFO	Listening on port 36293
+1530515546800	Marionette	WARN	TLS certificate errors will be ignored for this session
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1530515626238	geckodriver	INFO	geckodriver 0.21.0
+1530515626242	geckodriver	INFO	Listening on 127.0.0.1:37877
+1530515627247	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.ZCkKWPqxhEj6"
+1530515628564	Marionette	INFO	Listening on port 40273
+1530515628654	Marionette	WARN	TLS certificate errors will be ignored for this session
+1530515718678	geckodriver	INFO	geckodriver 0.21.0
+1530515718682	geckodriver	INFO	Listening on 127.0.0.1:43271
+1530515719688	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.ggXupwVi5YxS"
+1530515720994	Marionette	INFO	Listening on port 37693
+1530515721094	Marionette	WARN	TLS certificate errors will be ignored for this session
+1530515765741	geckodriver	INFO	geckodriver 0.21.0
+1530515765745	geckodriver	INFO	Listening on 127.0.0.1:50001
+1530515766761	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.aS685PdfRLSh"
+1530515768046	Marionette	INFO	Listening on port 45735
+1530515768068	Marionette	WARN	TLS certificate errors will be ignored for this session
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+
+IPDL protocol error: Handler returned error code!
+
+###!!! [Parent][DispatchAsyncMessage] Error: PLayerTransaction::Msg_ReleaseLayer Processing error: message was deserialized, but the handler returned false (indicating failure)
+

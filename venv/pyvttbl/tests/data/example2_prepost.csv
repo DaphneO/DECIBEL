@@ -1,0 +1,13 @@
+CASE,TIME,CONDITION,PRE,POST
+1,day,A,68,70
+2,day,B,102,104
+3,night,A,62,57
+4,night,B,39,34
+5,day,A,95,94
+6,day,B,103,106
+7,night,A,23,28
+8,night,B,103,103
+9,day,A,122,120
+10,day,B,149,144
+11,night,A,89,93
+12,night,B,92,92

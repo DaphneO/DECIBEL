@@ -1,0 +1,13 @@
+CASE,TIME,CONDITION,X
+1,day,A,102
+2,day,B,70
+3,night,A,27
+4,night,B,38
+5,day,A,67
+6,day,B,127
+7,night,A,68
+8,night,B,49
+9,day,A,57
+10,day,B,71
+11,night,A,40
+12,night,B,84
