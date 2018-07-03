@@ -122,7 +122,7 @@ class Event:
 
 
 class MIDI:
-    def __init__(self, midi_path, alignment, all_chords_list, partition_method='bar'):
+    def __init__(self, midi_path, alignment, all_chords_list, partition_method):
         # type: (str, (np.ndarray, np.ndarray), list, str) -> None
         """
         Create MIDI object, which represents the realigned pretty_midi using the specified alignment
@@ -276,26 +276,43 @@ def classify_all_aligned_midis(all_songs, all_chords_list):
     :param all_songs: All songs in our data set
     :param all_chords_list: List of all chords we can classify
     """
-    # Open the chord probability write file, in which we will write the expected score of the midi chord recognition
-    with open(FileHandler.MIDILABS_CHORD_PROBABILITY_PATH, 'a') as chord_probability_write_file:
-        # Iterate over all songs and alignments
-        for song_key in all_songs:
-            song = all_songs[song_key]
-            for alignment in song.midi_alignments:
-                # Find the path of this MIDI in the MIDIlabs folder
-                synthesized_midi_path = alignment.midi
-                midi_name = FileHandler.get_file_name_from_full_path(synthesized_midi_path)
-                midi_path = FileHandler.get_full_midi_path(midi_name)
-                write_path = FileHandler.get_full_midi_chord_labs_path(midi_name)
-                if not FileHandler.file_exists(write_path):
-                    # The file does not exist yet, so we need to find the chords
-                    try:
-                        aligned_midi = MIDI(midi_path, alignment.alignment_path, all_chords_list, 'bar')
-                        aligned_midi.concatenate_events()
-                        aligned_midi.export_chords(midi_name, write_path, chord_probability_write_file)
+    for segmentation_type in 'bar', 'beat':
+        # Open the chord probability write file, in which we will write the expected score of the midi chord recognition
+        with open(FileHandler.MIDILABS_CHORD_PROBABILITY_PATHS[segmentation_type], 'a') as chord_probability_write_file:
+            # Iterate over all songs and alignments
+            for song_key in all_songs:
+                song = all_songs[song_key]
+                for alignment in song.midi_alignments:
+                    # Find the path of this MIDI in the MIDIlabs folder
+                    synthesized_midi_path = alignment.midi
+                    midi_name = FileHandler.get_file_name_from_full_path(synthesized_midi_path)
+                    midi_path = FileHandler.get_full_midi_path(midi_name)
+                    write_path = FileHandler.get_full_midi_chord_labs_path(midi_name, segmentation_type)
+                    if not FileHandler.file_exists(write_path):
+                        # The file does not exist yet, so we need to find the chords
+                        try:
+                            aligned_midi = MIDI(midi_path, alignment.alignment_path, all_chords_list, segmentation_type)
+                            aligned_midi.concatenate_events()
+                            aligned_midi.export_chords(midi_name, write_path, chord_probability_write_file)
+                            song.midi_labs.append(write_path)
+                        except:
+                            print(midi_name + " went wrong")
+                    else:
+                        # We just have to add the location of the chord labels to this song
                         song.midi_labs.append(write_path)
-                    except:
-                        print(midi_name + " went wrong")
-                else:
-                    # We just have to add the location of the chord labels to this song
-                    song.midi_labs.append(write_path)
+
+
+def find_duplicate_midis(all_songs):
+    duplicate_midis = []
+    for song_key in all_songs:
+        all_labels = []
+        for midi_path in all_songs[song_key].full_midi_paths:
+            midi_name = FileHandler.get_file_name_from_full_path(midi_path)
+            midi_beat_lab_path = FileHandler.get_full_midi_chord_labs_path(midi_name, 'beat')
+            with open(midi_beat_lab_path, 'r') as read_file:
+                my_labels = read_file.readlines()
+            if my_labels in all_labels:
+                duplicate_midis.append(midi_name)
+            else:
+                all_labels.append(my_labels)
+    return duplicate_midis

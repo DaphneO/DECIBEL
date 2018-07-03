@@ -83,7 +83,7 @@ def export_audio_features(song):
             beats = librosa.frames_to_time(beat_frames, sr=sampling_rate, hop_length=hop_length)
 
             # Load chords from ground truth file
-            (ref_intervals, ref_labels) = mir_eval.io.load_labeled_intervals(song.full_chord_labs_path)
+            (ref_intervals, ref_labels) = mir_eval.io.load_labeled_intervals(song.full_ground_truth_chord_labs_path)
 
             # Decide for every beat which chord has the longest duration within that beat
             longest_chords_per_beat = _find_longest_chord_per_beat(beats, ref_intervals, ref_labels)

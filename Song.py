@@ -23,8 +23,8 @@ class Song:
         # Tab paths, midi paths and ground truth chord labels are filled by get_all_songs
         self.full_midi_paths = []
         self.full_tab_paths = []
-        self.chord_labs = []  # todo: Check if this is really used
         self.full_chordify_chord_labs_path = ''
+        self.full_mirex_2017_chord_lab_paths = dict()
 
         self.full_synthesized_midi_paths = []
         self.midi_alignments = []

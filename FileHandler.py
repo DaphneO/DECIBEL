@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from os import path, listdir
+from os import path, listdir, makedirs
 from sys import platform
 import csv
 from Song import Song
@@ -12,47 +12,92 @@ else:  # Windows laptop
     DATA_PATH = "E:\Data"
 
 
-def _full_path_to(folder_name):
-    # type: (str) -> str
+def _full_path_to(folder_name, i_f_r):
+    # type: (str, str) -> str
     """
     Helper method to find the full path to a folder in Data
     :param folder_name: Name of the folder in Data
+    :param i_f_r: 'i' (Input), 'f' (Files) or 'r' (Results). 'r' has subfolders 'l' (Labs), 't' (Tables), 'f' (Figures)
+    and 'v' (LabVisualisations)
     :return: Full path to the folder in Data
-    >>> _full_path_to('MIDI')
-    '/media/daphne/Seagate Expansion Drive/Data/MIDI'
+    >>> _full_path_to('MIDI', 'i')
+    '/media/daphne/Seagate Expansion Drive/Data/Input/MIDI'
     """
-    return path.join(DATA_PATH, folder_name)
+    if i_f_r == 'i':
+        parent_folder = 'Input'
+    elif i_f_r == 'f':
+        parent_folder = 'Files'
+    else:
+        parent_folder = 'Results'
+        if i_f_r[1] == 'l':
+            parent_folder = path.join(parent_folder, 'Labs')
+        elif i_f_r[1] == 't':
+            parent_folder = path.join(parent_folder, 'Tables')
+        elif i_f_r[1] == 'f':
+            parent_folder = path.join(parent_folder, 'Figures')
+        else:
+            parent_folder = path.join(parent_folder, 'LabVisualisations')
+    return path.join(DATA_PATH, parent_folder, folder_name)
 
 
 # Add folder to ground truth labels
-CHORDLABS_FOLDER = _full_path_to('ChordLabs')
+CHORDLABS_FOLDER = _full_path_to('GT_ChordLabels', 'i')
 
 # Add folders to our different representations and the index files with which we can find them
-INDEX_PATH = _full_path_to('IndexAudio.csv')
-TAB_INDEX_PATH = _full_path_to('IndexTabs.csv')
-AUDIO_FOLDER = path.join(_full_path_to('Audio'), 'Wavs')
-MIDI_FOLDER = _full_path_to('MIDI')
-TABS_FOLDER = _full_path_to('Tabs')
+INDEX_PATH = _full_path_to('IndexAudio.csv', 'i')
+TAB_INDEX_PATH = _full_path_to('IndexTabs.csv', 'i')
+AUDIO_FOLDER = _full_path_to('Audio', 'i')
+MIDI_FOLDER = _full_path_to('MIDI', 'i')
+TABS_FOLDER = _full_path_to('Tabs', 'i')
 
-SOUND_FONT_PATH = '/usr/share/sounds/sf2/FluidR3_GM.sf2'
-SYNTHMIDI_FOLDER = _full_path_to('SynthMIDI')
-ALIGNMENTS_FOLDER = _full_path_to('Alignments')
-AUDIO_FEATURES_FOLDER = _full_path_to('AudioFeatures')
-CHORDS_FROM_TABS_FOLDER = _full_path_to('ChordsFromTabs')
+# Folders to output of audio chord recognition algorithms
+CHORDIFY_FOLDER = _full_path_to('ChordifyLabs', 'i')
+MIREX2017_FOLDER = _full_path_to('MIREX2017Labs', 'i')
+MIREX2017_SUBMISSION_NAMES = listdir(MIREX2017_FOLDER)
 
-MIDILABS_RESULTS_PATH = _full_path_to('MidiLabsResults.csv')
-CHORDIFY_RESULTS_PATH = _full_path_to('ChordifyResults.csv')
-MIDILABS_CHORD_PROBABILITY_PATH = _full_path_to('MidiLabsChordProbabilities.csv')
-TABLABS_RESULTS_PATH = _full_path_to('TabLabsResults.csv')
-LOG_LIKELIHOODS_PATH = _full_path_to('log_likelihoods.txt')
+SOUND_FONT_PATH = _full_path_to('FluidR3_GM.sf2', 'i')
+
+SYNTHMIDI_FOLDER = _full_path_to('SynthMIDI', 'f')
+ALIGNMENTS_FOLDER = _full_path_to('Alignments', 'f')
+AUDIO_FEATURES_FOLDER = _full_path_to('AudioFeatures', 'f')
+CHORDS_FROM_TABS_FOLDER = _full_path_to('ChordsFromTabs', 'f')
+
+MIDILABS_RESULTS_PATHS = {'bar': _full_path_to('MidiLabsResultsBar.csv', 'rt'),
+                          'beat': _full_path_to('MidiLabsResultsBeat.csv', 'rt')}
+CHORDIFY_RESULTS_PATH = _full_path_to('ChordifyResults.csv', 'rt')
+MIREX2017_RESULTS_PATHS = dict()
+for mirex_submission_name in MIREX2017_SUBMISSION_NAMES:
+    MIREX2017_RESULTS_PATHS[mirex_submission_name] = _full_path_to(mirex_submission_name + 'Results.csv', 'rt')
+
+MIDILABS_CHORD_PROBABILITY_PATHS = {'bar': _full_path_to('MidiLabsChordProbabilitiesBar.csv', 'f'),
+                                    'beat': _full_path_to('MidiLabsChordProbabilitiesBeat.csv', 'f')}
+TABLABS_RESULTS_PATH = _full_path_to('TabLabsResults.csv', 'rt')
+LOG_LIKELIHOODS_PATH = _full_path_to('log_likelihoods.txt', 'f')
+DUPLICATE_MIDI_PATH = _full_path_to('DuplicateMIDIs.txt', 'f')
 
 # Folders for output chord label sequences for all three representation types
-CHORDIFY_FOLDER = _full_path_to('ChordifyLabs')
-MIDILABS_FOLDER = _full_path_to('MIDIlabs')
-TABLABS_FOLDER = _full_path_to('TabLabs')
+MIDILABS_FOLDERS = {'bar': _full_path_to('MIDIlabsBar', 'rl'), 'beat': _full_path_to('MIDIlabsBeat', 'rl')}
+TABLABS_FOLDER = _full_path_to('TabLabs', 'rl')
 
-DATA_FUSION_FOLDER = _full_path_to('DataFusion')
-DATA_FUSION_RESULTS_PATH = _full_path_to('DataFusionResults.csv')
+DATA_FUSION_FOLDERS = dict()
+for df_type in ['rand', 'mv', 'df']:
+    for selection_method in ['all', 'best']:
+        fn = df_type.upper() + '_' + selection_method.upper() + '_'
+        DATA_FUSION_FOLDERS[fn + 'CHF'] = _full_path_to(fn + 'CHF', 'rl')
+        for mirex_submission_name in MIREX2017_SUBMISSION_NAMES:
+            DATA_FUSION_FOLDERS[fn + mirex_submission_name] = _full_path_to(fn + mirex_submission_name, 'rl')
+DATA_FUSION_RESULTS_PATH = _full_path_to('DataFusionResults.csv', 'rt')
+
+
+def init_folders():
+    needed_folders = [SYNTHMIDI_FOLDER, ALIGNMENTS_FOLDER, AUDIO_FEATURES_FOLDER, CHORDS_FROM_TABS_FOLDER,
+                      MIDILABS_FOLDERS['bar'], MIDILABS_FOLDERS['beat'], TABLABS_FOLDER,
+                      _full_path_to('', 'rt'), _full_path_to('', 'rf'), _full_path_to('', 'rv')]
+    for folder_name in DATA_FUSION_FOLDERS:
+        needed_folders.append(DATA_FUSION_FOLDERS[folder_name])
+    for needed_folder in needed_folders:
+        if not path.isdir(needed_folder):
+            makedirs(needed_folder)
 
 
 def get_all_songs():
@@ -87,23 +132,14 @@ def get_all_songs():
         key = int(midi_file_name.split('-')[0])
         if key in all_songs:
             all_songs[key].add_midi_path(path.join(MIDI_FOLDER, midi_file_name))
-    # Add ground truth chord annotations
+    # Find labs from Audio Chord Estimation systems
     for song_key in all_songs:
-        song = all_songs[song_key]
-        file_result = []
-        if song.full_ground_truth_chord_labs_path != '':
-            with open(song.full_ground_truth_chord_labs_path, "r") as lab_file:
-                content = lab_file.readlines()
-            for line in content:
-                elements = line.split()
-                start_time = elements[0]
-                end_time = elements[1]
-                chord = Chord.from_harte_chord_string(elements[2].replace('\n', ''))
-                file_result.append((start_time, end_time, chord))
-        all_songs[song.key].chord_labs = file_result
-    # Add Chordify chord labs path
-    for song_key in all_songs:
+        # Chordify
         all_songs[song_key].full_chordify_chord_labs_path = get_full_chordify_chord_labs_path(song_key)
+        # MIREX2017
+        for mirex_submission_name in MIREX2017_SUBMISSION_NAMES:
+            all_songs[song_key].full_mirex_2017_chord_lab_paths[mirex_submission_name] = \
+                get_full_mirex_2017_chord_labs_path(all_songs[song_key], mirex_submission_name)
     return all_songs
 
 
@@ -117,7 +153,7 @@ def get_full_chord_labs_path(chord_labs_path):
     if chord_labs_path == '':
         return ''
     chord_labs_path_parts = chord_labs_path.split('\\')
-    return path.join(CHORDLABS_FOLDER, chord_labs_path_parts[0], chord_labs_path_parts[1])
+    return path.join(CHORDLABS_FOLDER, chord_labs_path_parts[0], chord_labs_path_parts[1], chord_labs_path_parts[2])
 
 
 def get_full_chordify_chord_labs_path(key):
@@ -130,14 +166,22 @@ def get_full_chordify_chord_labs_path(key):
     return path.join(CHORDIFY_FOLDER, str(key) + '.txt')
 
 
-def get_full_midi_chord_labs_path(midi_file_name):
-    # type: (str) -> str
+def get_full_mirex_2017_chord_labs_path(song, mirex_submission_name):
+    # type: (Song, str) -> str
+    if mirex_submission_name == 'CHF':  # Chordify
+        return get_full_chordify_chord_labs_path(song.key)
+    return song.full_ground_truth_chord_labs_path.replace('GT_ChordLabels', 'MIREX2017Labs/' + mirex_submission_name)
+
+
+def get_full_midi_chord_labs_path(midi_file_name, segmentation_type):
+    # type: (str, str) -> str
     """
     Get the full path to the MIDI chord labels, given the midi file name
     :param midi_file_name: File name (not a full path!) to our MIDI file
+    :param segmentation_type: Either 'bar' or 'beat'
     :return: Full path to the MIDI chord labels of our MIDI
     """
-    return path.join(MIDILABS_FOLDER, midi_file_name + '.lab')
+    return path.join(MIDILABS_FOLDERS[segmentation_type], midi_file_name + '.lab')
 
 
 def get_full_tab_chord_labs_path(full_tab_file_path):
@@ -248,11 +292,39 @@ def get_full_audio_features_path(key):
     return path.join(AUDIO_FEATURES_FOLDER, str(key) + '.npy')
 
 
-def get_data_fusion_path(key):
-    # type: (int) -> str
+def get_data_fusion_path(key, df_type, selection_method, audio_ace):
+    # type: (int, str) -> str
     """
     Get the full path to the data fusion labels path of the song specified by the key
     :param key: Key of the song for which we need the data fusion labels path
+    :param df_type: Which type of data fusion; either 'rand', 'mv', 'df'
+    :param selection_method: Do we use all labels or only the expected best?
+    :param audio_ace: Which audio algorithm did we use (CHF or one of the MIREX algorithms)
     :return: Data fusion labels path of our song
     """
-    return path.join(DATA_FUSION_FOLDER, str(key) + '.lab')
+    return path.join(DATA_FUSION_FOLDERS[df_type.upper() + '_' + selection_method.upper() + '_' + audio_ace],
+                     str(key) + '.lab')
+
+
+
+# def get_data_fusion_path(key, df_type):
+#     # type: (int, str) -> str
+#     """
+#     Get the full path to the data fusion labels path of the song specified by the key
+#     :param key: Key of the song for which we need the data fusion labels path
+#     :param df_type: Which type of data fusion; either 'rand', 'mv', 'all' or 'best'
+#     :return: Data fusion labels path of our song
+#     """
+#     return path.join(DATA_FUSION_FOLDERS[df_type], str(key) + '.lab')
+
+
+# def get_mirex_data_fusion_path(key, df_type, audio_ace_name):
+#     # type: (int, str, str) -> str
+#     """
+#     Get the full path to the data fusion labels path of the song specified by the key
+#     :param key: Key of the song for which we need the data fusion labels path
+#     :param df_type: Which type of data fusion; either 'rand', 'mv', 'all' or 'best'
+#     :param audio_ace_name: Which audio system; either 'CHF', '' or one of the MIREX systems
+#     :return: Data fusion labels path of our song
+#     """
+#     return path.join(DATA_FUSION_FOLDERS[df_type, audio_ace_name], str(key) + '.lab')
