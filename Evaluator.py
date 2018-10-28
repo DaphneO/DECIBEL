@@ -25,44 +25,13 @@ def evaluate(ground_truth_lab_path, my_lab_path):
     (intervals, ref_labels, est_labels) = \
         mir_eval.util.merge_labeled_intervals(ref_intervals, ref_labels, est_intervals, est_labels)
     durations = mir_eval.util.intervals_to_durations(intervals)
-    comparisons_root = mir_eval.chord.root(ref_labels, est_labels)
-    # score_root = mir_eval.chord.weighted_accuracy(comparisons_root, durations)
     comparisons_maj_min = mir_eval.chord.majmin(ref_labels, est_labels)
     score_maj_min = mir_eval.chord.weighted_accuracy(comparisons_maj_min, durations)
-    # comparisons_sevenths = mir_eval.chord.sevenths(ref_labels, est_labels)
-    # score_sevenths = mir_eval.chord.weighted_accuracy(comparisons_sevenths, durations)
     overseg = 1 - directional_hamming_distance(ref_intervals, est_intervals)
     underseg = 1 - directional_hamming_distance(est_intervals, ref_intervals)
     seg = min(overseg, underseg)
 
-    # if score_root < score_maj_min:
-    #     stop = True # TODO: Make sure that this never happens
     return score_maj_min, overseg, underseg, seg
-
-
-# def add_data_fusion_evaluation(all_songs):
-#     df_types = ['rand', 'mv', 'all', 'best']
-#     with open(FileHandler.DATA_FUSION_RESULTS_PATH, 'w') as write_file:
-#         for song_key in all_songs:
-#             song = all_songs[song_key]
-#             if song.full_ground_truth_chord_labs_path != '':
-#                 # This song has ground truth, so we can evaluate it
-#                 for data_fusion_type in df_types:
-#                     data_fusion_lab_path = FileHandler.get_data_fusion_path(song_key, data_fusion_type)
-#                     csr, overseg, underseg, seg = evaluate(song.full_ground_truth_chord_labs_path, data_fusion_lab_path)
-#                     song.results.append(['data fusion ' + data_fusion_type, 1,
-#                                          data_fusion_lab_path, csr, overseg, underseg, seg])
-#                 to_print = np.zeros(16)
-#                 for result in song.results:
-#                     if result[0].startswith('data fusion'):
-#                         for df_type_id in range(len(df_types)):
-#                             if result[0].endswith(df_types[df_type_id]):
-#                                 to_print[4 * df_type_id], to_print[4 * df_type_id + 1], to_print[4 * df_type_id + 2], \
-#                                 to_print[4 * df_type_id + 3] = result[3:7]
-#                 write_file.write(str(song_key) + ';' + str(song.duration))
-#                 for i in range(len(to_print)):
-#                     write_file.write(';' + str(to_print[i]))
-#                 write_file.write('\n')
 
 
 def add_data_fusion_evaluation(all_songs):
@@ -106,7 +75,8 @@ def add_data_fusion_evaluation(all_songs):
                                     FileHandler.get_data_fusion_path(song_key, df_type, selection_name, audio_type)
                                 csr, overseg, underseg, seg = evaluate(song.full_ground_truth_chord_labs_path,
                                                                        data_fusion_lab_path)
-                                song.results.append([df_type.upper() + '-' + audio_type.upper(), 1,
+                                song.results.append([df_type.upper() + '-' + audio_type.upper() + '-' +
+                                                     selection_name.upper(), 1,
                                                      data_fusion_lab_path, csr, overseg, underseg, seg])
                                 write_file.write(
                                     ';{0};{1};{2};{3}'.format(str(csr), str(overseg), str(underseg), str(seg)))
@@ -148,7 +118,7 @@ def evaluate_all_songs(all_songs, duplicate_midis):
                                 str(song_key), str(song.duration), str(midi_name), str(alignment_score),
                                 str(probabilities_per_midi_name[midi_name]),
                                 str(csr), str(overseg), str(underseg), str(seg)))
-                        song.results.append(['midi ' + segmentation_type, midi_index, midi_lab_path,
+                        song.results.append(['Midi ' + segmentation_type, midi_index, midi_lab_path,
                                              csr, overseg, underseg, seg,
                                              alignment_score, probabilities_per_midi_name[midi_name]])
                         midi_index += 1
@@ -161,7 +131,7 @@ def evaluate_all_songs(all_songs, duplicate_midis):
                 csr, overseg, underseg, seg = evaluate(song.full_ground_truth_chord_labs_path, chordify_lab_path)
                 write_file.write('{0};{1};{2};{3};{4};{5}\n'.format(str(song_key), str(song.duration),
                                                                     str(csr), str(overseg), str(underseg), str(seg)))
-                song.results.append(['chordify', 1, chordify_lab_path, csr, overseg, underseg, seg])
+                song.results.append(['CHF', 1, chordify_lab_path, csr, overseg, underseg, seg])
 
     # Tabs
     with open(FileHandler.TABLABS_RESULTS_PATH, 'w') as write_file:
@@ -184,6 +154,6 @@ def evaluate_all_songs(all_songs, duplicate_midis):
                     write_file.write('{0};{1};{2};{3};{4};{5};{6};{7};{8}\n'.format(
                         str(song_key), str(song.duration), str(tab_write_path), str(all_transpositions[tab_write_path]),
                         str(all_likelihoods[tab_write_path]), str(csr), str(overseg), str(underseg), str(seg)))
-                    song.results.append(['tab', tab_index, tab_write_path, csr, overseg, underseg, seg,
+                    song.results.append(['Tab', tab_index, tab_write_path, csr, overseg, underseg, seg,
                                          all_transpositions[tab_write_path], all_likelihoods[tab_write_path]])
                     tab_index += 1

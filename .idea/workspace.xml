@@ -3,17 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="9fd0507d-04eb-4ec4-b1b8-d87a469e84eb" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/ChordSequenceVisualizer-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/ChordSequenceVisualizer-checkpoint.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/VisualEvaluation-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/VisualEvaluation-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Beroepsscraper-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/MIDIselection-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/MIDIselection-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/ReportFigures-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/ReportFigures-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlignmentVisualizer.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/AlignmentVisualizer.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Beroepsscraper.ipynb" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ChordSequenceVisualizer.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ChordSequenceVisualizer.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataFusion.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataFusion.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Evaluator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Evaluator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FileHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/FileHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MIDIChordRecognizer/MIDIParser.py" beforeDir="false" afterPath="$PROJECT_DIR$/MIDIChordRecognizer/MIDIParser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MainModule.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainModule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Song.py" beforeDir="false" afterPath="$PROJECT_DIR$/Song.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TabParser/FeatureAndClassExtractor.py" beforeDir="false" afterPath="$PROJECT_DIR$/TabParser/FeatureAndClassExtractor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VisualEvaluation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/VisualEvaluation.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MIDIselection.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/MIDIselection.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ReportFigures.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/ReportFigures.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/venv/pip-selfcheck.json" beforeDir="false" afterPath="$PROJECT_DIR$/venv/pip-selfcheck.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -28,11 +26,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="MainModule.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MainModule.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MainModule.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="825">
-              <caret line="62" selection-start-line="62" selection-end-line="62" />
+            <state relative-caret-position="283">
+              <caret line="49" column="37" selection-start-line="49" selection-start-column="37" selection-end-line="49" selection-end-column="37" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -40,14 +38,61 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DataFusion.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/DataFusion.py">
+      <file leaf-file-name="ForwardBackwardProbabilities.ipynb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ForwardBackwardProbabilities.ipynb">
+          <provider selected="true" editor-type-id="ipnb-editor">
+            <state>
+              <selected id="0" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TabParser.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TabParser/TabParser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3120">
-              <caret line="212" selection-start-line="212" selection-end-line="212" />
+            <state>
               <folding>
-                <element signature="e#0#21#0" expanded="true" />
+                <element signature="e#0#44#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BasicHMM.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TabParser/BasicHMM.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="14" column="46" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="46" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HMM.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TabParser/HMM.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="825">
+              <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FeatureAndClassExtractor.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TabParser/FeatureAndClassExtractor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1065">
+              <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PureAligner.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/AudioMIDIAligner/PureAligner.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3450">
+              <caret line="234" column="23" selection-start-line="234" selection-start-column="23" selection-end-line="234" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -55,8 +100,8 @@
       <file leaf-file-name="Evaluator.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Evaluator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1710">
-              <caret line="116" column="38" selection-start-line="116" selection-start-column="38" selection-end-line="116" selection-end-column="38" />
+            <state relative-caret-position="2310">
+              <caret line="156" column="43" selection-start-line="156" selection-start-column="43" selection-end-line="156" selection-end-column="43" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -67,22 +112,10 @@
       <file leaf-file-name="FileHandler.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FileHandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1260">
-              <caret line="88" column="24" selection-start-line="88" selection-end-line="88" selection-end-column="24" />
+            <state relative-caret-position="2400">
+              <caret line="164" column="7" selection-start-line="164" selection-start-column="7" selection-end-line="164" selection-end-column="7" />
               <folding>
                 <element signature="e#24#62#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PureAligner.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AudioMIDIAligner/PureAligner.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="12" column="11" selection-start-line="12" selection-start-column="11" selection-end-line="12" selection-end-column="11" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -91,29 +124,8 @@
       <file leaf-file-name="Song.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Song.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="34" selection-start-line="34" selection-end-line="34" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TabScraper.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ScrapeHelpers/TabScraper.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="18" column="17" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="17" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="scratch.py" pinned="false" current-in-tab="true">
-        <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="22" column="11" lean-forward="true" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="420">
+              <caret line="28" column="40" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -130,13 +142,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>220500</find>
-      <find>Song</find>
-      <find>path</find>
-      <find>times</find>
-      <find>Alignment</find>
-      <find>Alignment.ali</find>
-      <find>append</find>
       <find>str</find>
       <find>string</find>
       <find>chroma</find>
@@ -160,6 +165,13 @@
       <find>get_data_fusion</find>
       <find>data_</find>
       <find>get_fu</find>
+      <find>find_sy</find>
+      <find>train</find>
+      <find>cqt</find>
+      <find>ground_truth</find>
+      <find>get_full_chord_labs_path</find>
+      <find>.results</find>
+      <find>json</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -189,7 +201,6 @@
         <option value="$PROJECT_DIR$/MIDIChordRecognizer/Regression.py" />
         <option value="$PROJECT_DIR$/TabParser/TabLineClassifier.py" />
         <option value="$PROJECT_DIR$/Chords.py" />
-        <option value="$PROJECT_DIR$/ProbabilityTests.py" />
         <option value="$PROJECT_DIR$/AudioMIDIAligner/MIDISynthesizer.py" />
         <option value="$PROJECT_DIR$/AudioMIDIAligner/PureAligner.py" />
         <option value="$PROJECT_DIR$/ChordTemplateGenerator.py" />
@@ -203,10 +214,12 @@
         <option value="$PROJECT_DIR$/TabParser/FeatureAndClassExtractor.py" />
         <option value="$PROJECT_DIR$/Song.py" />
         <option value="$PROJECT_DIR$/DataFusion.py" />
-        <option value="$PROJECT_DIR$/MainModule.py" />
-        <option value="$PROJECT_DIR$/Evaluator.py" />
         <option value="$PROJECT_DIR$/FileHandler.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
+        <option value="$PROJECT_DIR$/ScrapeHelpers/TabScraper.py" />
+        <option value="$PROJECT_DIR$/ProbabilityTests.py" />
+        <option value="$PROJECT_DIR$/Evaluator.py" />
+        <option value="$PROJECT_DIR$/MainModule.py" />
       </list>
     </option>
   </component>
@@ -222,7 +235,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -254,6 +266,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -443,16 +456,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1920" height="1056" extended-state="6" />
+    <frame x="-1" y="-1" width="1922" height="1061" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48169014" weight="0.084870845" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286638" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="10" sideWeight="0.501845" side_tool="true" visible="true" weight="0.19288793" />
-      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3286638" />
-      <window_info anchor="bottom" id="Python Console" order="7" weight="0.50431037" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48169014" visible="true" weight="0.2235108" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49973643" weight="0.3286638" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5102794" side_tool="true" weight="0.38469827" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="9" visible="true" weight="0.3286638" />
+      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.90511334" weight="0.47090518" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49815497" weight="0.41918105" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.24934107" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.38577586" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4897206" weight="0.16918103" />
       <window_info id="Favorites" order="2" sideWeight="0.51830983" side_tool="true" weight="0.19787799" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49815497" weight="0.4525862" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -466,21 +479,21 @@
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48169014" visible="true" weight="0.084870845" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48169014" visible="true" weight="0.2235108" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.24934107" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286638" />
-      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3286638" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49895832" weight="0.41918105" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49815497" visible="true" weight="0.6540948" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.38577586" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.501845" side_tool="true" weight="0.19288793" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" sideWeight="0.51830983" side_tool="true" weight="0.19787799" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49973643" weight="0.3286638" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49815497" weight="0.41918105" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.4224138" />
-      <window_info anchor="bottom" id="Python Console" order="7" weight="0.50431037" />
+      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.90511334" weight="0.47090518" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49815497" weight="0.4525862" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.4897206" visible="true" weight="0.38469827" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5102794" side_tool="true" visible="true" weight="0.38469827" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3286638" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info id="Favorites" order="2" sideWeight="0.51830983" side_tool="true" weight="0.19787799" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -570,11 +583,6 @@
           <option name="timeStamp" value="945" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Evaluator.py</url>
-          <line>38</line>
-          <option name="timeStamp" value="958" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/DataFusion.py</url>
           <line>39</line>
           <option name="timeStamp" value="965" />
@@ -640,32 +648,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/venv/local/lib/python2.7/site-packages/librosa/core/spectrum.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="957" selection-start-line="957" selection-end-line="957" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/local/lib/python2.7/site-packages/pretty_midi/pretty_midi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="1008" selection-start-line="1008" selection-end-line="1008" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/local/lib/python2.7/site-packages/mir_eval/io.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-990" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/local/lib/python2.7/site-packages/mir_eval/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="15" selection-start-line="6" selection-start-column="15" selection-end-line="6" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/local/lib/python2.7/site-packages/mir_eval/util.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1009">
@@ -776,16 +758,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TabParser/BasicHMM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="431">
-          <caret line="29" column="57" selection-start-line="29" selection-start-column="57" selection-end-line="29" selection-end-column="57" />
-          <folding>
-            <element signature="e#0#24#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/696495940/__builtin__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="334">
@@ -793,44 +765,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TabParser/LineClasses.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2730">
-          <caret line="186" column="28" selection-start-line="186" selection-start-column="28" selection-end-line="186" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="265">
           <caret line="1067" selection-start-line="1067" selection-end-line="1067" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TabParser/TabSegmenter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="388">
-          <caret line="41" column="5" selection-start-line="41" selection-start-column="2" selection-end-line="41" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ProbabilityTests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="40" column="4" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="4" />
-          <folding>
-            <element signature="e#296#314#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Chords.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10530">
-          <caret line="705" column="18" selection-start-line="705" selection-start-column="18" selection-end-line="705" selection-end-column="18" />
-          <folding>
-            <element signature="e#24#35#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -874,13 +812,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AudioMIDIAligner/AlignmentExporter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="35" selection-start-line="22" selection-start-column="35" selection-end-line="22" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python2.7/filecmp.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-211">
@@ -910,27 +841,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TabParser/FeatureAndClassExtractor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1065">
-          <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TabParser/TabParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TabParser/HMM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="645">
-          <caret line="46" column="49" selection-start-line="46" selection-start-column="49" selection-end-line="46" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ChordTemplateGenerator.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="825">
@@ -945,16 +855,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AudioMIDIAligner/PureAligner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="12" column="11" selection-start-line="12" selection-start-column="11" selection-end-line="12" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/DataFusion.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3120">
@@ -965,56 +865,156 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="619">
+          <caret line="45" column="27" lean-forward="true" selection-start-line="45" selection-start-column="27" selection-end-line="45" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ScrapeHelpers/TabScraper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="43" selection-start-line="15" selection-start-column="43" selection-end-line="15" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Chords.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9870">
+          <caret line="661" column="8" selection-start-line="661" selection-start-column="8" selection-end-line="661" selection-end-column="8" />
+          <folding>
+            <element signature="e#24#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TabParser/TabSegmenter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="615">
+          <caret line="41" column="5" selection-start-line="41" selection-start-column="2" selection-end-line="41" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AudioMIDIAligner/AlignmentExporter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="48" column="68" selection-start-line="48" selection-start-column="68" selection-end-line="48" selection-end-column="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ProbabilityTests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="16" column="31" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
+          <folding>
+            <element signature="e#296#314#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TabParser/LineClasses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2610">
+          <caret line="178" column="60" selection-start-line="178" selection-start-column="60" selection-end-line="178" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TabParser/BasicHMM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="14" column="46" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TabParser/HMM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="825">
+          <caret line="58" column="8" selection-start-line="58" selection-start-column="8" selection-end-line="58" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/VisualEvaluation.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/np" />
     <entry file="file://$PROJECT_DIR$/Evaluator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1710">
-          <caret line="116" column="38" selection-start-line="116" selection-start-column="38" selection-end-line="116" selection-end-column="38" />
+        <state relative-caret-position="2310">
+          <caret line="156" column="43" selection-start-line="156" selection-start-column="43" selection-end-line="156" selection-end-column="43" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MainModule.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="825">
-          <caret line="62" selection-start-line="62" selection-end-line="62" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/FileHandler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1260">
-          <caret line="88" column="24" selection-start-line="88" selection-end-line="88" selection-end-column="24" />
+        <state relative-caret-position="2400">
+          <caret line="164" column="7" selection-start-line="164" selection-start-column="7" selection-end-line="164" selection-end-column="7" />
           <folding>
             <element signature="e#24#62#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TabParser/TabParser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#44#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TabParser/FeatureAndClassExtractor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1065">
+          <caret line="74" column="37" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AudioMIDIAligner/PureAligner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3450">
+          <caret line="234" column="23" selection-start-line="234" selection-start-column="23" selection-end-line="234" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Song.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" selection-start-line="34" selection-end-line="34" />
+        <state relative-caret-position="420">
+          <caret line="28" column="40" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="40" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ScrapeHelpers/TabScraper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="17" selection-start-line="18" selection-start-column="16" selection-end-line="18" selection-end-column="17" />
+    <entry file="file://$PROJECT_DIR$/Untitled.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.py">
+    <entry file="file://$PROJECT_DIR$/ForwardBackwardProbabilities.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MainModule.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="22" column="11" lean-forward="true" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
+        <state relative-caret-position="283">
+          <caret line="49" column="37" selection-start-line="49" selection-start-column="37" selection-end-line="49" selection-end-column="37" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
