@@ -172,26 +172,29 @@ your computer. This folder will be filled with (intermediate) results, tables, f
 The total size of this folder will be around 12 GB, so make sure that you have enough space. It is possible to store
 the data on an external hard drive.</p>
 </li>
-<li><p class="first">If you do not yet have python and pip installed, install them. DECIBEL was made in Python 3.5.</p>
-</li>
-<li><p class="first">Clone code from GitHub repository <a class="reference external" href="https://github.com/DaphneO/DECIBEL">https://github.com/DaphneO/DECIBEL</a> into some directory on your computer and install
-the DECIBEL package.</p>
+<li><p class="first">Clone code from GitHub repository <a class="reference external" href="https://github.com/DaphneO/DECIBEL">https://github.com/DaphneO/DECIBEL</a> into some directory on your computer.</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install https://github.com/DaphneO/DECIBEL.git
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/DaphneO/DECIBEL.git
 </pre></div>
 </div>
 </div></blockquote>
 </li>
-</ol>
-<ol class="arabic simple" start="4">
-<li>Change the path in decibel.utils.data_path.txt to your local data path (where you put the files in step 2)</li>
-<li>Find the audio files of the Beatles and Queen songs from the Isophonics reference annotations. Due to copyright
+<li><p class="first">Setup some environment with python and pip. Install the required packages.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Change the path in decibel.utils.data_path.txt to your local data path (where you put the files in step 2)</p>
+</li>
+<li><p class="first">Find the audio files of the Beatles and Queen songs from the Isophonics reference annotations. Due to copyright
 reasons, I cannot share them. Place them in the Input/Audio folder in your local data path and rename them to
 ‘[key].wav’. You can find the key-song combinations in the IndexAudio.csv file in the Input folder of your data
-directory. For example, ‘1.wav’ is the audio of the Beatles song <em>I Saw Her Standing There</em>.</li>
-<li>Run DECIBEL! You can reproduce our experiments by running framework.py. Dependent on the number of cores on your
+directory. For example, ‘1.wav’ is the audio of the Beatles song <em>I Saw Her Standing There</em>.</p>
+</li>
+<li><p class="first">Run DECIBEL! You can reproduce our experiments by running framework.py. Dependent on the number of cores on your
 computer, this will take ca. 15 hours. But since DECIBEL saves intermediate results, you can terminate the run when
-you which; in the next run, DECIBEL will continue where it stopped in the previous run.</li>
+you which; in the next run, DECIBEL will continue where it stopped in the previous run.</p>
+</li>
 </ol>
 </div>
 
