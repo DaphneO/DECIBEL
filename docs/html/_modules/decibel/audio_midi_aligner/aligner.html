@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>decibel.audio_midi_aligner.aligner &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>decibel.audio_midi_aligner.aligner</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for decibel.audio_midi_aligner.aligner</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :py:mod:`decibel.audio_midi_aligner.aligner` module contains functions for finding the alignment between the</span>
+<span class="sd">synthesized MIDI file and the audio recording. The :py:func:`align_midi` function (in the Alignment class) finds the</span>
+<span class="sd">alignment between a single MIDI file and the matched audio recording and returns an Alignment object.</span>
+<span class="sd">The function :py:func:`align_single_song` finds the alignment between the audio file of the given song and all matched</span>
+<span class="sd">MIDI files.</span>
+<span class="sd">Since this can take a long time, it is possible to interrupt and resume this process: all MIDI files that are aligned,</span>
+<span class="sd">are stored and can be reloaded quickly when they are needed in a new program run.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">librosa</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial</span>
+<span class="kn">import</span> <span class="nn">decibel.utils.filehandler</span> <span class="k">as</span> <span class="nn">fh</span>
+<span class="kn">from</span> <span class="nn">decibel.audio_midi_aligner</span> <span class="k">import</span> <span class="n">synthesizer</span>
+
+<span class="c1"># CQT parameters</span>
+<span class="n">FS</span> <span class="o">=</span> <span class="mi">22050</span>
+<span class="n">NOTE_START</span> <span class="o">=</span> <span class="mi">36</span>
+<span class="n">N_NOTES</span> <span class="o">=</span> <span class="mi">48</span>
+<span class="n">HOP_LENGTH</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="c1"># DTW parameters</span>
+<span class="n">GULLY</span> <span class="o">=</span> <span class="o">.</span><span class="mi">96</span>
+
+
+<span class="k">def</span> <span class="nf">_dtw</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">gully</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">additive_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
+         <span class="n">multiplicative_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the dynamic time warping distance between two sequences given a distance matrix.</span>
+<span class="sd">    DTW score of lowest cost path through the distance matrix, including penalties.</span>
+
+<span class="sd">    :param distance_matrix: Distances between two sequences</span>
+<span class="sd">    :param gully: Sequences must match up to this proportion of the shorter sequence.</span>
+<span class="sd">    Default value is 1, which means that the entirety of the shorter sequence must be matched to a part of the</span>
+<span class="sd">    longer sequence.</span>
+<span class="sd">    :param additive_penalty: Additive penalty for non-diagonal moves.</span>
+<span class="sd">    Default value is 0, which means no penalty.</span>
+<span class="sd">    :param multiplicative_penalty: Multiplicative penalty for non-diagonal moves.</span>
+<span class="sd">    Default value is 1, which means no penalty.</span>
+<span class="sd">    :return: Lowest cost path through the distance matrix. Penalties are included, the score is not yet normalized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;NaN values found in distance matrix.&#39;</span><span class="p">)</span>
+    <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Pre-allocate path length matrix</span>
+    <span class="n">traceback</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">distance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="c1"># Populate distance matrix with lowest cost path</span>
+    <span class="n">_dtw_core</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">additive_penalty</span><span class="p">,</span> <span class="n">multiplicative_penalty</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gully</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">:</span>
+        <span class="c1"># Allow the end of the path to start within gully percentage of the smaller distance matrix dimension</span>
+        <span class="n">gully</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gully</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">distance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># When gully is 1 require matching the entirety of the smaller sequence</span>
+        <span class="n">gully</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">distance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="c1"># Find the indices of the smallest costs on the bottom and right edges</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">gully</span><span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">gully</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">gully</span><span class="p">:])</span> <span class="o">+</span> <span class="n">gully</span>
+
+    <span class="c1"># Choose the smaller cost on the two edges</span>
+    <span class="k">if</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="c1"># Score is the final score of the best path</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+
+    <span class="c1"># Pre-allocate the x and y path index arrays</span>
+    <span class="n">x_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="n">y_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="c1"># Start the arrays from the end of the path</span>
+    <span class="n">x_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="n">y_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+    <span class="c1"># Keep track of path length</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Until we reach an edge</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># If the tracback matrix indicates a diagonal move...</span>
+        <span class="k">if</span> <span class="n">traceback</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="c1"># Horizontal move...</span>
+        <span class="k">elif</span> <span class="n">traceback</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="c1"># Vertical move...</span>
+        <span class="k">elif</span> <span class="n">traceback</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="c1"># Add these indices into the path arrays</span>
+        <span class="n">x_indices</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">y_indices</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># Reverse and crop the path index arrays</span>
+    <span class="n">x_indices</span> <span class="o">=</span> <span class="n">x_indices</span><span class="p">[:</span><span class="n">n</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">y_indices</span> <span class="o">=</span> <span class="n">y_indices</span><span class="p">[:</span><span class="n">n</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">x_indices</span><span class="p">,</span> <span class="n">y_indices</span><span class="p">,</span> <span class="n">score</span>
+
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_dtw_core</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">add_pen</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">mul_pen</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">traceback</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Core dynamic programming routine for DTW.</span>
+<span class="sd">    `dist_mat` and `traceback` will be modified in-place.</span>
+
+<span class="sd">    :param dist_mat: Distance matrix to update with lowest-cost path to each entry</span>
+<span class="sd">    :param add_pen: Additive penalty for non-diagonal moves</span>
+<span class="sd">    :param mul_pen: Multiplicative penalty for non-diagonal moves</span>
+<span class="sd">    :param traceback: Matrix to populate with the lowest-cost traceback for each entry</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># At each loop iteration, we are computing lowest cost to D[i + 1, j + 1]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dist_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dist_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Diagonal move (which has no penalty) is lowest</span>
+            <span class="k">if</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span> <span class="ow">and</span> \
+                    <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span><span class="p">:</span>
+                <span class="n">traceback</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+            <span class="c1"># Horizontal move (has penalty)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="ow">and</span>
+                  <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span> <span class="o">&lt;=</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]):</span>
+                <span class="n">traceback</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span>
+            <span class="c1"># Vertical move (has penalty)</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">and</span>
+                  <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span> <span class="o">&lt;=</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]):</span>
+                <span class="n">traceback</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+                <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span>
+
+
+<span class="k">def</span> <span class="nf">_compute_cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">):</span>
+    <span class="c1"># type: (np.ndarray) -&gt; (np.ndarray, np.ndarray)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the normalized log-amplitude CQT (Constant-Q transform) and frame times for the audio data</span>
+
+<span class="sd">    :param audio_data: The audio data for which we compute the CQT</span>
+<span class="sd">    :return: The CQT for the audio data and the time of each frame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Compute CQT</span>
+    <span class="n">cqt</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="n">librosa</span><span class="o">.</span><span class="n">midi_to_hz</span><span class="p">(</span><span class="n">NOTE_START</span><span class="p">),</span>
+                      <span class="n">n_bins</span><span class="o">=</span><span class="n">N_NOTES</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">HOP_LENGTH</span><span class="p">,</span> <span class="n">tuning</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+    <span class="c1"># Compute the time of each frame</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">frames_to_time</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cqt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">HOP_LENGTH</span><span class="p">)</span>
+    <span class="c1"># Compute log-amplitude</span>
+    <span class="n">cqt</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">amplitude_to_db</span><span class="p">(</span><span class="n">cqt</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">cqt</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="c1"># Normalize and return</span>
+    <span class="k">return</span> <span class="n">librosa</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">cqt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">times</span>
+
+
+<div class="viewcode-block" id="align_midi"><a class="viewcode-back" href="../../../codedescription/audiomidialigner.html#decibel.audio_midi_aligner.aligner.align_midi">[docs]</a><span class="k">def</span> <span class="nf">align_midi</span><span class="p">(</span><span class="n">audio_cqt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">audio_times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">full_synthesized_midi_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+               <span class="n">full_alignment_write_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Align audio (specified by CQT) to synthesized MIDI (specified by path), return path and score of the alignment</span>
+
+<span class="sd">    :param audio_cqt: The CQT of the audio of the alignment</span>
+<span class="sd">    :param audio_times: Array of times of the audio (from compute_cqt function)</span>
+<span class="sd">    :param full_synthesized_midi_path: The path to the synthesized MIDI file</span>
+<span class="sd">    :param full_alignment_write_path: The path to write the alignment to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Open the synthesized midi file</span>
+    <span class="n">midi_audio</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_synthesized_midi_path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">)</span>
+    <span class="c1"># Compute log-magnitude CQT of the synthesized midi file</span>
+    <span class="n">midi_cqt</span><span class="p">,</span> <span class="n">midi_times</span> <span class="o">=</span> <span class="n">_compute_cqt</span><span class="p">(</span><span class="n">midi_audio</span><span class="p">)</span>
+    <span class="c1"># Compute the distance matrix of the midi and audio CQTs, using cosine distance</span>
+    <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">midi_cqt</span><span class="p">,</span> <span class="n">audio_cqt</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">)</span>
+    <span class="n">penalty</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)))</span>
+    <span class="c1"># Get lowest cost path in the distance matrix</span>
+    <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">score</span> <span class="o">=</span> <span class="n">_dtw</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">GULLY</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+    <span class="c1"># Normalize by path length and the distance matrix sub-matrix within the path</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">/</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">min</span><span class="p">():</span><span class="n">p</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">q</span><span class="o">.</span><span class="n">min</span><span class="p">():</span><span class="n">q</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="c1"># Write score</span>
+    <span class="n">midi_name</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_synthesized_midi_path</span><span class="p">)</span>
+    <span class="n">fh</span><span class="o">.</span><span class="n">write_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+
+    <span class="c1"># Write alignment</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_alignment_write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
+            <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> </span><span class="si">{1}</span><span class="s1"> </span><span class="si">{2}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">midi_times</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">audio_times</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]])))</span></div>
+
+
+<div class="viewcode-block" id="align_single_song"><a class="viewcode-back" href="../../../codedescription/audiomidialigner.html#decibel.audio_midi_aligner.aligner.align_single_song">[docs]</a><span class="k">def</span> <span class="nf">align_single_song</span><span class="p">(</span><span class="n">song</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Align each MIDI file that is matched to this song to the song. As part of the procedure, each MIDI will be</span>
+<span class="sd">    synthesized and the alignment of each MIDI will be written to a file.</span>
+
+<span class="sd">    :param song: The Song object for which we align each MIDI file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audio_loaded</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">audio_cqt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">([])</span>
+    <span class="n">audio_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">([])</span>
+
+    <span class="k">for</span> <span class="n">midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
+        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">midi_path</span><span class="p">)</span>
+        <span class="n">write_path</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">get_full_alignment_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fh</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">write_path</span><span class="p">):</span>
+            <span class="c1"># There is no alignment yet for this audio-midi combination, so let&#39;s calculate the alignment</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">synthesized_midi_path</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">get_full_synthesized_midi_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">fh</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">synthesized_midi_path</span><span class="p">):</span>
+                    <span class="c1"># The MIDI has not been synthesized yet</span>
+                    <span class="n">synthesizer</span><span class="o">.</span><span class="n">synthesize_midi_to_wav</span><span class="p">(</span><span class="n">midi_path</span><span class="p">,</span> <span class="mi">22050</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">audio_loaded</span><span class="p">:</span>
+                    <span class="c1"># Load audio if it is not loaded yet</span>
+                    <span class="n">audio_data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_audio_path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">)</span>
+                    <span class="n">audio_cqt</span><span class="p">,</span> <span class="n">audio_times</span> <span class="o">=</span> <span class="n">_compute_cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">)</span>
+                    <span class="n">audio_loaded</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">align_midi</span><span class="p">(</span><span class="n">audio_cqt</span><span class="p">,</span> <span class="n">audio_times</span><span class="p">,</span> <span class="n">synthesized_midi_path</span><span class="p">,</span> <span class="n">write_path</span><span class="p">)</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">remove_file</span><span class="p">(</span><span class="n">synthesized_midi_path</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">write_path</span> <span class="o">+</span> <span class="s2">&quot; failed.&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

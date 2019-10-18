@@ -1,0 +1,1144 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utility Functions &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Visualisation" href="visualisation.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualisation.html">Visualisation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Utility Functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/codedescription/utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-decibel.utils.musicobjects">
+<span id="utility-functions"></span><h1>Utility Functions<a class="headerlink" href="#module-decibel.utils.musicobjects" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="decibel.utils.musicobjects.Chord">
+<em class="property">class </em><code class="descclassname">decibel.utils.musicobjects.</code><code class="descname">Chord</code><span class="sig-paren">(</span><em>root_note</em>, <em>components_degree_list</em>, <em>bass_degree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Chord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Chord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Chord.from_common_tab_notation_string">
+<em class="property">classmethod </em><code class="descname">from_common_tab_notation_string</code><span class="sig-paren">(</span><em>chord_string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Chord.from_common_tab_notation_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Chord.from_common_tab_notation_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a chord from a string as it is typically found in a tab file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chord_string</strong> – Chord string as you typically find it in a tab file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Chord as specified by the chord string</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_common_tab_notation_string</span><span class="p">(</span><span class="s1">&#39;C:min&#39;</span><span class="p">))</span>
+<span class="go">&#39;None&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_common_tab_notation_string</span><span class="p">(</span><span class="s1">&#39;Cmaj&#39;</span><span class="p">))</span>
+<span class="go">&#39;C&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_common_tab_notation_string</span><span class="p">(</span><span class="s1">&#39;Db11&#39;</span><span class="p">))</span>
+<span class="go">&#39;C#:(2,3,4,5,b7)&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Chord.from_harte_chord_string">
+<em class="property">classmethod </em><code class="descname">from_harte_chord_string</code><span class="sig-paren">(</span><em>chord_string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Chord.from_harte_chord_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Chord.from_harte_chord_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a chord from a chord string in the syntax proposed in the 2005 paper ‘SYMBOLIC REPRESENTATION OF
+MUSICAL CHORDS: A PROPOSED SYNTAX FOR TEXT ANNOTATIONS’ by Harte et al.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chord_string</strong> – Chord string in syntax proposed by Harte et al.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Chord type as specified by the chord string</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="s1">&#39;C:(3,5)&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="s1">&#39;C:maj(4)&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="s1">&#39;C:(3,4,5)&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Chord.from_shorthand_degree_bass">
+<em class="property">classmethod </em><code class="descname">from_shorthand_degree_bass</code><span class="sig-paren">(</span><em>root_note</em>, <em>shorthand_string</em>, <em>degree_string_list</em>, <em>bass_degree</em>, <em>shorthand_type='harte'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Chord.from_shorthand_degree_bass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Chord.from_shorthand_degree_bass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a chord from a root note, shorthand string, degree string list, bass degree and optional shorthand type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>root_note</strong> – Root note of the chord</li>
+<li><strong>shorthand_string</strong> – Shorthand string that specifies the degrees (may be empty)</li>
+<li><strong>degree_string_list</strong> – List of degrees. A degree starting with * means that this degree is not in the chord</li>
+<li><strong>bass_degree</strong> – Bass degree Interval</li>
+<li><strong>shorthand_type</strong> – String that specifies the shorthand type: either ‘harte’ or ‘tab’</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Chord as specified by the root note, shorthand, degrees and bass</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_shorthand_degree_bass</span><span class="p">(</span><span class="n">PitchClass</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;min7&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;*b7&#39;</span><span class="p">],</span> <span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="s1">&#39;b3&#39;</span><span class="p">)))</span>
+<span class="go">&#39;C:min/b3&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="decibel.utils.musicobjects.Fingering">
+<em class="property">class </em><code class="descclassname">decibel.utils.musicobjects.</code><code class="descname">Fingering</code><span class="sig-paren">(</span><em>base_fret</em>, <em>e2</em>, <em>a2</em>, <em>d3</em>, <em>g3</em>, <em>b3</em>, <em>e4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Fingering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Fingering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="decibel.utils.musicobjects.Fingering.get_extended_chroma_vector">
+<code class="descname">get_extended_chroma_vector</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Fingering.get_extended_chroma_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Fingering.get_extended_chroma_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms the Fingering into a list in which the first 12 elements correspond with the 12 pitch classes and the
+final element is the bass class pitch class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">13D chroma-like vector with bass pitch class information</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">Fingering</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">get_extended_chroma_vector</span><span class="p">()</span>
+<span class="go">[1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 9]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="decibel.utils.musicobjects.Interval">
+<em class="property">class </em><code class="descclassname">decibel.utils.musicobjects.</code><code class="descname">Interval</code><span class="sig-paren">(</span><em>semitone_interval</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Interval.from_harte_interval">
+<em class="property">classmethod </em><code class="descname">from_harte_interval</code><span class="sig-paren">(</span><em>harte_interval_string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Interval.from_harte_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Interval.from_harte_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an interval from a Harte interval</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>harte_interval_string</strong> – String (or int) that identifies the interval</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Interval as defined by the Harte interval</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Interval</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="s1">&#39;bb2&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="s1">&#39;bb2&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Interval.from_pitch_class_distances">
+<em class="property">classmethod </em><code class="descname">from_pitch_class_distances</code><span class="sig-paren">(</span><em>from_pitch_class</em>, <em>to_pitch_class</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Interval.from_pitch_class_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Interval.from_pitch_class_distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an Interval by the distance between the pitch classes, wrapping around the octave</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>from_pitch_class</strong> – Pitch class of start of Interval</li>
+<li><strong>to_pitch_class</strong> – Pitch class of end of Interval</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Interval between two pitch classes</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">PitchClass</span><span class="o">.</span><span class="n">from_harte_pitch_class</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c_sharp</span> <span class="o">=</span> <span class="n">PitchClass</span><span class="o">.</span><span class="n">from_harte_pitch_class</span><span class="p">(</span><span class="s1">&#39;C#&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">Interval</span><span class="o">.</span><span class="n">from_pitch_class_distances</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c_sharp</span><span class="p">))</span>
+<span class="go">&#39;3&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="decibel.utils.musicobjects.Pitch">
+<em class="property">class </em><code class="descclassname">decibel.utils.musicobjects.</code><code class="descname">Pitch</code><span class="sig-paren">(</span><em>midi_pitch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Pitch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Pitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Pitch.from_pitch_class_and_octave_number">
+<em class="property">classmethod </em><code class="descname">from_pitch_class_and_octave_number</code><span class="sig-paren">(</span><em>pitch_class</em>, <em>octave_number</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Pitch.from_pitch_class_and_octave_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Pitch.from_pitch_class_and_octave_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Pitch instance based on its pitch class and octave number (e.g. ‘A’ and 4)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pitch_class</strong> – Pitch class string (e.g. ‘A’)</li>
+<li><strong>octave_number</strong> – Octave number (e.g. 4)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Pitch, as specified by the pitch class and octave number</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="o">.</span><span class="n">from_pitch_class_and_octave_number</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">midi_pitch</span>
+<span class="go">69</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">harte_pitch_class</span>
+<span class="go">[&#39;G##&#39;, &#39;A&#39;, &#39;Bbb&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.Pitch.from_pitch_name">
+<em class="property">classmethod </em><code class="descname">from_pitch_name</code><span class="sig-paren">(</span><em>pitch_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Pitch.from_pitch_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Pitch.from_pitch_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Pitch instance based on its pitch name (a str consisting of pitch class and octave number (e.g. ‘A4’)
+Note: works only with single sharp/flats; fails with double sharps/flats</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pitch_name</strong> – Name, consisting of pitch class and octave number</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Pitch, as specified by its pitch name</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="o">.</span><span class="n">from_pitch_name</span><span class="p">(</span><span class="s1">&#39;A4&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">midi_pitch</span>
+<span class="go">69</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="o">.</span><span class="n">from_pitch_name</span><span class="p">(</span><span class="s1">&#39;Bb4&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="c1"># We can handle single sharps or flats</span>
+<span class="go">70</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="o">.</span><span class="n">from_pitch_name</span><span class="p">(</span><span class="s1">&#39;Bbb4&#39;</span><span class="p">)</span>           <span class="c1"># We cannot handle double sharps or flats</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">invalid literal for int() with base 10: &#39;b4&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="decibel.utils.musicobjects.Pitch.is_higher_than">
+<em class="property">static </em><code class="descname">is_higher_than</code><span class="sig-paren">(</span><em>pitch_1</em>, <em>pitch_2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Pitch.is_higher_than"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Pitch.is_higher_than" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if pitch 1 is higher than pitch 2</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pitch_1</strong> – First pitch</li>
+<li><strong>pitch_2</strong> – Second pitch</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Is pitch 1 higher than pitch 2?</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pitch</span><span class="o">.</span><span class="n">is_higher_than</span><span class="p">(</span><span class="n">Pitch</span><span class="o">.</span><span class="n">from_pitch_name</span><span class="p">(</span><span class="s1">&#39;A4&#39;</span><span class="p">),</span> <span class="n">Pitch</span><span class="o">.</span><span class="n">from_pitch_name</span><span class="p">(</span><span class="s1">&#39;G5&#39;</span><span class="p">))</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="decibel.utils.musicobjects.Pitch.transpose_by">
+<code class="descname">transpose_by</code><span class="sig-paren">(</span><em>interval</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Pitch.transpose_by"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Pitch.transpose_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transposes the Pitch up by a certain interval</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interval</strong> – The Interval with which we transpose our Pitch up</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="mi">69</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">transpose_by</span><span class="p">(</span><span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="s1">&#39;b2&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">midi_pitch</span>
+<span class="go">70</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="decibel.utils.musicobjects.Pitch.transpose_down_by">
+<code class="descname">transpose_down_by</code><span class="sig-paren">(</span><em>interval</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Pitch.transpose_down_by"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Pitch.transpose_down_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transposes the Pitch down by a certain interval</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interval</strong> – The Interval with which we transpose our Pitch down</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="mi">69</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">transpose_down_by</span><span class="p">(</span><span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="s1">&#39;b2&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">midi_pitch</span>
+<span class="go">68</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="decibel.utils.musicobjects.PitchClass">
+<em class="property">class </em><code class="descclassname">decibel.utils.musicobjects.</code><code class="descname">PitchClass</code><span class="sig-paren">(</span><em>pitch_class_number</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#PitchClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.PitchClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="classmethod">
+<dt id="decibel.utils.musicobjects.PitchClass.from_harte_pitch_class">
+<em class="property">classmethod </em><code class="descname">from_harte_pitch_class</code><span class="sig-paren">(</span><em>harte_pitch_class</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#PitchClass.from_harte_pitch_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.PitchClass.from_harte_pitch_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PitchClass object from its Harte pitch class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>harte_pitch_class</strong> – A string that defines a pitch class with at most two sharps/flats</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">PitchClass as specified by the Harte pitch class</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PitchClass</span><span class="o">.</span><span class="n">from_harte_pitch_class</span><span class="p">(</span><span class="s1">&#39;Gbb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pitch_class_number</span>
+<span class="go">5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="decibel.utils.musicobjects.Song">
+<em class="property">class </em><code class="descclassname">decibel.utils.musicobjects.</code><code class="descname">Song</code><span class="sig-paren">(</span><em>key</em>, <em>title</em>, <em>album</em>, <em>full_ground_truth_chord_labs_path</em>, <em>full_audio_path</em>, <em>full_segmentation_labs_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Song"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Song" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="decibel.utils.musicobjects.Song.add_midi_path">
+<code class="descname">add_midi_path</code><span class="sig-paren">(</span><em>full_midi_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Song.add_midi_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Song.add_midi_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="decibel.utils.musicobjects.Song.add_tab_path">
+<code class="descname">add_tab_path</code><span class="sig-paren">(</span><em>full_tab_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/musicobjects.html#Song.add_tab_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.musicobjects.Song.add_tab_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-decibel.utils.filehandler"></span><dl class="function">
+<dt id="decibel.utils.filehandler.file_exists">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">file_exists</code><span class="sig-paren">(</span><em>full_path: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#file_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.file_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shortcut method to check if a file, specified by its full path exists</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_path</strong> – Full path to the file of which we want to know if it exists</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Does our file exist already?</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.find_duplicate_midis">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">find_duplicate_midis</code><span class="sig-paren">(</span><em>song: decibel.utils.musicobjects.Song</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#find_duplicate_midis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.find_duplicate_midis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duplicate MIDI’s are MIDI’s that yield exactly the same chord sequences on the beat level, but the files were not
+identified as identical based on MD5 checksum (typically due to some minor changes, like changing the MIDI title).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – Song in our data set</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of names of duplicate MIDI files</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_absolute_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_absolute_path</code><span class="sig-paren">(</span><em>relative_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_absolute_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_absolute_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the absolute path from the data folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>relative_path</strong> – Relative path from data folder</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The full path</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_absolute_path</span><span class="p">(</span><span class="s1">&#39;MIDI/001-001.mid&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_all_songs">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_all_songs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_all_songs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_all_songs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a dictionary of Song objects, indexed by integer keys. Key, title, album, ground truth chord labels,
+audio path and Chordify labels path are added to each song.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dictionary of Songs in our data set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_chords_from_tab_filename">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_chords_from_tab_filename</code><span class="sig-paren">(</span><em>full_tab_file_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_chords_from_tab_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_chords_from_tab_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the filename to write the parsed chords from the tab file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_tab_file_path</strong> – Tab file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Filename for parsed chords</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_data_fusion_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_data_fusion_path</code><span class="sig-paren">(</span><em>key: int</em>, <em>df_type_str: str</em>, <em>selection_method_str: str</em>, <em>audio_ace: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_data_fusion_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_data_fusion_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the data fusion labels path of the song specified by the key</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> – Key of the song for which we need the data fusion labels path</li>
+<li><strong>df_type_str</strong> – Which type of data fusion; either ‘rand’, ‘mv’, ‘df’</li>
+<li><strong>selection_method_str</strong> – Do we use all labels or only the expected best?</li>
+<li><strong>audio_ace</strong> – Which audio algorithm did we use (CHF or one of the MIREX algorithms)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Data fusion labels path of our song</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_evaluation_table_by_audio_measure_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_evaluation_table_by_audio_measure_path</code><span class="sig-paren">(</span><em>audio_ace: str</em>, <em>measure: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_evaluation_table_by_audio_measure_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_evaluation_table_by_audio_measure_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the csv file in which this method is evaluated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>audio_ace</strong> – Which audio algorithm did we use (CHF or one of the MIREX algorithms)</li>
+<li><strong>measure</strong> – Which measure (e.g. CSR)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Data fusion labels path of our song</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_evaluation_table_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_evaluation_table_path</code><span class="sig-paren">(</span><em>method_name: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_evaluation_table_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_evaluation_table_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the csv file in which  this method is evaluated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method_name</strong> – Name of an ACE method</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The full path to the csv file in which  this method is evaluated</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_expected_best_midi">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_expected_best_midi</code><span class="sig-paren">(</span><em>song: decibel.utils.musicobjects.Song) -&gt; (&lt;class 'str'&gt;</em>, <em>&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_expected_best_midi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_expected_best_midi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find name of the expected best well-aligned MIDI and segmentation type for this Song
+(based on MIDI chord probability)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – Song in our data set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_expected_best_tab_lab">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_expected_best_tab_lab</code><span class="sig-paren">(</span><em>song: decibel.utils.musicobjects.Song</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_expected_best_tab_lab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_expected_best_tab_lab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the lab file of the expected best tab for this Song (based on log-likelihood returned by Jump Alignment)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – Song in our data set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_file_name_from_full_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_file_name_from_full_path</code><span class="sig-paren">(</span><em>full_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_file_name_from_full_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_file_name_from_full_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the file name (without extension) from a full path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_path</strong> – The full path we want to extract the file name from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The file name from our full path</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="s1">&#39;/media/daphne/Seagate Expansion Drive/Data/MIDI/001-001.mid&#39;</span><span class="p">)</span>
+<span class="go">&#39;001-001&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="s1">&#39;/media/daphne/Seagate Expansion Drive/Data/MIDI/001-001.txt&#39;</span><span class="p">)</span>
+<span class="go">&#39;001-001&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_alignment_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_alignment_path</code><span class="sig-paren">(</span><em>midi_file_name: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_alignment_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_alignment_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the .txt file of the alignment between our MIDI and the audio file it is matched to</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>midi_file_name</strong> – File name (not a full path!) to our MIDI file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to the .txt file that represents the alignment</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_audio_features_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_audio_features_path</code><span class="sig-paren">(</span><em>key: int</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_audio_features_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_audio_features_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the full audio features path of the song specified by the key</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – Key of the song for which we need the audio features path</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Audio features path of our song</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_audio_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_audio_path</code><span class="sig-paren">(</span><em>key: int</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_audio_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_audio_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the .wav file, given the key of a song</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – The key of the song from which we need the audio</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to the audio of our song</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_chord_labs_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_chord_labs_path</code><span class="sig-paren">(</span><em>chord_labs_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_chord_labs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_chord_labs_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the file in the ChordLabs folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chord_labs_path</strong> – not-full path to chord labs file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to chord labs file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_chordify_chord_labs_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_chordify_chord_labs_path</code><span class="sig-paren">(</span><em>key: int</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_chordify_chord_labs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_chordify_chord_labs_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the Chordify chord labels, given the key of a song</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> – The key of the song from which we need the Chordify chord labels</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to the Chordify chord labels of our song</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_midi_chord_labs_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_midi_chord_labs_path</code><span class="sig-paren">(</span><em>midi_file_name: str</em>, <em>segmentation_type: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_midi_chord_labs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_midi_chord_labs_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the MIDI chord labels, given the midi file name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>midi_file_name</strong> – File name (not a full path!) to our MIDI file</li>
+<li><strong>segmentation_type</strong> – Either ‘bar’ or ‘beat’</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Full path to the MIDI chord labels of our MIDI</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_midi_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_midi_path</code><span class="sig-paren">(</span><em>midi_file_name: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_midi_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_midi_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the .mid file of the MIDI specified by midi_file_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>midi_file_name</strong> – File name (not a full path!) to our MIDI file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to the .mid file of our MIDI</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_mirex_chord_labs_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_mirex_chord_labs_path</code><span class="sig-paren">(</span><em>song: decibel.utils.musicobjects.Song</em>, <em>mirex_submission_name_str: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_mirex_chord_labs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_mirex_chord_labs_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the MIREX chord labels, given the Song and MIREX submission name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>song</strong> – Song for which we want to find the MIREX chord labels</li>
+<li><strong>mirex_submission_name_str</strong> – Name of MIREX submission</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Full path to the MIREX chord labels, given the Song and MIREX submission name</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_segmentation_labs_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_segmentation_labs_path</code><span class="sig-paren">(</span><em>chord_labs_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_segmentation_labs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_segmentation_labs_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the file in the SegmentationLabs folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chord_labs_path</strong> – not-full path to chord labs file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to chord labs file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_synthesized_midi_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_synthesized_midi_path</code><span class="sig-paren">(</span><em>midi_file_name: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_synthesized_midi_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_synthesized_midi_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the .wav file that is a synthesized version of the MIDI specified by midi_file_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>midi_file_name</strong> – File name (not a full path!) to our MIDI file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to the .wav file that is a synthesized version of our MIDI</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_full_tab_chord_labs_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_full_tab_chord_labs_path</code><span class="sig-paren">(</span><em>full_tab_file_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_full_tab_chord_labs_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_full_tab_chord_labs_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full path to the tab chord labels, given the full path to the tab file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_tab_file_path</strong> – Tab file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Full path to the tab chord labels of our song</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_lab_visualisation_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_lab_visualisation_path</code><span class="sig-paren">(</span><em>song: decibel.utils.musicobjects.Song</em>, <em>audio_ace: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_lab_visualisation_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_lab_visualisation_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the location of the png of the lab visualisation path for a given song and audio ace method.
+:param song: Song for which we need the lab visualisation path
+:param audio_ace: Audio method for which we need the lab visualisation path
+:return: The location of the png of the lab visualisation path for a given song and audio ace method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_relative_path">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_relative_path</code><span class="sig-paren">(</span><em>full_path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_relative_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_relative_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the relative path from the data folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>full_path</strong> – The full path</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Relative path from data folder</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_relative_path</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;MIDI/001-001.mid&#39;</span><span class="p">))</span>
+<span class="go">&#39;MIDI/001-001.mid&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.get_well_aligned_midis">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">get_well_aligned_midis</code><span class="sig-paren">(</span><em>song: decibel.utils.musicobjects.Song</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#get_well_aligned_midis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.get_well_aligned_midis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return names of only the well-aligned MIDIs for this Song (excluding duplicates)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – Song in our data set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.init_folders">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">init_folders</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#init_folders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.init_folders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if all folders that we need, exist. If they do not exist yet, create them.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.read_alignment_file">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">read_alignment_file</code><span class="sig-paren">(</span><em>file_path: str) -&gt; ([&lt;class 'float'&gt;], [&lt;class 'float'&gt;]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#read_alignment_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.read_alignment_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the alignment from a file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_path</strong> – Path to the alignment file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The alignment, read from a file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.read_chord_alignment_score">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">read_chord_alignment_score</code><span class="sig-paren">(</span><em>midi_name: str</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#read_chord_alignment_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.read_chord_alignment_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read MIDI alignment score of this MIDI from the corresponding file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>midi_name</strong> – Name of MIDI file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">MIDI alingment score float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.read_log_likelihood">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">read_log_likelihood</code><span class="sig-paren">(</span><em>song_key: int</em>, <em>tab_file_path: str) -&gt; (&lt;class 'float'&gt;</em>, <em>&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#read_log_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.read_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read tab log-likelihood of this tab file from the corresponding text file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>song_key</strong> – Key of Song</li>
+<li><strong>tab_file_path</strong> – Path to tab file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Log-likelihood float and transposition int of this tab</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.read_midi_chord_probability">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">read_midi_chord_probability</code><span class="sig-paren">(</span><em>segmentation_method: str</em>, <em>midi_name: str</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/decibel/utils/filehandler.html#read_midi_chord_probability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.read_midi_chord_probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read MIDI chord probability of this MIDI file from the corresponding text file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>segmentation_method</strong> – Bar or beat segmentation</li>
+<li><strong>midi_name</strong> – Name of the MIDI file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Chord probability float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.remove_file">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">remove_file</code><span class="sig-paren">(</span><em>remove_file_path: str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#remove_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.remove_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the file specified by remove_file_path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>remove_file_path</strong> – Path to the file which we will remove</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.write_chord_alignment_score">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">write_chord_alignment_score</code><span class="sig-paren">(</span><em>midi_name: str</em>, <em>alignment_score: float</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#write_chord_alignment_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.write_chord_alignment_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write MIDI alignment score of this MIDI file to the corresponding file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>midi_name</strong> – Name of MIDI file</li>
+<li><strong>alignment_score</strong> – MIDI alignment score</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.write_log_likelihood">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">write_log_likelihood</code><span class="sig-paren">(</span><em>song_key: int</em>, <em>tab_file_path: str</em>, <em>log_likelihood: float</em>, <em>transposition: int</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#write_log_likelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.write_log_likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write tab log-likelihood of this tab file to the corresponding text file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>song_key</strong> – Key of Song</li>
+<li><strong>tab_file_path</strong> – Path to tab file</li>
+<li><strong>log_likelihood</strong> – Log-likelihood of this tab</li>
+<li><strong>transposition</strong> – Transposition of this tab</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.filehandler.write_midi_chord_probability">
+<code class="descclassname">decibel.utils.filehandler.</code><code class="descname">write_midi_chord_probability</code><span class="sig-paren">(</span><em>segmentation_method: str</em>, <em>midi_name: str</em>, <em>midi_chord_probability: float</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/filehandler.html#write_midi_chord_probability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.filehandler.write_midi_chord_probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write MIDI chord probability of this MIDI file to the corresponding text file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>segmentation_method</strong> – Bar or beat segmentation</li>
+<li><strong>midi_name</strong> – Name of the MIDI file</li>
+<li><strong>midi_chord_probability</strong> – Chord probability float</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-decibel.utils.chordtemplategenerator"></span><dl class="function">
+<dt id="decibel.utils.chordtemplategenerator.generate_chroma_all_chords">
+<code class="descclassname">decibel.utils.chordtemplategenerator.</code><code class="descname">generate_chroma_all_chords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/chordtemplategenerator.html#generate_chroma_all_chords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.chordtemplategenerator.generate_chroma_all_chords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of all kinds of chord templates
+:return: List of chord templates: (key, mode-str, chroma-list) tuples</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.chordtemplategenerator.generate_chroma_major_minor">
+<code class="descclassname">decibel.utils.chordtemplategenerator.</code><code class="descname">generate_chroma_major_minor</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/chordtemplategenerator.html#generate_chroma_major_minor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.chordtemplategenerator.generate_chroma_major_minor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of major and minor chord templates
+:return: List of chord templates: (key, mode-str, chroma-list) tuples</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.utils.chordtemplategenerator.generate_chroma_major_minor_sevenths">
+<code class="descclassname">decibel.utils.chordtemplategenerator.</code><code class="descname">generate_chroma_major_minor_sevenths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/utils/chordtemplategenerator.html#generate_chroma_major_minor_sevenths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.utils.chordtemplategenerator.generate_chroma_major_minor_sevenths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of major, minor and sevenths chord templates
+:return: List of chord templates: (key, mode-str, chroma-list) tuples</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="visualisation.html" class="btn btn-neutral" title="Visualisation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

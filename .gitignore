@@ -67,7 +67,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+source_docs/_build/
 
 # PyBuilder
 target/
@@ -114,3 +114,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea/
+source_docs/

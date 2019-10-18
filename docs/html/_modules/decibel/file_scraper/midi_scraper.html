@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>decibel.file_scraper.midi_scraper &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>decibel.file_scraper.midi_scraper</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for decibel.file_scraper.midi_scraper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains all the methods you need for scraping either a single MIDI file or a predefined set of MIDI files</span>
+<span class="sd">from the Internet.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+
+
+<div class="viewcode-block" id="download_midi"><a class="viewcode-back" href="../../../codedescription/filescraper.html#decibel.file_scraper.midi_scraper.download_midi">[docs]</a><span class="k">def</span> <span class="nf">download_midi</span><span class="p">(</span><span class="n">midi_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download a MIDI file from the Internet, using the midi_url and place it in the midi_directory, called midi_name.</span>
+<span class="sd">    Return a message indicating success or failure.</span>
+
+<span class="sd">    :param midi_url: Location of the MIDI file on the Internet</span>
+<span class="sd">    :param midi_directory: Local directory where the MIDI file should be placed on your machine</span>
+<span class="sd">    :param midi_name: File name of your MIDI file</span>
+<span class="sd">    :return: Boolean and str message, indicating success or failure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Remove .mid (or .MID) extension from the midi_name if necessary</span>
+    <span class="k">if</span> <span class="n">midi_name</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;.mid&#39;</span><span class="p">:</span>
+        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">midi_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="c1"># Check if the target file already existed - this should not be the case</span>
+    <span class="n">target_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">midi_directory</span><span class="p">,</span> <span class="n">midi_name</span> <span class="o">+</span> <span class="s1">&#39;.mid&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">target_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;This file already exists&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">file_data</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">midi_url</span><span class="p">)</span>
+        <span class="n">data_to_write</span> <span class="o">=</span> <span class="n">file_data</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data_to_write</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;Error downloading &#39;</span> <span class="o">+</span> <span class="n">midi_name</span>
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;Download succeeded&#39;</span></div>
+
+
+<div class="viewcode-block" id="download_data_set_from_csv"><a class="viewcode-back" href="../../../codedescription/filescraper.html#decibel.file_scraper.midi_scraper.download_data_set_from_csv">[docs]</a><span class="k">def</span> <span class="nf">download_data_set_from_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download a data set of MIDI files, as specified by the csv file in csv_path, and put them into midi_directory.</span>
+<span class="sd">    If a MIDI file cannot be downloaded successfully, for example because the file already existed or because the</span>
+<span class="sd">    Internet connection broke down, then the function continues with downloading the other MIDI files. After trying to</span>
+<span class="sd">    download all prescribed MIDI files, this function returns a message indicating the number of MIDI files that were</span>
+<span class="sd">    downloaded successfully and the number of MIDI files for which the download failed.</span>
+
+<span class="sd">    :param csv_path: Path to the csv file with lines in format [midi_name];[midi_url] (for example IndexMIDI.csv)</span>
+<span class="sd">    :param midi_directory: Local location for the downloaded files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nr_successful</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nr_unsuccessful</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Open the csv file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">read_file</span><span class="p">:</span>
+        <span class="n">csv_content</span> <span class="o">=</span> <span class="n">read_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">csv_content</span><span class="p">:</span>
+        <span class="n">midi_name</span><span class="p">,</span> <span class="n">midi_url</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">download_midi</span><span class="p">(</span><span class="n">midi_url</span><span class="p">,</span> <span class="n">midi_directory</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="n">nr_successful</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nr_unsuccessful</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nr_successful</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; MIDI files were downloaded successfully. &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nr_unsuccessful</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; failed.&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

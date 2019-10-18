@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>What is DECIBEL? &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation instructions" href="../installation.html" />
+    <link rel="prev" title="Welcome to DECIBEL’s documentation website!" href="../index.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>What is DECIBEL?</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/thesis/abstract.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="what-is-decibel">
+<h1>What is DECIBEL?<a class="headerlink" href="#what-is-decibel" title="Permalink to this headline">¶</a></h1>
+<p><strong>Automatic Chord Estimation (ACE)</strong> is a fundamental task in Music Information Retrieval (MIR), which has applications in both music performance and in research on other MIR tasks. The ACE task consists of segmenting a music recording or score and assigning a chord label to each segment. ACE has been a task in the MIREX competition for 10 years, but is not yet a solved problem: current methods seem to have reached a glass ceiling. Moreover, many recent methods are trained on a limited data set and consequently suffer from overfitting. <strong>DECIBEL</strong> <em>(DEtection of Chords Improved By Exploiting Linking symbolic formats)</em> is a novel system that utilizes multiple symbolic music representations in addition to audio in order to improve ACE on popular music.</p>
+<p>The <strong>input</strong> for DECIBEL not only consists of the audio file, but also contains a set of MIDI and tab files that are obtained through <em>web scraping</em> and <em>manually matched</em> to the audio file. Given the audio file and matched MIDI and tab files, the system first estimates <em>chord sequences</em> from each file, using a <em>representation-dependent method</em>.</p>
+<ul class="simple">
+<li>For <em>audio</em> files, DECIBEL uses existing state-of-the-art audio ACE techniques: in my experiments, I use the output of the six ACE submissions from MIREX 2017, as well as a commercial state-of-the-art method.</li>
+<li><em>MIDI</em> files are first aligned to the audio file, using a Dynamic Time Warping-based method; subsequently, chord sequences are estimated from the re-aligned MIDI files using an algorithm based on template matching.</li>
+<li><em>Tab</em> files are first parsed, resulting in untimed chord sequences and then aligned to the audio, using an existing algorithm based on a Hidden Markov Model. In a final step, DECIBEL uses a data fusion method that integrates all estimated chord sequences into one final output sequence.</li>
+</ul>
+<img alt="../_images/DECIBEL.png" src="../_images/DECIBEL.png" />
+<p>The main <strong>contributions</strong> of DECIBEL are twofold. First, by aligning different symbolic formats to audio, DECIBEL automatically creates a heterogeneous harmonic representation that enables large-scale cross-version analysis of popular music. Second, my results show that DECIBEL’s data fusion method significantly improves each of the seven evaluated state-of-the-art audio ACE methods in terms of estimation accuracy. Exploiting the musical knowledge that is implicitly incorporated in MIDI and tab files, it breaks the observed glass ceiling, without requiring a lot of additional training, thereby prohibiting further overfitting to the existing chord annotations.</p>
+<p>All information on DECIBEL is available in my Master’s thesis: <a class="reference external" href="https://dspace.library.uu.nl/handle/1874/372620">https://dspace.library.uu.nl/handle/1874/372620</a></p>
+<p>DECIBEL was presented as a late breaking demo at ISMIR 2018. The abstract can be found here:
+<a class="reference external" href="https://drive.google.com/file/d/1ivkZtA01e2h-AX-CQwX6ciX9dGrZOohn/view">https://drive.google.com/file/d/1ivkZtA01e2h-AX-CQwX6ciX9dGrZOohn/view</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../installation.html" class="btn btn-neutral float-right" title="Installation instructions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral" title="Welcome to DECIBEL’s documentation website!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

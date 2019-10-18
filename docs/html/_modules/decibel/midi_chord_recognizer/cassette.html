@@ -1,0 +1,513 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>decibel.midi_chord_recognizer.cassette &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>decibel.midi_chord_recognizer.cassette</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for decibel.midi_chord_recognizer.cassette</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">CASSETTE (Chord estimation Applied to Symbolic music by Segmentation, Extraction and Tie-breaking TEmplate matching) is</span>
+<span class="sd">a template-matching based algorithm for MIDI chord recognition that is easy to implement and understand. Similar to the</span>
+<span class="sd">good old cassette tapes, this algorithm is certainly not state of the art. However, it is simple to implement and does</span>
+<span class="sd">not require any training.</span>
+
+<span class="sd">CASSETTE recognizes chords in a three-step procedure:</span>
+
+<span class="sd">1. It segments each audio-aligned midi file (on bar/beat/note level);</span>
+<span class="sd">2. It calculates a weighted chroma feature for each of the segments, based on the notes within that segment;</span>
+<span class="sd">3. It matches the features of each segment to the features of a predefined chord vocabulary and assigns each segment to</span>
+<span class="sd">   the most similar chord.</span>
+
+<span class="sd">The main function to use is :py:func:`classify_aligned_midis_for_song`, which calls CASSETTE on all MIDIs matched to</span>
+<span class="sd">the given Song.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">pretty_midi</span>
+<span class="kn">from</span> <span class="nn">decibel.utils.musicobjects</span> <span class="k">import</span> <span class="n">Pitch</span><span class="p">,</span> <span class="n">PitchClass</span><span class="p">,</span> <span class="n">Chord</span><span class="p">,</span> <span class="n">PITCH_CLASSES</span>
+<span class="kn">from</span> <span class="nn">decibel.utils</span> <span class="k">import</span> <span class="n">filehandler</span>
+
+
+<span class="k">class</span> <span class="nc">Event</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">end_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">all_chords_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new event</span>
+
+<span class="sd">        :param start_time: Start time of the event, in seconds</span>
+<span class="sd">        :param end_time: End time of the event, in seconds</span>
+<span class="sd">        :param all_chords_list: List of all chords for classification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_chords_list</span> <span class="o">=</span> <span class="n">all_chords_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitches</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_classes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord_score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10</span>
+
+    <span class="k">def</span> <span class="nf">add_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">pretty_midi</span><span class="o">.</span><span class="n">Note</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a Note to the Event</span>
+
+<span class="sd">        :param note: The Note we add to the Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitches</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Pitch</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">pitch</span><span class="p">))</span>
+        <span class="n">pitch_class_nr</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">pitch</span> <span class="o">%</span> <span class="mi">12</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_classes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">PitchClass</span><span class="p">(</span><span class="n">pitch_class_nr</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">pitch_class_nr</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_note_duration_ratio_in_event</span><span class="p">(</span><span class="n">note</span><span class="p">)</span> <span class="o">*</span> <span class="n">note</span><span class="o">.</span><span class="n">velocity</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hash the event to an integer (based on its unique start time), so we can use it as a key in a dictionary</span>
+
+<span class="sd">        :return: Integer that uniquely determines this event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_note_duration_ratio_in_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the ratio of the event during which this note sounds</span>
+
+<span class="sd">        :param note: Note for which we want to know the duration ratio</span>
+<span class="sd">        :return: Duration ratio of this note in the event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start_inside_event</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">end_inside_event</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+        <span class="n">duration_inside_event</span> <span class="o">=</span> <span class="n">end_inside_event</span> <span class="o">-</span> <span class="n">start_inside_event</span>
+        <span class="k">return</span> <span class="n">duration_inside_event</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span>
+
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalize the chroma feature of the event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="n">s</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">find_most_likely_chord</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the chord to which the chroma of this event matches best and add it to the most_likely_chord property.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">best_matching_chord_score</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.99</span>
+        <span class="n">best_matching_chord_str</span> <span class="o">=</span> <span class="s1">&#39;X&#39;</span>
+        <span class="n">best_key_note_weight</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="p">[</span><span class="n">key_note</span><span class="p">,</span> <span class="n">chord_type</span><span class="p">,</span> <span class="n">chord_template</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_chords_list</span><span class="p">:</span>
+            <span class="n">chord_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_score_compared_to_template</span><span class="p">(</span><span class="n">chord_template</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">chord_score</span> <span class="o">&gt;</span> <span class="n">best_matching_chord_score</span> <span class="ow">or</span> <span class="p">(</span><span class="n">chord_score</span> <span class="o">==</span> <span class="n">best_matching_chord_score</span> <span class="ow">and</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">key_note</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">best_key_note_weight</span><span class="p">):</span>
+                <span class="n">best_matching_chord_score</span> <span class="o">=</span> <span class="n">chord_score</span>
+                <span class="n">best_matching_chord_str</span> <span class="o">=</span> <span class="n">PITCH_CLASSES</span><span class="p">[</span><span class="n">key_note</span><span class="p">]</span> <span class="o">+</span> <span class="n">chord_type</span>
+                <span class="n">best_key_note_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">key_note</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">best_matching_chord_str</span> <span class="o">==</span> <span class="s1">&#39;X&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord_score</span> <span class="o">=</span> <span class="n">best_matching_chord_score</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord</span> <span class="o">=</span> <span class="n">Chord</span><span class="o">.</span><span class="n">from_common_tab_notation_string</span><span class="p">(</span><span class="n">best_matching_chord_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord_score</span> <span class="o">=</span> <span class="n">best_matching_chord_score</span>
+
+    <span class="k">def</span> <span class="nf">_score_compared_to_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the score of the chroma of this Event compared to the specified chord template</span>
+
+<span class="sd">        :param template: The chord template we compare to</span>
+<span class="sd">        :return: Similarity score</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Iterate over chroma elements, sum matching and missing weights</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># This note is in the chroma. Let&#39;s see if it is in the template</span>
+                <span class="k">if</span> <span class="n">template</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Count the number of unmatched template elements</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">template</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">chroma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">p</span> <span class="o">-</span> <span class="n">n</span> <span class="o">-</span> <span class="n">m</span>  <span class="c1"># Higher scores means higher similarity, so a better matching template!</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an easily readable string representation of the Event</span>
+
+<span class="sd">        :return: Easily readable string representation of the Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">most_likely_chord</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MIDI</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">midi_path</span><span class="p">,</span> <span class="n">alignment_path</span><span class="p">,</span> <span class="n">all_chords_list</span><span class="p">,</span> <span class="n">partition_method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create MIDI object, which represents the realigned pretty_midi using the specified alignment</span>
+
+<span class="sd">        :param midi_path: Full path to the .mid file</span>
+<span class="sd">        :param alignment_path: Alignment path</span>
+<span class="sd">        :param all_chords_list: List of all chords we can classify</span>
+<span class="sd">        :param partition_method: Partition method (we can partition on &#39;note&#39;, &#39;beat&#39; or &#39;bar&#39; level)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Load chord list and pretty_midi object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_chords_list</span> <span class="o">=</span> <span class="n">all_chords_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span> <span class="o">=</span> <span class="n">pretty_midi</span><span class="o">.</span><span class="n">PrettyMIDI</span><span class="p">(</span><span class="n">midi_path</span><span class="p">)</span>
+        <span class="c1"># Adjust the timing of the pretty_midi object, using the alignment path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_alignment_file</span><span class="p">(</span><span class="n">alignment_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span><span class="o">.</span><span class="n">adjust_times</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alignment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Remove any notes whose end time is before or at their start time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span><span class="o">.</span><span class="n">remove_invalid_notes</span><span class="p">()</span>
+        <span class="c1"># Find Events, using the specified partition method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span><span class="n">partition_method</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition_method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fill self.events with all Events between the partition points</span>
+
+<span class="sd">        :param partition_method: Partition method (we can partition on &#39;note&#39;, &#39;beat&#39; or &#39;bar&#39; level)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Find all partition points</span>
+        <span class="k">if</span> <span class="n">partition_method</span> <span class="o">==</span> <span class="s1">&#39;note&#39;</span><span class="p">:</span>
+            <span class="n">partition_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition_by_note_events</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">partition_method</span> <span class="o">==</span> <span class="s1">&#39;beat&#39;</span><span class="p">:</span>
+            <span class="n">partition_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition_by_beats</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">partition_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition_by_bars</span><span class="p">()</span>
+
+        <span class="c1"># Create events</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">partition_points</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">partition_points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">partition_points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_chords_list</span><span class="p">)</span>
+
+        <span class="c1"># Add each note to the corresponding events</span>
+        <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span><span class="o">.</span><span class="n">instruments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">instrument</span><span class="o">.</span><span class="n">is_drum</span><span class="p">:</span>
+                <span class="c1"># We assert that instrument.notes are ordered on start value for each instrument</span>
+                <span class="n">start_index</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">instrument</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+                    <span class="c1"># Find suitable start_index</span>
+                    <span class="k">while</span> <span class="n">start_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> \
+                            <span class="ow">and</span> <span class="n">note</span><span class="o">.</span><span class="n">start</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">partition_points</span><span class="p">[</span><span class="n">start_index</span><span class="p">]]</span><span class="o">.</span><span class="n">end_time</span><span class="p">:</span>
+                        <span class="n">start_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># Add this note to each event during which it sounds</span>
+                    <span class="n">last_index</span> <span class="o">=</span> <span class="n">start_index</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">partition_points</span><span class="p">[</span><span class="n">last_index</span><span class="p">]]</span><span class="o">.</span><span class="n">add_note</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                    <span class="k">while</span> <span class="n">last_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> \
+                            <span class="ow">and</span> <span class="n">note</span><span class="o">.</span><span class="n">end</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">partition_points</span><span class="p">[</span><span class="n">last_index</span><span class="p">]]</span><span class="o">.</span><span class="n">end_time</span><span class="p">:</span>
+                        <span class="n">last_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">partition_points</span><span class="p">[</span><span class="n">last_index</span><span class="p">]]</span><span class="o">.</span><span class="n">add_note</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+
+        <span class="c1"># Normalize each event</span>
+        <span class="k">for</span> <span class="n">event_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_key</span><span class="p">]</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+
+        <span class="c1"># Find most likely chord</span>
+        <span class="k">for</span> <span class="n">event_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_key</span><span class="p">]</span><span class="o">.</span><span class="n">find_most_likely_chord</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">concatenate_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Edit self.events: concatenate events with the same chord labels into one event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_events</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">current_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">last_added</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event_key</span> <span class="ow">in</span> <span class="n">sorted_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_key</span><span class="p">]</span><span class="o">.</span><span class="n">most_likely_chord</span> <span class="o">==</span> <span class="n">current_event</span><span class="o">.</span><span class="n">most_likely_chord</span><span class="p">:</span>
+                <span class="n">current_event</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_key</span><span class="p">]</span><span class="o">.</span><span class="n">end_time</span>
+                <span class="n">last_added</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_events</span><span class="p">[</span><span class="n">current_event</span><span class="o">.</span><span class="n">start_time</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_event</span>
+                <span class="n">current_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_key</span><span class="p">]</span>
+                <span class="n">last_added</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">last_added</span><span class="p">:</span>
+            <span class="n">new_events</span><span class="p">[</span><span class="n">current_event</span><span class="o">.</span><span class="n">start_time</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_event</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">new_events</span>
+
+    <span class="k">def</span> <span class="nf">export_chords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">,</span> <span class="n">path_string</span><span class="p">,</span> <span class="n">segmentation_method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export the chords; export and calculate chord probabilities</span>
+
+<span class="sd">        :param midi_name: Name (not full path!) of the midi file</span>
+<span class="sd">        :param path_string: String of the path to write the chord labels to</span>
+<span class="sd">        :param segmentation_method: Bar or beat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">chord_probability_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">chord_probability_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_string</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+            <span class="n">sorted_events</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">event_key</span> <span class="ow">in</span> <span class="n">sorted_events</span><span class="p">:</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_key</span><span class="p">]</span>
+                <span class="n">chord_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">most_likely_chord</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">chord_string</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+                    <span class="n">chord_string</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span>
+                <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span>
+                                 <span class="n">chord_string</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">chord_probability_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">chord_probability_sum</span> <span class="o">+=</span> <span class="n">event</span><span class="o">.</span><span class="n">most_likely_chord_score</span>
+        <span class="n">filehandler</span><span class="o">.</span><span class="n">write_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_method</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">,</span>
+                                                 <span class="n">chord_probability_sum</span> <span class="o">/</span> <span class="n">chord_probability_count</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_partition_by_note_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find all points in the MIDI file where a note starts or ends</span>
+
+<span class="sd">        :return: Partition points on note level</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">partition_points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span><span class="o">.</span><span class="n">instruments</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">instrument</span><span class="o">.</span><span class="n">is_drum</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">instrument</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">start</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">partition_points</span><span class="p">:</span>
+                        <span class="n">partition_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">end</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">partition_points</span><span class="p">:</span>
+                        <span class="n">partition_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">partition_points</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_partition_by_beats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find all points in the MIDI file where a new beat starts</span>
+
+<span class="sd">        :return: Partition points on beat level</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">beats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span><span class="o">.</span><span class="n">get_beats</span><span class="p">())</span>
+        <span class="c1"># Extrapolate one ending beat</span>
+        <span class="n">beats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">beats</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">beats</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">beats</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">beats</span>
+
+    <span class="k">def</span> <span class="nf">_partition_by_bars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find all points in the MIDI file where a new bar starts</span>
+
+<span class="sd">        :return: Partition points on bar level</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">midi_data</span><span class="o">.</span><span class="n">get_downbeats</span><span class="p">())</span>
+        <span class="c1"># Extrapolate one ending bar</span>
+        <span class="n">bars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bars</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">bars</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bars</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">bars</span>
+
+
+<span class="k">def</span> <span class="nf">classify_aligned_midis_for_song</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">all_chords_list</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find chord labels for all re-aligned MIDIs of this song</span>
+
+<span class="sd">    :param song: Song object for which we want to find the chord labels</span>
+<span class="sd">    :param all_chords_list: List of all chords</span>
+<span class="sd">    :param segmentation_type: Bar or beat segmentation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">full_midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
+        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">)</span>
+        <span class="n">full_alignment_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_alignment_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+        <span class="n">write_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">write_path</span><span class="p">):</span>
+            <span class="c1"># The file does not exist yet, so we need to find the chords</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">aligned_midi</span> <span class="o">=</span> <span class="n">MIDI</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">,</span> <span class="n">full_alignment_path</span><span class="p">,</span> <span class="n">all_chords_list</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">)</span>
+                <span class="n">aligned_midi</span><span class="o">.</span><span class="n">concatenate_events</span><span class="p">()</span>
+                <span class="n">aligned_midi</span><span class="o">.</span><span class="n">export_chords</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">write_path</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">midi_name</span> <span class="o">+</span> <span class="s2">&quot; went wrong&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

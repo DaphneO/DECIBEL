@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>decibel.evaluator.evaluator &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>decibel.evaluator.evaluator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for decibel.evaluator.evaluator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">mir_eval</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">decibel.utils</span> <span class="k">import</span> <span class="n">filehandler</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+
+
+<span class="k">def</span> <span class="nf">_directional_hamming_distance</span><span class="p">(</span><span class="n">reference_intervals</span><span class="p">,</span> <span class="n">estimated_intervals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the directional hamming distance between the reference intervals and the estimated intervals</span>
+
+<span class="sd">    :param reference_intervals: GT intervals</span>
+<span class="sd">    :param estimated_intervals: Estimated intervals</span>
+<span class="sd">    :return: Directional hamming distance between reference intervals and estimates intervals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">est_ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">estimated_intervals</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">reference_intervals</span><span class="p">:</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="n">between_start_end</span> <span class="o">=</span> <span class="n">est_ts</span><span class="p">[(</span><span class="n">est_ts</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">est_ts</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">)]</span>
+        <span class="n">seg_ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="n">between_start_end</span><span class="p">,</span> <span class="n">end</span><span class="p">])</span>
+        <span class="n">seg</span> <span class="o">+=</span> <span class="n">dur</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">seg_ts</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">seg</span> <span class="o">/</span> <span class="p">(</span><span class="n">reference_intervals</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">reference_intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="evaluate"><a class="viewcode-back" href="../../../codedescription/evaluator.html#decibel.evaluator.evaluator.evaluate">[docs]</a><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">ground_truth_lab_path</span><span class="p">,</span> <span class="n">my_lab_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate the chord label sequence in my_lab_path, compared to the ground truth sequence in ground_truth_lab_path</span>
+
+<span class="sd">    :param ground_truth_lab_path: Path to .lab file of ground truth chord label sequence</span>
+<span class="sd">    :param my_lab_path: Path to .lab file of estimated chord label sequence</span>
+<span class="sd">    :return: CSR, over-segmentation, under-segmentation, segmentation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">ref_intervals</span><span class="p">,</span> <span class="n">ref_labels</span><span class="p">)</span> <span class="o">=</span> \
+        <span class="n">mir_eval</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">load_labeled_intervals</span><span class="p">(</span><span class="n">ground_truth_lab_path</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">est_intervals</span><span class="p">,</span> <span class="n">est_labels</span><span class="p">)</span> <span class="o">=</span> \
+        <span class="n">mir_eval</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">load_labeled_intervals</span><span class="p">(</span><span class="n">my_lab_path</span><span class="p">)</span>
+    <span class="n">est_intervals</span><span class="p">,</span> <span class="n">est_labels</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">adjust_intervals</span><span class="p">(</span><span class="n">est_intervals</span><span class="p">,</span> <span class="n">est_labels</span><span class="p">,</span> <span class="n">ref_intervals</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                                               <span class="n">ref_intervals</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">NO_CHORD</span><span class="p">,</span>
+                                                               <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">NO_CHORD</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">intervals</span><span class="p">,</span> <span class="n">ref_labels</span><span class="p">,</span> <span class="n">est_labels</span><span class="p">)</span> <span class="o">=</span> \
+        <span class="n">mir_eval</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">merge_labeled_intervals</span><span class="p">(</span><span class="n">ref_intervals</span><span class="p">,</span> <span class="n">ref_labels</span><span class="p">,</span> <span class="n">est_intervals</span><span class="p">,</span> <span class="n">est_labels</span><span class="p">)</span>
+    <span class="n">durations</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">intervals_to_durations</span><span class="p">(</span><span class="n">intervals</span><span class="p">)</span>
+    <span class="n">comparisons_maj_min</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">majmin</span><span class="p">(</span><span class="n">ref_labels</span><span class="p">,</span> <span class="n">est_labels</span><span class="p">)</span>
+    <span class="n">score_maj_min</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">weighted_accuracy</span><span class="p">(</span><span class="n">comparisons_maj_min</span><span class="p">,</span> <span class="n">durations</span><span class="p">)</span>
+
+    <span class="n">overseg</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_directional_hamming_distance</span><span class="p">(</span><span class="n">ref_intervals</span><span class="p">,</span> <span class="n">est_intervals</span><span class="p">)</span>
+    <span class="n">underseg</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_directional_hamming_distance</span><span class="p">(</span><span class="n">est_intervals</span><span class="p">,</span> <span class="n">ref_intervals</span><span class="p">)</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">overseg</span><span class="p">,</span> <span class="n">underseg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">score_maj_min</span><span class="p">,</span> <span class="n">overseg</span><span class="p">,</span> <span class="n">underseg</span><span class="p">,</span> <span class="n">seg</span></div>
+
+
+<div class="viewcode-block" id="evaluate_method"><a class="viewcode-back" href="../../../codedescription/evaluator.html#decibel.evaluator.evaluator.evaluate_method">[docs]</a><span class="k">def</span> <span class="nf">evaluate_method</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">get_lab_function</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate all songs from our data set for one specific chord estimation technique, for which you get the labels using</span>
+<span class="sd">    get_lab_function</span>
+
+<span class="sd">    :param all_songs: All songs in our data set</span>
+<span class="sd">    :param method_name: Name of the method (e.g. &#39;CHF_2017_DF_BEST&#39;)</span>
+<span class="sd">    :param get_lab_function: A function that takes the song and outputs the lab path</span>
+<span class="sd">    :return: Pandas DataFrame with results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">song_key</span> <span class="ow">in</span> <span class="n">all_songs</span><span class="p">:</span>
+        <span class="n">song</span> <span class="o">=</span> <span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">full_ground_truth_chord_labs_path</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">get_lab_function</span><span class="p">(</span><span class="n">song</span><span class="p">)):</span>
+            <span class="c1"># This song has a ground truth and an estimation, so we can evaluate it</span>
+            <span class="n">result_dict</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">evaluate</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_ground_truth_chord_labs_path</span><span class="p">,</span> <span class="n">get_lab_function</span><span class="p">(</span><span class="n">song</span><span class="p">)))</span>
+
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span>
+                                           <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">method_name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;CSR&#39;</span><span class="p">,</span> <span class="s1">&#39;OvS&#39;</span><span class="p">,</span> <span class="s1">&#39;UnS&#39;</span><span class="p">,</span> <span class="s1">&#39;Seg&#39;</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">result_df</span></div>
+
+
+<div class="viewcode-block" id="write_method_evaluations"><a class="viewcode-back" href="../../../codedescription/evaluator.html#decibel.evaluator.evaluator.write_method_evaluations">[docs]</a><span class="k">def</span> <span class="nf">write_method_evaluations</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">get_lab_function</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write evaluations for all songs from our data set that have not been evaluated yet.</span>
+
+<span class="sd">    :param all_songs: All songs in our data set</span>
+<span class="sd">    :param method_name: Name of the method (e.g. &#39;CHF_2017_DF_BEST&#39;)</span>
+<span class="sd">    :param get_lab_function: A function that takes the song and outputs the lab path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">evaluation_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_evaluation_table_path</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">evaluation_path</span><span class="p">):</span>
+        <span class="n">evaluation_df</span> <span class="o">=</span> <span class="n">evaluate_method</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">get_lab_function</span><span class="p">)</span>
+        <span class="n">evaluation_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">evaluation_path</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_evaluate_audio_type</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">df_types</span><span class="p">,</span> <span class="n">selection_names</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate all songs and selected df_types and selection_names for the selected audio_type</span>
+
+<span class="sd">    :param all_songs: All songs in our data set</span>
+<span class="sd">    :param df_types: Data combination types to test (rnd/mv/df)</span>
+<span class="sd">    :param selection_names: Data selection types to test (all/best)</span>
+<span class="sd">    :param audio_type: Audio method to test (CHF_2017 or one of the MIREX methods)</span>
+<span class="sd">    :return: String indicating if the evaluation succeeded</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_lab_function</span><span class="p">(</span><span class="n">song</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">audio_type</span> <span class="o">==</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">song</span><span class="o">.</span><span class="n">full_chordify_chord_labs_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_mirex_chord_labs_path</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">)</span>
+
+    <span class="n">write_method_evaluations</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">,</span> <span class="n">get_lab_function</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">df_type</span> <span class="ow">in</span> <span class="n">df_types</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">selection_name</span> <span class="ow">in</span> <span class="n">selection_names</span><span class="p">:</span>
+            <span class="c1"># Evaluate this method of combining audio, MIDI and tabs</span>
+            <span class="n">method_name</span> <span class="o">=</span> <span class="n">audio_type</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">selection_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">write_method_evaluations</span><span class="p">(</span>
+                <span class="n">all_songs</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span>
+                <span class="k">lambda</span> <span class="n">song</span><span class="p">:</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">df_type</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">audio_type</span> <span class="o">+</span> <span class="s1">&#39; was evaluated.&#39;</span>
+
+
+<div class="viewcode-block" id="evaluate_song_based"><a class="viewcode-back" href="../../../codedescription/evaluator.html#decibel.evaluator.evaluator.evaluate_song_based">[docs]</a><span class="k">def</span> <span class="nf">evaluate_song_based</span><span class="p">(</span><span class="n">all_songs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate all songs in the data set in parallel</span>
+
+<span class="sd">    :param all_songs: All song in the data set</span>
+<span class="sd">    :return: Print statement indicating that the evaluation was finished</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audio_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CHF_2017&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">MIREX_SUBMISSION_NAMES</span>
+    <span class="n">selection_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">]</span>
+    <span class="n">df_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">]</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># use all available cores except one</span>
+    <span class="k">for</span> <span class="n">audio_type</span> <span class="ow">in</span> <span class="n">audio_types</span><span class="p">:</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_evaluate_audio_type</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">df_types</span><span class="p">,</span> <span class="n">selection_names</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">),</span> <span class="n">callback</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Evaluation finished!&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="evaluate_midis"><a class="viewcode-back" href="../../../codedescription/evaluator.html#decibel.evaluator.evaluator.evaluate_midis">[docs]</a><span class="k">def</span> <span class="nf">evaluate_midis</span><span class="p">(</span><span class="n">all_songs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate all lab files based on MIDI alignment and chord estimation</span>
+
+<span class="sd">    :param all_songs: All songs in the data set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">segmentation_type</span> <span class="ow">in</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">:</span>
+        <span class="n">result_csv_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">MIDILABS_RESULTS_PATHS</span><span class="p">[</span><span class="n">segmentation_type</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">result_csv_path</span><span class="p">):</span>
+            <span class="c1"># Results were not calculated yet</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_csv_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">song_key</span> <span class="ow">in</span> <span class="n">all_songs</span><span class="p">:</span>
+                    <span class="n">song</span> <span class="o">=</span> <span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
+                        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">midi_path</span><span class="p">)</span>
+                        <span class="n">alignment_score</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+                        <span class="n">chord_probability</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_type</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
+                        <span class="n">midi_lab_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">)</span>
+
+                        <span class="c1"># Calculate CSR and write</span>
+                        <span class="n">csr</span><span class="p">,</span> <span class="n">overseg</span><span class="p">,</span> <span class="n">underseg</span><span class="p">,</span> <span class="n">seg</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_ground_truth_chord_labs_path</span><span class="p">,</span>
+                                                               <span class="n">midi_lab_path</span><span class="p">)</span>
+                        <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                            <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">;</span><span class="si">{1}</span><span class="s1">;</span><span class="si">{2}</span><span class="s1">;</span><span class="si">{3}</span><span class="s1">;</span><span class="si">{4}</span><span class="s1">;</span><span class="si">{5}</span><span class="s1">;</span><span class="si">{6}</span><span class="s1">;</span><span class="si">{7}</span><span class="s1">;</span><span class="si">{8}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">song_key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">duration</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">midi_name</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_score</span><span class="p">),</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">chord_probability</span><span class="p">),</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">csr</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">overseg</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">underseg</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">seg</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="evaluate_tabs"><a class="viewcode-back" href="../../../codedescription/evaluator.html#decibel.evaluator.evaluator.evaluate_tabs">[docs]</a><span class="k">def</span> <span class="nf">evaluate_tabs</span><span class="p">(</span><span class="n">all_songs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate all lab files based on tab parsing and alignment.</span>
+
+<span class="sd">    :param all_songs: All songs in our data set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result_csv_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">TABLABS_RESULTS_PATH</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">result_csv_path</span><span class="p">):</span>
+        <span class="c1"># Results were not calculated yet</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">result_csv_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">song_key</span> <span class="ow">in</span> <span class="n">all_songs</span><span class="p">:</span>
+                <span class="n">song</span> <span class="o">=</span> <span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">tab_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">:</span>
+                    <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">tab_path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">):</span>
+                        <span class="n">likelihood</span><span class="p">,</span> <span class="n">transposition</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_log_likelihood</span><span class="p">(</span><span class="n">song_key</span><span class="p">,</span> <span class="n">tab_write_path</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">):</span>
+                            <span class="n">csr</span><span class="p">,</span> <span class="n">overseg</span><span class="p">,</span> <span class="n">underseg</span><span class="p">,</span> <span class="n">seg</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_ground_truth_chord_labs_path</span><span class="p">,</span>
+                                                                   <span class="n">tab_write_path</span><span class="p">)</span>
+                            <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">;</span><span class="si">{1}</span><span class="s1">;</span><span class="si">{2}</span><span class="s1">;</span><span class="si">{3}</span><span class="s1">;</span><span class="si">{4}</span><span class="s1">;</span><span class="si">{5}</span><span class="s1">;</span><span class="si">{6}</span><span class="s1">;</span><span class="si">{7}</span><span class="s1">;</span><span class="si">{8}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">song_key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">duration</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_relative_path</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">)),</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">likelihood</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">transposition</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">csr</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">overseg</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">underseg</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">seg</span><span class="p">)))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

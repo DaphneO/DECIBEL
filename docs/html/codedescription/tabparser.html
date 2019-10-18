@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Extracting chords from tabs &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Aligning tab to audio" href="audiotabaligner.html" />
+    <link rel="prev" title="Extracting chords from MIDI" href="midiace.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Extracting chords from tabs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#line-type-classification">Line type classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#segmentation">Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-and-chord-extraction">System and chord extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Extracting chords from tabs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/codedescription/tabparser.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="extracting-chords-from-tabs">
+<h1>Extracting chords from tabs<a class="headerlink" href="#extracting-chords-from-tabs" title="Permalink to this headline">¶</a></h1>
+<p>DECIBEL parses the tabs in a similar way to the parser proposed by cite{macrae2012linking}.
+First, it classifies each line in the tab file to a line type. Then, it segments the tab by splitting on empty lines.
+As a next step, all systems in each segment are identified.
+We define a system as a set of subsequent lines that belong to each other.
+For example: a tab system is very common in guitar tablature files and consists of exactly six subsequent tab files.
+In chord sheets, a common system is the alteration between chord lines and lyrics lines.
+From these systems, DECIBEL can then extract the chord labels.
+Thereby, the system retains line information (i.e. the line of the chord in the text file), as this will be used in the
+tab-audio alignment step.</p>
+<div class="section" id="line-type-classification">
+<h2>Line type classification<a class="headerlink" href="#line-type-classification" title="Permalink to this headline">¶</a></h2>
+<p>For each line in the tab file, DECIBEL estimates its line type using a set of heuristics.
+We distinguish the following line types: <em>empty</em>, <em>chords</em>, <em>tuning definition</em>, <em>capo change</em>, <em>structural marker</em>,
+<em>chord definition</em>, <em>tablature</em>, <em>lyrics</em> and <em>combined chord and lyrics</em>.</p>
+<ul class="simple">
+<li>A line has the <em>empty</em> line type if it is empty or consists only of a space.</li>
+<li>To determine if a line has the <em>chords</em> line type, the system first splits the line by spaces.
+Then it checks if each element of the line matches the chord pattern. An element is a chord if:<ul>
+<li>It consists of at most 10 characters;</li>
+<li>The first character is a note letter (a, b, c, d, e, f or g);</li>
+<li>The element does not contain sequences of four digits (as this would indicate a chord definition);</li>
+<li>The element does not contain symbols; and</li>
+<li>Any three letter sequence is in the following list: {<em>min</em>, <em>add</em>, <em>aug</em>, <em>dim</em>, <em>maj</em>, <em>sus</em>, <em>flat</em>}.</li>
+</ul>
+</li>
+<li>A line has the <em>tuning</em> line type if it contains the word “tuning”.</li>
+<li>To find out if a line is a <em>structural marker</em>, our parser searches for words like “verse”, “chorus” or “bridge”.</li>
+<li>A line is a <em>chord definition</em> if it contains a sequence of exactly 6 digits.</li>
+<li>A line is a <em>tablature line</em> if it contains at least 10 characters which are a digit, hyphen, vertical bar, slash,
+letter “h”, “b” or “p” or a space and the number of hyphens is larger than the number of spaces.</li>
+<li>A <em>lyrics line</em> fulfills each of the following conditions:<ul>
+<li>It does not contain square brackets, the equals sign or the at sign;</li>
+<li>It contains at most 10 hyphens;</li>
+<li>Either:<ul>
+<li>It consists of just one word, which has only letter characters and contains at least three of the same letters
+after each other, like “oooh” or “aaah”; or</li>
+<li>It contains at least two words.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>To find out if a line is a <em>combined chords and lyrics</em> line, DECIBEL first extracts all characters between
+square brackets ([ and ]). If these characters form a chord, it removes all characters between each pair of square
+brackets. If the remaining line is a lyrics line, we can conclude that our original line was a combined chords and
+lyrics file.</li>
+<li>If a line does not satisfy any of these requirements, the parser assigns the line type <em>undefined</em>.</li>
+</ul>
+</div>
+<div class="section" id="segmentation">
+<h2>Segmentation<a class="headerlink" href="#segmentation" title="Permalink to this headline">¶</a></h2>
+<p>At this point, we have line types for each line in the tab. As a next step, our parser divides the tab file into
+segments. A <em>segment</em> is simply defined as the lines between lines of the empty line type. In a typical tab, verses and
+choruses are separated by empty lines and therefore are designated to their own segment.</p>
+</div>
+<div class="section" id="system-and-chord-extraction">
+<h2>System and chord extraction<a class="headerlink" href="#system-and-chord-extraction" title="Permalink to this headline">¶</a></h2>
+<p>Now we have our tab file divided into segments, and we know the line type of each of the lines in a segment. We want to
+extract the chord labels, but we only extract them from a suitable system. A <em>system</em> consists of all of lines that
+should be played or sung together at the same time. For example, in a typical chord sheet, we will find a lot of systems
+consisting of a <em>chord line</em> above a <em>lyrics line</em>, as the chords in the chord line should be played at the same time
+as the word in the lyrics line should be sung.</p>
+<span class="target" id="module-decibel.tab_chord_parser.tabparser"></span><dl class="function">
+<dt id="decibel.tab_chord_parser.tabparser.classify_all_tabs_of_song">
+<code class="descclassname">decibel.tab_chord_parser.tabparser.</code><code class="descname">classify_all_tabs_of_song</code><span class="sig-paren">(</span><em>song</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/decibel/tab_chord_parser/tabparser.html#classify_all_tabs_of_song"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.tab_chord_parser.tabparser.classify_all_tabs_of_song" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classify all tabs of a song, by (1) LineType classification; (2) Segmenting lines; (3) System and Chord extraction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – A Song in our data set, for which we want to parse all tabs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="audiotabaligner.html" class="btn btn-neutral float-right" title="Aligning tab to audio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="midiace.html" class="btn btn-neutral" title="Extracting chords from MIDI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

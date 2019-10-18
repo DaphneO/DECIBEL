@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Fusion &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Evaluation" href="evaluator.html" />
+    <link rel="prev" title="Aligning tab to audio" href="audiotabaligner.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Data Fusion</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/codedescription/datafusion.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-fusion">
+<h1>Data Fusion<a class="headerlink" href="#data-fusion" title="Permalink to this headline">¶</a></h1>
+<p>DECIBEL estimates chord label sequences from different music representations, i.e. audio, MIDI and tab files.
+This results in a set of chord label sequences for each song in our data set.
+This set of chord labels forms a rich harmonic representation that is already interesting in itself.
+However, in order to answer our research question we need to combine these chord label sequences into one final
+sequence (and compare the resulting chord sequence to the sequence obtained by using only an audio ACE method).
+DECIBEL achieves this using a data fusion step.</p>
+<p>DECIBEL compares two selection strategies in combination with three different integration methods. The two selection
+strategies are ALL and BEST: ALL takes the chord sequences of all tabs and MIDI files as sources. BEST only uses the
+sources of the expected best tab and MIDI file for each song. This way, the integration method is always applied to only
+three sources.</p>
+<p>The three integration methods are based on the earlier work by citet{koops2016integration}. Following their work, we
+first sample each input chord sequence in 10 millisecond steps. Then we integrate the sources (selected using one of the
+two selection strategies) with either random picking (RND), majority voting (MV) or data fusion (DF). The
+implementations of RND and MV are unchanged compared to earlier work. For the DF integration method, I made two
+alterations: (1) I omitted the source dependency weight, because our MIDI and tab subsystems only use the major-minor
+chord vocabulary. Therefore, there is no matter of rare chords as in earlier work by citet{koops2016integration}.
+(2) I empirically tested the number of iterations needed for reaching a fixed point, and henceforth always terminate
+the DF algorithm after this number of iterations, without checking if a fixed point was reached.</p>
+<img alt="../_images/38.png" src="../_images/38.png" />
+<p>In our experiments on the Isophonics data set, we have seen that DF-BEST is the best combination of the selection
+strategy and integration method. DF-BEST performs significantly better than the original audio algorithm in terms of
+WCSR and does not suffer from oversegmentation as much as the other methods.</p>
+<span class="target" id="module-decibel.data_fusion.data_fusion"></span><dl class="method">
+<dt id="decibel.data_fusion.data_fusion.data_fuse_song">
+<code class="descclassname">data_fusion.</code><code class="descname">data_fuse_song</code><span class="sig-paren">(</span><em>chords_list</em><span class="sig-paren">)</span><a class="headerlink" href="#decibel.data_fusion.data_fusion.data_fuse_song" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data fuse a song using all combinations of selection and combination methods, write the final labels to .lab files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>song</strong> – The song on which we want to apply data fusion</li>
+<li><strong>chords_list</strong> – The chord vocabulary</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="evaluator.html" class="btn btn-neutral float-right" title="Evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="audiotabaligner.html" class="btn btn-neutral" title="Aligning tab to audio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

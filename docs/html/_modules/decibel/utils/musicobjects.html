@@ -1,0 +1,980 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>decibel.utils.musicobjects &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>decibel.utils.musicobjects</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for decibel.utils.musicobjects</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">mir_eval</span>
+<span class="kn">import</span> <span class="nn">librosa</span>
+
+<span class="n">PITCH_CLASSES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;C#&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;Eb&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;F#&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;G#&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;Bb&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">]</span>
+
+<span class="n">HARTE_PITCH_CLASSES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;B#&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;Dbb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;B##&#39;</span><span class="p">,</span> <span class="s1">&#39;C#&#39;</span><span class="p">,</span> <span class="s1">&#39;Db&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;C##&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;Ebb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;D#&#39;</span><span class="p">,</span> <span class="s1">&#39;Eb&#39;</span><span class="p">,</span> <span class="s1">&#39;Fbb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;D##&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;Fb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;E#&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;Gbb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;E##&#39;</span><span class="p">,</span> <span class="s1">&#39;F#&#39;</span><span class="p">,</span> <span class="s1">&#39;Gb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;F##&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;Abb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;G#&#39;</span><span class="p">,</span> <span class="s1">&#39;Ab&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;G##&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;Bbb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;A#&#39;</span><span class="p">,</span> <span class="s1">&#39;Bb&#39;</span><span class="p">,</span> <span class="s1">&#39;Cbb&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;A##&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;Cb&#39;</span><span class="p">]</span>
+<span class="p">]</span>
+
+<span class="n">INTERVALS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;#4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b6&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;b9&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">,</span> <span class="s1">&#39;b10&#39;</span><span class="p">,</span> <span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;11&#39;</span><span class="p">,</span> <span class="s1">&#39;b12&#39;</span><span class="p">,</span> <span class="s1">&#39;12&#39;</span><span class="p">,</span> <span class="s1">&#39;b13&#39;</span><span class="p">,</span> <span class="s1">&#39;13&#39;</span><span class="p">,</span> <span class="s1">&#39;#13&#39;</span><span class="p">]</span>
+
+<span class="n">HARTE_INTERVALS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;bb2&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#1&#39;</span><span class="p">,</span> <span class="s1">&#39;b2&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;bb3&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;#2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;b4&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;#4&#39;</span><span class="p">,</span> <span class="s1">&#39;b5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;bb6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#5&#39;</span><span class="p">,</span> <span class="s1">&#39;b6&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;bb7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#6&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;b8&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;#7&#39;</span><span class="p">,</span> <span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="s1">&#39;bb9&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#8&#39;</span><span class="p">,</span> <span class="s1">&#39;b9&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;9&#39;</span><span class="p">,</span> <span class="s1">&#39;bb10&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;#9&#39;</span><span class="p">,</span> <span class="s1">&#39;b10&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;b11&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#10&#39;</span><span class="p">,</span> <span class="s1">&#39;11&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;#11&#39;</span><span class="p">,</span> <span class="s1">&#39;b12&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;12&#39;</span><span class="p">,</span> <span class="s1">&#39;bb13&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#12&#39;</span><span class="p">,</span> <span class="s1">&#39;b13&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;13&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;#13&#39;</span><span class="p">]</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_find_item</span><span class="p">(</span><span class="n">list_containing_list</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the index of the list that contains the item</span>
+
+<span class="sd">    :param list_containing_list: List of lists; one of them must contain the item</span>
+<span class="sd">    :param item: The item we are looking for</span>
+<span class="sd">    :return: Index of the item in the outer list</span>
+
+<span class="sd">    &gt;&gt;&gt; _find_item([[1,2,3],[4,5,6]],5)</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; _find_item(HARTE_INTERVALS, &#39;b13&#39;)</span>
+<span class="sd">    20</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">_list</span> <span class="ow">in</span> <span class="n">list_containing_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">list_containing_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="Pitch"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Pitch">[docs]</a><span class="k">class</span> <span class="nc">Pitch</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">midi_pitch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Pitch instance based on its MIDI-pitch</span>
+
+<span class="sd">        :param midi_pitch: MIDI-pitch, e.g.: MIDI-pitch 69 corresponds with A4 (440 Hz)</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Pitch(69)</span>
+<span class="sd">        &gt;&gt;&gt; p.pitch_class</span>
+<span class="sd">        &#39;A&#39;</span>
+<span class="sd">        &gt;&gt;&gt; p.octave_number</span>
+<span class="sd">        4</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">=</span> <span class="n">midi_pitch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Pitch.from_pitch_class_and_octave_number"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Pitch.from_pitch_class_and_octave_number">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pitch_class_and_octave_number</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pitch_class</span><span class="p">,</span> <span class="n">octave_number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Pitch instance based on its pitch class and octave number (e.g. &#39;A&#39; and 4)</span>
+
+<span class="sd">        :param pitch_class: Pitch class string (e.g. &#39;A&#39;)</span>
+<span class="sd">        :param octave_number: Octave number (e.g. 4)</span>
+<span class="sd">        :return: Pitch, as specified by the pitch class and octave number</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Pitch.from_pitch_class_and_octave_number(&#39;A&#39;, 4)</span>
+<span class="sd">        &gt;&gt;&gt; p.midi_pitch</span>
+<span class="sd">        69</span>
+<span class="sd">        &gt;&gt;&gt; p.harte_pitch_class</span>
+<span class="sd">        [&#39;G##&#39;, &#39;A&#39;, &#39;Bbb&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pitch_class_number</span> <span class="o">=</span> <span class="n">PITCH_CLASSES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pitch_class</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="mi">12</span> <span class="o">*</span> <span class="n">octave_number</span> <span class="o">+</span> <span class="n">pitch_class_number</span> <span class="o">+</span> <span class="mi">12</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pitch.from_pitch_name"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Pitch.from_pitch_name">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pitch_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pitch_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Pitch instance based on its pitch name (a str consisting of pitch class and octave number (e.g. &#39;A4&#39;)</span>
+<span class="sd">        Note: works only with single sharp/flats; fails with double sharps/flats</span>
+
+<span class="sd">        :param pitch_name: Name, consisting of pitch class and octave number</span>
+<span class="sd">        :return: Pitch, as specified by its pitch name</span>
+
+<span class="sd">        &gt;&gt;&gt; Pitch.from_pitch_name(&#39;A4&#39;).midi_pitch</span>
+<span class="sd">        69</span>
+<span class="sd">        &gt;&gt;&gt; Pitch.from_pitch_name(&#39;Bb4&#39;).midi_pitch # We can handle single sharps or flats</span>
+<span class="sd">        70</span>
+<span class="sd">        &gt;&gt;&gt; Pitch.from_pitch_name(&#39;Bbb4&#39;)           # We cannot handle double sharps or flats</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">        ...</span>
+<span class="sd">        ValueError: invalid literal for int() with base 10: &#39;b4&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;b&#39;</span> <span class="ow">in</span> <span class="n">pitch_name</span> <span class="ow">or</span> <span class="s1">&#39;#&#39;</span> <span class="ow">in</span> <span class="n">pitch_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_pitch_class_and_octave_number</span><span class="p">(</span><span class="n">pitch_name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">pitch_name</span><span class="p">[</span><span class="mi">2</span><span class="p">:]))</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_pitch_class_and_octave_number</span><span class="p">(</span><span class="n">pitch_name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">pitch_name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
+
+    <span class="k">def</span> <span class="nf">_midi_pitch_to_pitch_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the pitch class from the midi pitch of our Pitch object</span>
+
+<span class="sd">        :return: Pitch class from the midi pitch of our Pitch object</span>
+
+<span class="sd">        &gt;&gt;&gt; Pitch(69)._midi_pitch_to_pitch_class()</span>
+<span class="sd">        &#39;A&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PITCH_CLASSES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">%</span> <span class="mi">12</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_midi_pitch_to_harte_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the harte class from the midi pitch of our Pitch object</span>
+
+<span class="sd">        :return: Harte class from the midi pitch of our Pitch object</span>
+
+<span class="sd">        &gt;&gt;&gt; Pitch(69)._midi_pitch_to_harte_class()</span>
+<span class="sd">        [&#39;G##&#39;, &#39;A&#39;, &#39;Bbb&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">HARTE_PITCH_CLASSES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">%</span> <span class="mi">12</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_midi_pitch_to_octave_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the octave number from the midi pitch of our Pitch object</span>
+
+<span class="sd">        :return: Octave number from the midi pitch of our Pitch object</span>
+
+<span class="sd">        &gt;&gt;&gt; Pitch(69)._midi_pitch_to_octave_number()</span>
+<span class="sd">        4</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">/</span> <span class="mi">12</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_fix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make sure that the pitch class, Harte pitch class and octave number correspond to the midi pitch.</span>
+<span class="sd">        This is a necessary step after creation or transposition of the Pitch.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_midi_pitch_to_pitch_class</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">harte_pitch_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_midi_pitch_to_harte_class</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">octave_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_midi_pitch_to_octave_number</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Pitch.is_higher_than"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Pitch.is_higher_than">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_higher_than</span><span class="p">(</span><span class="n">pitch_1</span><span class="p">,</span> <span class="n">pitch_2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if pitch 1 is higher than pitch 2</span>
+
+<span class="sd">        :param pitch_1: First pitch</span>
+<span class="sd">        :param pitch_2: Second pitch</span>
+<span class="sd">        :return: Is pitch 1 higher than pitch 2?</span>
+
+<span class="sd">        &gt;&gt;&gt; Pitch.is_higher_than(Pitch.from_pitch_name(&#39;A4&#39;), Pitch.from_pitch_name(&#39;G5&#39;))</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pitch_1</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">&gt;</span> <span class="n">pitch_2</span><span class="o">.</span><span class="n">midi_pitch</span></div>
+
+<div class="viewcode-block" id="Pitch.transpose_by"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Pitch.transpose_by">[docs]</a>    <span class="k">def</span> <span class="nf">transpose_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transposes the Pitch up by a certain interval</span>
+
+<span class="sd">        :param interval: The Interval with which we transpose our Pitch up</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Pitch(69)</span>
+<span class="sd">        &gt;&gt;&gt; p.transpose_by(Interval.from_harte_interval(&#39;b2&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; p.midi_pitch</span>
+<span class="sd">        70</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">+</span> <span class="n">interval</span><span class="o">.</span><span class="n">semitone_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pitch.transpose_down_by"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Pitch.transpose_down_by">[docs]</a>    <span class="k">def</span> <span class="nf">transpose_down_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transposes the Pitch down by a certain interval</span>
+
+<span class="sd">        :param interval: The Interval with which we transpose our Pitch down</span>
+
+<span class="sd">        &gt;&gt;&gt; p = Pitch(69)</span>
+<span class="sd">        &gt;&gt;&gt; p.transpose_down_by(Interval.from_harte_interval(&#39;b2&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; p.midi_pitch</span>
+<span class="sd">        68</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">-</span> <span class="n">interval</span><span class="o">.</span><span class="n">semitone_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="PitchClass"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.PitchClass">[docs]</a><span class="k">class</span> <span class="nc">PitchClass</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitch_class_number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a PitchClass by its pitch class number</span>
+
+<span class="sd">        :param pitch_class_number: Number of the pitch class</span>
+
+<span class="sd">        &gt;&gt;&gt; str(PitchClass(0))</span>
+<span class="sd">        &#39;C&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(PitchClass(4))</span>
+<span class="sd">        &#39;E&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(PitchClass(11))</span>
+<span class="sd">        &#39;B&#39;</span>
+<span class="sd">        &gt;&gt;&gt; PitchClass(2).harte_pitch_class</span>
+<span class="sd">        [&#39;C##&#39;, &#39;D&#39;, &#39;Ebb&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_number</span> <span class="o">=</span> <span class="n">pitch_class_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">harte_pitch_class</span> <span class="o">=</span> <span class="n">HARTE_PITCH_CLASSES</span><span class="p">[</span><span class="n">pitch_class_number</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests if this PitchClass is equal to another PitchClass object</span>
+
+<span class="sd">        :param other: The other PitchClass object</span>
+<span class="sd">        :return: Is this PitchClass equal to the other PitchClass object?</span>
+
+<span class="sd">        &gt;&gt;&gt; p = PitchClass.from_harte_pitch_class(&#39;D&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; q = PitchClass.from_harte_pitch_class(&#39;Ebb&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; r = PitchClass.from_harte_pitch_class(&#39;Eb&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p == q</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; q == r</span>
+<span class="sd">        False</span>
+<span class="sd">        &gt;&gt;&gt; s = PitchClass(2)</span>
+<span class="sd">        &gt;&gt;&gt; s == p</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_number</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">pitch_class_number</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hashes a PitchClass to an int, so we can use it as dictionary index</span>
+<span class="sd">        :return: Hashed PitchClass</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_number</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets an easily readable name for the pitch Class (instead of a list of Harte pitch classes)</span>
+
+<span class="sd">        :return: Easily readable name for the pitch Class</span>
+
+<span class="sd">        &gt;&gt;&gt; str(PitchClass(1))</span>
+<span class="sd">        &#39;C#&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PITCH_CLASSES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_number</span><span class="p">]</span>
+
+<div class="viewcode-block" id="PitchClass.from_harte_pitch_class"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.PitchClass.from_harte_pitch_class">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_harte_pitch_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">harte_pitch_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a PitchClass object from its Harte pitch class</span>
+
+<span class="sd">        :param harte_pitch_class: A string that defines a pitch class with at most two sharps/flats</span>
+<span class="sd">        :return: PitchClass as specified by the Harte pitch class</span>
+
+<span class="sd">        &gt;&gt;&gt; PitchClass.from_harte_pitch_class(&#39;Gbb&#39;).pitch_class_number</span>
+<span class="sd">        5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pitch_class_number</span> <span class="o">=</span> <span class="n">_find_item</span><span class="p">(</span><span class="n">HARTE_PITCH_CLASSES</span><span class="p">,</span> <span class="n">harte_pitch_class</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">pitch_class_number</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Fingering"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Fingering">[docs]</a><span class="k">class</span> <span class="nc">Fingering</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_fret</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">d3</span><span class="p">,</span> <span class="n">g3</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">e4</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a fingering: finger positions on a guitar that define the sounding pitches / pitch classes and bass pitch</span>
+
+<span class="sd">        :param base_fret: Standard value is &#39;1&#39;, can be higher is if the capo is placed on a higher fret</span>
+<span class="sd">        :param e2: Finger position on the e2 string. Can be either a digit or an &#39;x&#39;</span>
+<span class="sd">        :param a2: Finger position on the a2 string. Can be either a digit or an &#39;x&#39;</span>
+<span class="sd">        :param d3: Finger position on the d3 string. Can be either a digit or an &#39;x&#39;</span>
+<span class="sd">        :param g3: Finger position on the g3 string. Can be either a digit or an &#39;x&#39;</span>
+<span class="sd">        :param b3: Finger position on the b3 string. Can be either a digit or an &#39;x&#39;</span>
+<span class="sd">        :param e4: Finger position on the e4 string. Can be either a digit or an &#39;x&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; f = Fingering(&#39;1&#39;, &#39;x&#39;, &#39;0&#39;, &#39;2&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f.pitch_class_set == [&#39;A&#39;, &#39;C&#39;, &#39;E&#39;]</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; f.bass_pitch.pitch_class</span>
+<span class="sd">        &#39;A&#39;</span>
+<span class="sd">        &gt;&gt;&gt; f.finger_list == (&#39;x&#39;, &#39;0&#39;, &#39;2&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_fret</span> <span class="o">=</span> <span class="n">base_fret</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finger_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">e2</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">d3</span><span class="p">,</span> <span class="n">g3</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">e4</span><span class="p">)</span>
+        <span class="n">base_pitches</span> <span class="o">=</span> <span class="p">(</span><span class="mi">39</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">58</span><span class="p">,</span> <span class="mi">63</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># Find notes in the Fingering</span>
+        <span class="k">for</span> <span class="n">finger_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">finger_list</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finger_list</span><span class="p">[</span><span class="n">finger_i</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+                <span class="c1"># A note is played on this string, this must be a digit representing the finger position</span>
+                <span class="n">finger_nr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">finger_list</span><span class="p">[</span><span class="n">finger_i</span><span class="p">])</span>
+                <span class="n">pitch</span> <span class="o">=</span> <span class="n">Pitch</span><span class="p">(</span><span class="n">base_pitches</span><span class="p">[</span><span class="n">finger_i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">base_fret</span><span class="p">)</span> <span class="o">+</span> <span class="n">finger_nr</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pitch_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_set</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pitch</span><span class="o">.</span><span class="n">pitch_class</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_set</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_set</span><span class="p">)</span>
+
+        <span class="c1"># Find bass notes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bass_pitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">pitch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">Pitch</span><span class="o">.</span><span class="n">is_higher_than</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_pitch</span><span class="p">,</span> <span class="n">pitch</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bass_pitch</span> <span class="o">=</span> <span class="n">pitch</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the Fingering to a unique integer value, so we can use it as key in a dictionary</span>
+
+<span class="sd">        :return: A unique integer value for this Fingering</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">base_fret</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finger_list</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this Fingering is equal to another Fingering</span>
+
+<span class="sd">        :param other: The other Fingering</span>
+<span class="sd">        :return: Is this Fingering equal to the other Fingering?</span>
+
+<span class="sd">        &gt;&gt;&gt; Fingering(&#39;1&#39;, &#39;x&#39;, &#39;0&#39;, &#39;2&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;) == Fingering(&#39;1&#39;, &#39;x&#39;, &#39;0&#39;, &#39;2&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; # The fingering must be exactly the same, so two versions of the A minor chord may not be equal</span>
+<span class="sd">        &gt;&gt;&gt; a_minor_1 = Fingering(&#39;1&#39;, &#39;x&#39;, &#39;0&#39;, &#39;2&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; a_minor_2 = Fingering(&#39;1&#39;, &#39;x&#39;, &#39;x&#39;, &#39;x&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; a_minor_1.pitch_class_set == a_minor_2.pitch_class_set</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; a_minor_1 == a_minor_2</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_fret</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">base_fret</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">finger_list</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">finger_list</span>
+
+<div class="viewcode-block" id="Fingering.get_extended_chroma_vector"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Fingering.get_extended_chroma_vector">[docs]</a>    <span class="k">def</span> <span class="nf">get_extended_chroma_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the Fingering into a list in which the first 12 elements correspond with the 12 pitch classes and the</span>
+<span class="sd">        final element is the bass class pitch class</span>
+
+<span class="sd">        :return: 13D chroma-like vector with bass pitch class information</span>
+
+<span class="sd">        &gt;&gt;&gt; f = Fingering(&#39;1&#39;, &#39;x&#39;, &#39;0&#39;, &#39;2&#39;, &#39;2&#39;, &#39;1&#39;, &#39;0&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f.get_extended_chroma_vector()</span>
+<span class="sd">        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 9]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">pitch_class</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch_class_set</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">PITCH_CLASSES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">pitch_class</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_pitch</span><span class="o">.</span><span class="n">midi_pitch</span> <span class="o">%</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+
+
+<div class="viewcode-block" id="Interval"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Interval">[docs]</a><span class="k">class</span> <span class="nc">Interval</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">semitone_interval</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an interval based on the distance in semitones.</span>
+
+<span class="sd">        :param semitone_interval: Distance in semitones</span>
+
+<span class="sd">        &gt;&gt;&gt; str(Interval(0)) #  Prime</span>
+<span class="sd">        &#39;1&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Interval(8)) #  Minor sixth</span>
+<span class="sd">        &#39;b6&#39;</span>
+<span class="sd">        &gt;&gt;&gt; Interval(6).harte_interval #  Tritone, can be a augmented fourth and a diminished fifth</span>
+<span class="sd">        [&#39;#4&#39;, &#39;b5&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">semitone_interval</span> <span class="o">=</span> <span class="n">semitone_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">harte_interval</span> <span class="o">=</span> <span class="n">HARTE_INTERVALS</span><span class="p">[</span><span class="n">semitone_interval</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if two intervals sound the same (although they may be called by different Harte labels)</span>
+
+<span class="sd">        :param other: The other interval</span>
+<span class="sd">        :return: Do two intervals soud the same?</span>
+
+<span class="sd">        &gt;&gt;&gt; Interval.from_harte_interval(&#39;#4&#39;) == Interval.from_harte_interval(&#39;b5&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">semitone_interval</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">semitone_interval</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a unique integer that identifies this Interval</span>
+<span class="sd">        :return: Unique integer that identifies this Interval</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semitone_interval</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this interval is smaller than the other Interval</span>
+
+<span class="sd">        :param other: The other Interval</span>
+<span class="sd">        :return: Is this interval smaller than the other Interval?</span>
+
+<span class="sd">        &gt;&gt;&gt; Interval.from_harte_interval(&#39;b3&#39;) &lt; Interval.from_harte_interval(&#39;3&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; Interval(0) &lt; Interval(0)</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">semitone_interval</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">semitone_interval</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the Interval to an easily readable string (the most common interval name)</span>
+
+<span class="sd">        :return: The most common interval name</span>
+
+<span class="sd">        &gt;&gt;&gt; str(Interval(0)) == &#39;1&#39;</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; str(Interval(0)) == &#39;bb2&#39;</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">INTERVALS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">semitone_interval</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Interval.from_harte_interval"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Interval.from_harte_interval">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_harte_interval</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">harte_interval_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an interval from a Harte interval</span>
+
+<span class="sd">        :param harte_interval_string: String (or int) that identifies the interval</span>
+<span class="sd">        :return: Interval as defined by the Harte interval</span>
+
+<span class="sd">        &gt;&gt;&gt; Interval(0) == Interval.from_harte_interval(&#39;bb2&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; Interval.from_harte_interval(&#39;1&#39;) == Interval.from_harte_interval(&#39;bb2&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">harte_interval_string</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">harte_interval_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">harte_interval_string</span><span class="p">)</span>
+        <span class="n">harte_interval_string</span> <span class="o">=</span> <span class="n">harte_interval_string</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_find_item</span><span class="p">(</span><span class="n">HARTE_INTERVALS</span><span class="p">,</span> <span class="n">harte_interval_string</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Interval.from_pitch_class_distances"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Interval.from_pitch_class_distances">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_pitch_class_distances</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">from_pitch_class</span><span class="p">,</span> <span class="n">to_pitch_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an Interval by the distance between the pitch classes, wrapping around the octave</span>
+
+<span class="sd">        :param from_pitch_class: Pitch class of start of Interval</span>
+<span class="sd">        :param to_pitch_class: Pitch class of end of Interval</span>
+<span class="sd">        :return: Interval between two pitch classes</span>
+
+<span class="sd">        &gt;&gt;&gt; a = PitchClass.from_harte_pitch_class(&#39;A&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; c_sharp = PitchClass.from_harte_pitch_class(&#39;C#&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; str(Interval.from_pitch_class_distances(a, c_sharp))</span>
+<span class="sd">        &#39;3&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">semitone_interval</span> <span class="o">=</span> <span class="n">to_pitch_class</span><span class="o">.</span><span class="n">pitch_class_number</span> <span class="o">-</span> <span class="n">from_pitch_class</span><span class="o">.</span><span class="n">pitch_class_number</span>
+        <span class="k">if</span> <span class="n">semitone_interval</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">semitone_interval</span> <span class="o">+=</span> <span class="mi">12</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">semitone_interval</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Chord"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Chord">[docs]</a><span class="k">class</span> <span class="nc">Chord</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_note</span><span class="p">,</span> <span class="n">components_degree_list</span><span class="p">,</span> <span class="n">bass_degree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a chord, which can be uniquely defined by its root note, component degrees and bass degree</span>
+
+<span class="sd">        :param root_note: Pitch class of the root note</span>
+<span class="sd">        :param components_degree_list: List of Intervals that are in the chord</span>
+<span class="sd">        :param bass_degree: Interval from root to bass note</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_note</span> <span class="o">=</span> <span class="n">root_note</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span> <span class="o">=</span> <span class="n">bass_degree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components_degree_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">components_degree_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if this chord sounds the same as another chord (which may be a No-Chord)</span>
+
+<span class="sd">        :param other: The other chord</span>
+<span class="sd">        :return: Is this chord equal to the other chord?</span>
+
+<span class="sd">        &gt;&gt;&gt; c1 = Chord.from_harte_chord_string(&quot;D#:min7&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; c2 = Chord.from_harte_chord_string(&quot;Eb:(b3,5,b7)&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; c1 == c2</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_note</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">root_note</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_degree_list</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">components_degree_list</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">bass_degree</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hashes the chord to a unique integer, so we can use Chords as keys in a dictionary or set</span>
+
+<span class="sd">        :return: Unique integer for this chord</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_degree_list</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the Chord to a string, using shorthands when possible</span>
+
+<span class="sd">        :return: String representation of a chord, using shorthand when possible</span>
+
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_harte_chord_string(&#39;Db:(3, 5)&#39;))</span>
+<span class="sd">        &#39;C#&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_harte_chord_string(&#39;E:(b3, 5)&#39;))</span>
+<span class="sd">        &#39;E:min&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_harte_chord_string(&#39;Gb:(#2, 5, b7)&#39;))</span>
+<span class="sd">        &#39;F#:min7&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_harte_chord_string(&#39;C:(3,5,7)&#39;))</span>
+<span class="sd">        &#39;C:maj7&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_harte_chord_string(&#39;B:7&#39;))</span>
+<span class="sd">        &#39;B:7&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_harte_chord_string(&#39;C:(1, 2, 3,4,5,6,7)&#39;))</span>
+<span class="sd">        &#39;C:(1,2,3,4,5,6,7)&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_degree_list</span><span class="p">:</span>
+            <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">component</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">([</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">]):</span>
+            <span class="n">chord_string</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">),</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">([</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">]):</span>
+            <span class="n">chord_string</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">([</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">]):</span>
+            <span class="n">chord_string</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">),</span> <span class="s1">&#39;min7&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">([</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">]):</span>
+            <span class="n">chord_string</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">),</span> <span class="s1">&#39;maj7&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">components</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">([</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">]):</span>
+            <span class="n">chord_string</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">),</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chord_string</span> <span class="o">=</span> <span class="n">mir_eval</span><span class="o">.</span><span class="n">chord</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_note</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">components</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bass_degree</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">chord_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_component_list_from_common_tab_shorthand</span><span class="p">(</span><span class="n">shorthand_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a tab shorthand string, return the component list (or the empty list if the string was not a shorthand)</span>
+
+<span class="sd">        :param shorthand_string: Shorthand of a chord mode, that typically appears in tabs</span>
+<span class="sd">        :return: Component list belonging to the shorthand</span>
+
+<span class="sd">        &gt;&gt;&gt; Chord._component_list_from_common_tab_shorthand(&#39;7&#39;)</span>
+<span class="sd">        [&#39;3&#39;, &#39;5&#39;, &#39;b7&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; Chord._component_list_from_common_tab_shorthand(&#39;i_am_not_really_a_shorthand_and_not_short_either&#39;)</span>
+<span class="sd">        []</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">shorthands</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;7sus4&#39;</span><span class="p">,</span> <span class="s1">&#39;7sus&#39;</span><span class="p">,</span> <span class="s1">&#39;sus2&#39;</span><span class="p">,</span> <span class="s1">&#39;sus4&#39;</span><span class="p">,</span> <span class="s1">&#39;sus&#39;</span><span class="p">,</span> <span class="s1">&#39;m6&#39;</span><span class="p">,</span> <span class="s1">&#39;6/9&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;7-5&#39;</span><span class="p">,</span> <span class="s1">&#39;7\+5&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;m9&#39;</span><span class="p">,</span> <span class="s1">&#39;maj9&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;add9&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">,</span> <span class="s1">&#39;11&#39;</span><span class="p">,</span> <span class="s1">&#39;13&#39;</span><span class="p">,</span> <span class="s1">&#39;maj7&#39;</span><span class="p">,</span> <span class="s1">&#39;M7&#39;</span><span class="p">,</span> <span class="s1">&#39;maj&#39;</span><span class="p">,</span> <span class="s1">&#39;min7&#39;</span><span class="p">,</span> <span class="s1">&#39;m7&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;dim&#39;</span><span class="p">,</span> <span class="s1">&#39;aug&#39;</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">]</span>
+        <span class="n">component_lists</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;b5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;#5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;b5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;#5&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;#5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">shorthand_string</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shorthands</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">component_lists</span><span class="p">[</span><span class="n">shorthands</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">shorthand_string</span><span class="p">)]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_component_list_from_harte_shorthand</span><span class="p">(</span><span class="n">shorthand_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a harte shorthand string, return the component list (or None if the string was not a shorthand)</span>
+
+<span class="sd">        :param shorthand_string: Shorthand of a chord mode, that typically appears in chord label files</span>
+<span class="sd">        :return: Component list belonging to the shorthand</span>
+
+<span class="sd">        &gt;&gt;&gt; Chord._component_list_from_harte_shorthand(&#39;7&#39;)</span>
+<span class="sd">        [&#39;3&#39;, &#39;5&#39;, &#39;b7&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; Chord._component_list_from_harte_shorthand(&#39;i_am_not_really_a_shorthand_and_not_short_either&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">shorthands</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;maj&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;dim&#39;</span><span class="p">,</span> <span class="s1">&#39;aug&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;maj7&#39;</span><span class="p">,</span> <span class="s1">&#39;min7&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;dim7&#39;</span><span class="p">,</span> <span class="s1">&#39;hdim7&#39;</span><span class="p">,</span> <span class="s1">&#39;minmaj7&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;maj6&#39;</span><span class="p">,</span> <span class="s1">&#39;min6&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">,</span> <span class="s1">&#39;maj9&#39;</span><span class="p">,</span> <span class="s1">&#39;min9&#39;</span><span class="p">,</span> <span class="s1">&#39;sus4&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="n">component_lists</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;b5&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;#5&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;b5&#39;</span><span class="p">,</span> <span class="s1">&#39;bb7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;b5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;6&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">],</span>
+                           <span class="p">[</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;b3&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span> <span class="s1">&#39;b7&#39;</span><span class="p">,</span> <span class="s1">&#39;9&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">],</span> <span class="p">[]]</span>
+        <span class="k">if</span> <span class="n">shorthand_string</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shorthands</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">component_lists</span><span class="p">[</span><span class="n">shorthands</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">shorthand_string</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="Chord.from_shorthand_degree_bass"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Chord.from_shorthand_degree_bass">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_shorthand_degree_bass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root_note</span><span class="p">,</span> <span class="n">shorthand_string</span><span class="p">,</span> <span class="n">degree_string_list</span><span class="p">,</span> <span class="n">bass_degree</span><span class="p">,</span>
+                                   <span class="n">shorthand_type</span><span class="o">=</span><span class="s1">&#39;harte&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a chord from a root note, shorthand string, degree string list, bass degree and optional shorthand type</span>
+
+<span class="sd">        :param root_note: Root note of the chord</span>
+<span class="sd">        :param shorthand_string: Shorthand string that specifies the degrees (may be empty)</span>
+<span class="sd">        :param degree_string_list: List of degrees. A degree starting with * means that this degree is not in the chord</span>
+<span class="sd">        :param bass_degree: Bass degree Interval</span>
+<span class="sd">        :param shorthand_type: String that specifies the shorthand type: either &#39;harte&#39; or &#39;tab&#39;</span>
+<span class="sd">        :return: Chord as specified by the root note, shorthand, degrees and bass</span>
+
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_shorthand_degree_bass(PitchClass(0), &#39;min7&#39;, [&#39;*b7&#39;], Interval.from_harte_interval(&#39;b3&#39;)))</span>
+<span class="sd">        &#39;C:min/b3&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start with the standard degrees for this shorthand</span>
+        <span class="k">if</span> <span class="n">shorthand_type</span> <span class="o">==</span> <span class="s1">&#39;harte&#39;</span><span class="p">:</span>
+            <span class="n">component_list</span> <span class="o">=</span> <span class="n">Chord</span><span class="o">.</span><span class="n">_component_list_from_harte_shorthand</span><span class="p">(</span><span class="n">shorthand_string</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">shorthand_type</span> <span class="o">==</span> <span class="s1">&#39;tab&#39;</span><span class="p">:</span>
+            <span class="n">component_list</span> <span class="o">=</span> <span class="n">Chord</span><span class="o">.</span><span class="n">_component_list_from_common_tab_shorthand</span><span class="p">(</span><span class="n">shorthand_string</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">something_went_wrong_here</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">component_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Add or remove degrees from the degree_string_list</span>
+        <span class="k">for</span> <span class="n">degree</span> <span class="ow">in</span> <span class="n">degree_string_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">degree</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">degree</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">in</span> <span class="n">component_list</span><span class="p">:</span>
+                    <span class="c1"># This degree is not in the chord</span>
+                    <span class="n">component_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">degree</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># This degree must be added to the chord</span>
+                <span class="n">component_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">degree</span><span class="p">)</span>
+
+        <span class="c1"># Remove duplicates</span>
+        <span class="n">component_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">component_list</span><span class="p">))</span>
+
+        <span class="c1"># Convert all degrees to Intervals</span>
+        <span class="n">component_degree_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">component_list</span><span class="p">:</span>
+            <span class="n">component_degree_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="n">component</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">root_note</span><span class="p">,</span> <span class="n">component_degree_list</span><span class="p">,</span> <span class="n">bass_degree</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Chord.from_harte_chord_string"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Chord.from_harte_chord_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_harte_chord_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">chord_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a chord from a chord string in the syntax proposed in the 2005 paper &#39;SYMBOLIC REPRESENTATION OF</span>
+<span class="sd">        MUSICAL CHORDS: A PROPOSED SYNTAX FOR TEXT ANNOTATIONS&#39; by Harte et al.</span>
+
+<span class="sd">        :param chord_string: Chord string in syntax proposed by Harte et al.</span>
+<span class="sd">        :return: Chord type as specified by the chord string</span>
+
+<span class="sd">        &gt;&gt;&gt; Chord.from_harte_chord_string(&#39;C&#39;) == Chord.from_harte_chord_string(&#39;C:(3,5)&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; Chord.from_harte_chord_string(&#39;C:maj(4)&#39;) == Chord.from_harte_chord_string(&#39;C:(3,4,5)&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First find non-chord strings</span>
+        <span class="k">if</span> <span class="n">chord_string</span> <span class="o">==</span> <span class="s1">&#39;N&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Extract root, shorthand, degree_list and bass_degree from the chord string</span>
+        <span class="n">match_chord_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;(?P&lt;root&gt;[ABCDEFG][b#]{0,2}):?&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;(?P&lt;shorthand&gt;minmaj7|hdim7|maj7|min7|dim7|maj6|min6|maj9|min9|sus9|7|9|maj|min|dim|aug)?&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;(\((?P&lt;degree_list&gt;\*?[#b]{0,2}[0-9]{1,2}(, ?\*?[#b]{0,2}[0-9]{1,2})*)\))?&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;(/(?P&lt;bass_degree&gt;[#b]{0,2}[0-9]{1,2}))?&#39;</span><span class="p">,</span>
+            <span class="n">chord_string</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Any chord string needs to have a root note</span>
+        <span class="k">if</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">root_note_pitch_class</span> <span class="o">=</span> <span class="n">PitchClass</span><span class="o">.</span><span class="n">from_harte_pitch_class</span><span class="p">(</span><span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Find the shorthand</span>
+        <span class="k">if</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;shorthand&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;degree_list&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># This is a major chord</span>
+                <span class="n">shorthand_str</span> <span class="o">=</span> <span class="s1">&#39;maj&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># The chord type is specified by the degree list</span>
+                <span class="n">shorthand_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># We use a predefined shorthand</span>
+            <span class="n">shorthand_str</span> <span class="o">=</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;shorthand&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Find the degrees</span>
+        <span class="k">if</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;degree_list&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">degree_str_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">degree_str_list</span> <span class="o">=</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;degree_list&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Find the bass degree</span>
+        <span class="k">if</span> <span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;bass_degree&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bass_degree</span> <span class="o">=</span> <span class="n">Interval</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bass_degree</span> <span class="o">=</span> <span class="n">Interval</span><span class="o">.</span><span class="n">from_harte_interval</span><span class="p">(</span><span class="n">match_chord_string</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;bass_degree&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Return the chord</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_shorthand_degree_bass</span><span class="p">(</span><span class="n">root_note_pitch_class</span><span class="p">,</span> <span class="n">shorthand_str</span><span class="p">,</span> <span class="n">degree_str_list</span><span class="p">,</span> <span class="n">bass_degree</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Chord.from_common_tab_notation_string"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Chord.from_common_tab_notation_string">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_common_tab_notation_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">chord_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a chord from a string as it is typically found in a tab file</span>
+
+<span class="sd">        :param chord_string: Chord string as you typically find it in a tab file</span>
+<span class="sd">        :return: Chord as specified by the chord string</span>
+
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_common_tab_notation_string(&#39;C:min&#39;))</span>
+<span class="sd">        &#39;None&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_common_tab_notation_string(&#39;Cmaj&#39;))</span>
+<span class="sd">        &#39;C&#39;</span>
+<span class="sd">        &gt;&gt;&gt; str(Chord.from_common_tab_notation_string(&#39;Db11&#39;))</span>
+<span class="sd">        &#39;C#:(2,3,4,5,b7)&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">chord_parts</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;(?P&lt;root_str&gt;[ABCDEFG][b#]?)&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;(?P&lt;chord_type_str&gt;7sus4|7sus|sus2|sus4|sus|m6|6/9|6|7-5|7\+5|5|m9|maj9|add9|9|11|13|maj7|M7|maj|min7|m7&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;|m|dim|aug|\+|7)?&#39;</span>
+            <span class="sa">r</span><span class="s1">&#39;(/(?P&lt;bass_note_str&gt;[ABCDEFG][b#])?)?$&#39;</span><span class="p">,</span>
+            <span class="n">chord_string</span><span class="p">)</span>
+
+        <span class="c1"># This string was not recognized as a chord</span>
+        <span class="k">if</span> <span class="n">chord_parts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Root note</span>
+        <span class="n">root_note_pitch_class</span> <span class="o">=</span> <span class="n">PitchClass</span><span class="o">.</span><span class="n">from_harte_pitch_class</span><span class="p">(</span><span class="n">chord_parts</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;root_str&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Chord type</span>
+        <span class="n">chord_type_string</span> <span class="o">=</span> <span class="n">chord_parts</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;chord_type_str&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chord_type_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">chord_type_string</span> <span class="o">=</span> <span class="s1">&#39;maj&#39;</span>
+
+        <span class="c1"># Bass note</span>
+        <span class="n">bass_note_string</span> <span class="o">=</span> <span class="n">chord_parts</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;bass_note_str&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bass_note_string</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bass_interval</span> <span class="o">=</span> <span class="n">Interval</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bass_note_pitch_class</span> <span class="o">=</span> <span class="n">PitchClass</span><span class="o">.</span><span class="n">from_harte_pitch_class</span><span class="p">(</span><span class="n">bass_note_string</span><span class="p">)</span>
+            <span class="n">bass_interval</span> <span class="o">=</span> <span class="n">Interval</span><span class="o">.</span><span class="n">from_pitch_class_distances</span><span class="p">(</span><span class="n">root_note_pitch_class</span><span class="p">,</span> <span class="n">bass_note_pitch_class</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Chord</span><span class="o">.</span><span class="n">from_shorthand_degree_bass</span><span class="p">(</span><span class="n">root_note_pitch_class</span><span class="p">,</span> <span class="n">chord_type_string</span><span class="p">,</span> <span class="p">[],</span> <span class="n">bass_interval</span><span class="p">,</span> <span class="s1">&#39;tab&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Song"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Song">[docs]</a><span class="k">class</span> <span class="nc">Song</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">album</span><span class="p">,</span> <span class="n">full_ground_truth_chord_labs_path</span><span class="p">,</span> <span class="n">full_audio_path</span><span class="p">,</span>
+                 <span class="n">full_segmentation_labs_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new song. All information we extract from any representation of this song, is added to the Song object</span>
+
+<span class="sd">        :param key: Integer key of this song - we use this for matching all representations of the song</span>
+<span class="sd">        :param title: Title of the song</span>
+<span class="sd">        :param album: Album on which the song appears</span>
+<span class="sd">        :param full_ground_truth_chord_labs_path: Path to ground truth chord labels</span>
+<span class="sd">        :param full_audio_path: Path to the audio file</span>
+<span class="sd">        :param full_segmentation_labs_path: Path to the segmentation label file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Key, title, album and ground truth chord_labs_path are known from the beginning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">album</span> <span class="o">=</span> <span class="n">album</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_ground_truth_chord_labs_path</span> <span class="o">=</span> <span class="n">full_ground_truth_chord_labs_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_audio_path</span> <span class="o">=</span> <span class="n">full_audio_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_segmentation_labs_path</span> <span class="o">=</span> <span class="n">full_segmentation_labs_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">get_duration</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">full_audio_path</span><span class="p">)</span>
+
+        <span class="c1"># Tab paths, midi paths and ground truth chord labels are filled by get_all_songs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_midi_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_tab_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_chordify_chord_labs_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_mirex_chord_lab_paths</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Song.add_midi_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Song.add_midi_path">[docs]</a>    <span class="k">def</span> <span class="nf">add_midi_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full_midi_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Song.add_tab_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.musicobjects.Song.add_tab_path">[docs]</a>    <span class="k">def</span> <span class="nf">add_tab_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full_tab_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">full_tab_path</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

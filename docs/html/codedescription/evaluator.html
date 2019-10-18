@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Evaluation &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Visualisation" href="visualisation.html" />
+    <link rel="prev" title="Data Fusion" href="datafusion.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Evaluation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/codedescription/evaluator.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="evaluation">
+<h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h1>
+<p>In order to evaluate both the performance of DECIBEL’s representation-specific subsystems and its final output
+chord sequence, we need evaluation measures. The quality of a chord sequence is usually determined by comparing it to a
+ground truth created by one or more human annotators. Commonly used <strong>data sets</strong> with chord annotations, which are
+also used in the MIREX ACE contest, are Isophonics, Billboard, RobbieWilliams, RWC-Popular and USPOP2002Chords.
+DECIBEL uses the Isophonics data set, augmented with matched MIDI and tab files.</p>
+<p>The standard quality measure to evaluate the quality of an automatic transcription is <strong>chord symbol recall</strong> (CSR).
+This measure is also used in MIREX. CSR is the summed duration of time periods where the correct chord has been
+identified, normalized by the total duration of the song. Until 2013, MRIEX used an approximate, frame-based CSR
+calculated by sampling both the ground-truth and the automatic annotations every 10 ms and dividing the number of
+correctly annotated samples by the total number of samples. Since 2013, MIREX has used segment-based CSR, which is more
+precise and computationally more efficient.</p>
+<p>For results that are calculated for the whole data set, we weigh the CSR by the length of the song when computing an
+average for a given corpus. This final number is referred to as the <strong>weighted chord symbol recall</strong> (WCSR). Calculating
+the WCSR is basically the same as treating the data set as one big audio file, and calculating the CSR between the
+concatenation of all ground-truth annotations and the concatenation of all estimated annotations.</p>
+<p>The CSR correctly indicates the accuracy of an ACE algorithm in terms of whether the estimated chord for a given instant
+in the audio is correct. It it therefore widely used in the evaluation of ACE systems. However, the annotation with the
+highest CSR is not always the annotation that would be considered the best by human listeners. For this purpose,
+we also use measures based on the <strong>directional hamming distance</strong>, which describes how fragmented a chord segmentation
+is with respect to the ground truth chord segmentation.</p>
+<span class="target" id="module-decibel.evaluator.evaluator"></span><dl class="function">
+<dt id="decibel.evaluator.evaluator.evaluate">
+<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate</code><span class="sig-paren">(</span><em>ground_truth_lab_path</em>, <em>my_lab_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the chord label sequence in my_lab_path, compared to the ground truth sequence in ground_truth_lab_path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ground_truth_lab_path</strong> – Path to .lab file of ground truth chord label sequence</li>
+<li><strong>my_lab_path</strong> – Path to .lab file of estimated chord label sequence</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">CSR, over-segmentation, under-segmentation, segmentation</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.evaluator.evaluator.evaluate_method">
+<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_method</code><span class="sig-paren">(</span><em>all_songs</em>, <em>method_name</em>, <em>get_lab_function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate all songs from our data set for one specific chord estimation technique, for which you get the labels using
+get_lab_function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>all_songs</strong> – All songs in our data set</li>
+<li><strong>method_name</strong> – Name of the method (e.g. ‘CHF_2017_DF_BEST’)</li>
+<li><strong>get_lab_function</strong> – A function that takes the song and outputs the lab path</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Pandas DataFrame with results</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.evaluator.evaluator.evaluate_midis">
+<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_midis</code><span class="sig-paren">(</span><em>all_songs</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_midis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_midis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate all lab files based on MIDI alignment and chord estimation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>all_songs</strong> – All songs in the data set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.evaluator.evaluator.evaluate_song_based">
+<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_song_based</code><span class="sig-paren">(</span><em>all_songs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_song_based"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_song_based" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate all songs in the data set in parallel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>all_songs</strong> – All song in the data set</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Print statement indicating that the evaluation was finished</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.evaluator.evaluator.evaluate_tabs">
+<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_tabs</code><span class="sig-paren">(</span><em>all_songs</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_tabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_tabs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate all lab files based on tab parsing and alignment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>all_songs</strong> – All songs in our data set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.evaluator.evaluator.write_method_evaluations">
+<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">write_method_evaluations</code><span class="sig-paren">(</span><em>all_songs</em>, <em>method_name</em>, <em>get_lab_function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#write_method_evaluations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.write_method_evaluations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write evaluations for all songs from our data set that have not been evaluated yet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>all_songs</strong> – All songs in our data set</li>
+<li><strong>method_name</strong> – Name of the method (e.g. ‘CHF_2017_DF_BEST’)</li>
+<li><strong>get_lab_function</strong> – A function that takes the song and outputs the lab path</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="visualisation.html" class="btn btn-neutral float-right" title="Visualisation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="datafusion.html" class="btn btn-neutral" title="Data Fusion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

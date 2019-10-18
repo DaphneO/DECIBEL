@@ -1,0 +1,278 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to DECIBEL’s documentation website! &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="What is DECIBEL?" href="thesis/abstract.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to DECIBEL’s documentation website!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-decibel-s-documentation-website">
+<h1>Welcome to DECIBEL’s documentation website!<a class="headerlink" href="#welcome-to-decibel-s-documentation-website" title="Permalink to this headline">¶</a></h1>
+<p><strong>DECIBEL</strong> is a new system for <strong>Automatic Chord Estimation (ACE)</strong> which exploits MIDI and tab files to improve audio
+ACE, thereby implicitly integrating musical knowledge.</p>
+<p><strong>Automatic Chord Estimation</strong> is a fundamental task in <strong>Music Information Retrieval (MIR)</strong>, which has
+applications in both music performance and MIR research. The task consists of segmenting a music recording or score and
+assigning a chord label to each segment. Although it has been a task in the annual benchmarking evaluation MIREX for
+over 10 years, it is not yet a solved problem due to recent insights into the subjective nature of harmony perception.</p>
+<p>Given an audio file and a set of MIDI and tab files corresponding to the same song, <strong>DECIBEL</strong> first estimates chord
+sequences from all files. For the audio file, it uses existing state-of-the-art audio ACE methods. MIDI files are first
+aligned to the audio, followed by a MIDI chord estimation step. Tab files are first parsed to untimed chord sequences
+and then aligned to the audio. In a final step, DECIBEL uses a data fusion method that integrates all estimated chord
+sequences into one final output sequence.</p>
+<p>We tested DECIBEL on the Isophonics reference annotations. Our results show that DECIBEL improves all of the MIREX 2017
+and 2018 ACE submissions, as well as a state-of-the-art commercial ACE method.</p>
+<div class="section" id="try-decibel-yourself">
+<h2>Try DECIBEL yourself<a class="headerlink" href="#try-decibel-yourself" title="Permalink to this headline">¶</a></h2>
+<p>If you want to reproduce our results or try DECIBEL on your own data set, you can clone the source code from
+<a class="reference external" href="https://github.com/DaphneO/DECIBEL">https://github.com/DaphneO/DECIBEL</a>.</p>
+<p>The documentation can be found on the current website.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/filescraper.html">Scraping MIDI and tab files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/filescraper.html#module-decibel.file_scraper.midi_scraper">Scraping MIDI files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/filescraper.html#module-decibel.file_scraper.tab_scraper">Scraping Tab files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/audiomidialigner.html">Aligning MIDI to audio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/audiomidialigner.html#module-decibel.audio_midi_aligner.synthesizer">Synthesize MIDI files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/audiomidialigner.html#module-decibel.audio_midi_aligner.aligner">Aligning synthesized MIDI to audio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/tabparser.html">Extracting chords from tabs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/tabparser.html#line-type-classification">Line type classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/tabparser.html#segmentation">Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/tabparser.html#system-and-chord-extraction">System and chord extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/audiotabaligner.html">Aligning tab to audio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/audiotabaligner.html#preprocessing-feature-extraction">Preprocessing: feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codedescription/audiotabaligner.html#jump-alignment">Jump Alignment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codedescription/utils.html">Utility Functions</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="thesis/abstract.html" class="btn btn-neutral float-right" title="What is DECIBEL?" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

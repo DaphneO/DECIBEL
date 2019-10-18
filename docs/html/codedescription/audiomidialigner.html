@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Aligning MIDI to audio &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Extracting chords from MIDI" href="midiace.html" />
+    <link rel="prev" title="Scraping MIDI and tab files" href="filescraper.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Aligning MIDI to audio</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-decibel.audio_midi_aligner.synthesizer">Synthesize MIDI files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-decibel.audio_midi_aligner.aligner">Aligning synthesized MIDI to audio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Aligning MIDI to audio</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/codedescription/audiomidialigner.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="aligning-midi-to-audio">
+<h1>Aligning MIDI to audio<a class="headerlink" href="#aligning-midi-to-audio" title="Permalink to this headline">¶</a></h1>
+<p>In order to receive audio-timed chord labels from a MIDI file, DECIBEL first finds an optimal alignment from the Midi
+file to the audio file, realigns the MIDI file using this alignment and then uses a MIDI chord recognizer to estimate
+the chord labels on the realigned MIDI file. The audio-midi aligner contains methods to re-align the MIDI file to the
+audio file.</p>
+<p>For alignment between MIDI files and audio recordings, DECIBEL uses a DTW algorithm by Raffel and Ellis
+(<a class="reference internal" href="#raffel2016optimizing" id="id1">[raffel2016optimizing]</a>) Dynamic Time Warping (DTW) is a common technique to align two feature vectors, for example
+two representations of the same song.</p>
+<p>Let us have a look at the outline of the algorithm. First, all MIDI files are synthesized using the fluidsynth software
+synthesizer with the FluidR3_GM soundfont. Now we have a waveform representation for both the audio and the MIDI file,
+as shown below:</p>
+<p><strong>Audio waveform</strong></p>
+<img alt="../_images/Audio-waveform.png" src="../_images/Audio-waveform.png" />
+<p><strong>Synthesized MIDI waveform</strong></p>
+<img alt="../_images/Synth-MIDI-waveform.png" src="../_images/Synth-MIDI-waveform.png" />
+<p>Note that our example MIDI file starts with silence, while in the audio recording the music starts immediately. Also,
+the MIDI file has a longer duration, as the MIDI file repeats the chorus an additional time, compared to the audio
+file. Then, the Constant-Q transform is calculated for both the audio and the synthesized MIDI waveform:</p>
+<p><strong>Audio CQT</strong></p>
+<img alt="../_images/Audio-cqt.png" src="../_images/Audio-cqt.png" />
+<p><strong>Synthesized MIDI CQT</strong></p>
+<img alt="../_images/MIDI-cqt.png" src="../_images/MIDI-cqt.png" />
+<p>Features are found by aggregation over the Constant-Q transform vectors. Then, the optimal path between the audio file
+and the synthesized MIDI is calculated using DTW. This results in an optimal path and the alignment confidence score:</p>
+<p><strong>Alignment path</strong></p>
+<img alt="../_images/Alignment.png" src="../_images/Alignment.png" />
+<p>In this figure, we see that the alignment path starts not in the coordinate (0, 0), but a bit to the right: the silence
+at the start of the MIDI file is not mapped to any position in the audio file. The same goes for the end of the MIDI
+file, which is a superfluous repetition of the chorus. Finally, this alignment path is used to remap the MIDI file to
+the audio recording:</p>
+<p><strong>MIDI re-alignment</strong></p>
+<img alt="../_images/Alginment-mapping.png" src="../_images/Alginment-mapping.png" />
+<p>Decibel uses the unchanged parameter setting reported in the paper by <a class="reference internal" href="#raffel2016optimizing" id="id2">[raffel2016optimizing]</a>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Setting</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Feature representation</td>
+<td>log-magnitude Constant-Q transform</td>
+</tr>
+<tr class="row-odd"><td>Time scale</td>
+<td>every 46 milliseconds</td>
+</tr>
+<tr class="row-even"><td>Cost function</td>
+<td>cosine distance</td>
+</tr>
+<tr class="row-odd"><td>Penalty</td>
+<td>median distance of all pairs of frames</td>
+</tr>
+<tr class="row-even"><td>Gully</td>
+<td>0.96</td>
+</tr>
+<tr class="row-odd"><td>Band path constraint</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="module-decibel.audio_midi_aligner.synthesizer">
+<span id="synthesize-midi-files"></span><h2>Synthesize MIDI files<a class="headerlink" href="#module-decibel.audio_midi_aligner.synthesizer" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-decibel.audio_midi_aligner.synthesizer" title="decibel.audio_midi_aligner.synthesizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">decibel.audio_midi_aligner.synthesizer</span></code></a> module contains functions for synthesizing MIDI files using the
+fluidsynth software synthesizer.</p>
+<dl class="function">
+<dt id="decibel.audio_midi_aligner.synthesizer.synthesize_midi_to_wav">
+<code class="descclassname">decibel.audio_midi_aligner.synthesizer.</code><code class="descname">synthesize_midi_to_wav</code><span class="sig-paren">(</span><em>midi_file_path_from</em>, <em>sampling_rate=22050</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/audio_midi_aligner/synthesizer.html#synthesize_midi_to_wav"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.audio_midi_aligner.synthesizer.synthesize_midi_to_wav" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a midi file, specified to its path, to a waveform and writes the result as a wav file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>midi_file_path_from</strong> – Path to the midi file which will be converted</li>
+<li><strong>sampling_rate</strong> – Sampling rate of the audio</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-decibel.audio_midi_aligner.aligner">
+<span id="aligning-synthesized-midi-to-audio"></span><h2>Aligning synthesized MIDI to audio<a class="headerlink" href="#module-decibel.audio_midi_aligner.aligner" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#module-decibel.audio_midi_aligner.aligner" title="decibel.audio_midi_aligner.aligner"><code class="xref py py-mod docutils literal notranslate"><span class="pre">decibel.audio_midi_aligner.aligner</span></code></a> module contains functions for finding the alignment between the
+synthesized MIDI file and the audio recording. The <a class="reference internal" href="#decibel.audio_midi_aligner.aligner.align_midi" title="decibel.audio_midi_aligner.aligner.align_midi"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_midi()</span></code></a> function (in the Alignment class) finds the
+alignment between a single MIDI file and the matched audio recording and returns an Alignment object.
+The function <a class="reference internal" href="#decibel.audio_midi_aligner.aligner.align_single_song" title="decibel.audio_midi_aligner.aligner.align_single_song"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_single_song()</span></code></a> finds the alignment between the audio file of the given song and all matched
+MIDI files.
+Since this can take a long time, it is possible to interrupt and resume this process: all MIDI files that are aligned,
+are stored and can be reloaded quickly when they are needed in a new program run.</p>
+<dl class="function">
+<dt id="decibel.audio_midi_aligner.aligner.align_midi">
+<code class="descclassname">decibel.audio_midi_aligner.aligner.</code><code class="descname">align_midi</code><span class="sig-paren">(</span><em>audio_cqt: numpy.ndarray</em>, <em>audio_times: numpy.ndarray</em>, <em>full_synthesized_midi_path: str</em>, <em>full_alignment_write_path: str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/audio_midi_aligner/aligner.html#align_midi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.audio_midi_aligner.aligner.align_midi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align audio (specified by CQT) to synthesized MIDI (specified by path), return path and score of the alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>audio_cqt</strong> – The CQT of the audio of the alignment</li>
+<li><strong>audio_times</strong> – Array of times of the audio (from compute_cqt function)</li>
+<li><strong>full_synthesized_midi_path</strong> – The path to the synthesized MIDI file</li>
+<li><strong>full_alignment_write_path</strong> – The path to write the alignment to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="decibel.audio_midi_aligner.aligner.align_single_song">
+<code class="descclassname">decibel.audio_midi_aligner.aligner.</code><code class="descname">align_single_song</code><span class="sig-paren">(</span><em>song</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/audio_midi_aligner/aligner.html#align_single_song"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.audio_midi_aligner.aligner.align_single_song" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align each MIDI file that is matched to this song to the song. As part of the procedure, each MIDI will be
+synthesized and the alignment of each MIDI will be written to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – The Song object for which we align each MIDI file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<table class="docutils citation" frame="void" id="raffel2016optimizing" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[raffel2016optimizing]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>)</em> Raffel, Colin, and Daniel PW Ellis. “Optimizing DTW-based audio-to-MIDI alignment and
+matching.” 2016 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), IEEE, 2016.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="midiace.html" class="btn btn-neutral float-right" title="Extracting chords from MIDI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="filescraper.html" class="btn btn-neutral" title="Scraping MIDI and tab files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,860 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>decibel.utils.filehandler &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/evaluator.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/visualisation.html">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../codedescription/utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>decibel.utils.filehandler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for decibel.utils.filehandler</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">listdir</span><span class="p">,</span> <span class="n">makedirs</span><span class="p">,</span> <span class="n">remove</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">decibel.utils.musicobjects</span> <span class="k">import</span> <span class="n">Song</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<span class="c1"># Set random seed to enable reproducibility</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+
+
+<span class="c1"># Read the path to the data folder. This path is in the &#39;data_path.txt&#39; file</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data_path.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">read_file</span><span class="p">:</span>
+    <span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">read_file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_full_path_to</span><span class="p">(</span><span class="n">folder_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">i_f_r</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper method to find the full path to a folder in Data</span>
+
+<span class="sd">    :param folder_name: Name of the folder in Data</span>
+<span class="sd">    :param i_f_r: &#39;i&#39; (Input), &#39;f&#39; (Files) or &#39;r&#39; (Results). &#39;r&#39; has subfolders &#39;l&#39; (Labs), &#39;t&#39; (Tables), &#39;f&#39; (Figures)</span>
+<span class="sd">    and &#39;v&#39; (LabVisualisations)</span>
+<span class="sd">    :return: Full path to the folder in Data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">i_f_r</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span><span class="p">:</span>
+        <span class="n">parent_folder</span> <span class="o">=</span> <span class="s1">&#39;Input&#39;</span>
+    <span class="k">elif</span> <span class="n">i_f_r</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span>
+        <span class="n">parent_folder</span> <span class="o">=</span> <span class="s1">&#39;Files&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parent_folder</span> <span class="o">=</span> <span class="s1">&#39;Results&#39;</span>
+        <span class="k">if</span> <span class="n">i_f_r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span>
+            <span class="n">parent_folder</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="s1">&#39;Labs&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i_f_r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span>
+            <span class="n">parent_folder</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="s1">&#39;Tables&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i_f_r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span>
+            <span class="n">parent_folder</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="s1">&#39;Figures&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent_folder</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="s1">&#39;LabVisualisations&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">parent_folder</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_mirex_submissions</span><span class="p">(</span><span class="n">from_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all names and directory paths to MIREX submissions from previous years, starting from from_year</span>
+
+<span class="sd">    :param from_year: First year for which we want to find the MIREX results</span>
+<span class="sd">    :return: Tuple of all names and directory paths to MIREX submissions from previous years, starting from from_year</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_submission_names</span><span class="p">,</span> <span class="n">all_mirex_folders</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">from_year</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">from_year</span><span class="p">,</span> <span class="mi">2013</span><span class="p">)</span>  <span class="c1"># There are no results before 2013</span>
+    <span class="n">mirex_folder</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MirexResults&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+    <span class="n">years_in_folder</span> <span class="o">=</span> <span class="n">listdir</span><span class="p">(</span><span class="n">mirex_folder</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">year_folder</span> <span class="ow">in</span> <span class="n">years_in_folder</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">year_folder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">year</span> <span class="o">&gt;=</span> <span class="n">from_year</span><span class="p">:</span>
+                <span class="c1"># We want to test DECIBEL on this year&#39;s results!</span>
+                <span class="n">isophonics_results_folder</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mirex_folder</span><span class="p">,</span> <span class="n">year_folder</span><span class="p">,</span> <span class="s1">&#39;Isophonics2009&#39;</span><span class="p">)</span>
+                <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">isophonics_results_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;Ground-Truth&#39;</span><span class="p">]</span>
+                <span class="n">submission_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">year_folder</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+                <span class="n">all_submission_names</span> <span class="o">=</span> <span class="n">all_submission_names</span> <span class="o">+</span> <span class="n">submission_names</span>
+                <span class="n">mirex_folders</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">isophonics_results_folder</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+                <span class="n">all_mirex_folders</span> <span class="o">=</span> <span class="n">all_mirex_folders</span> <span class="o">+</span> <span class="n">mirex_folders</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">all_submission_names</span><span class="p">,</span> <span class="n">all_mirex_folders</span>
+
+
+<span class="c1"># Add folder to ground truth labels</span>
+<span class="n">CHORDLABS_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;GT_ChordLabels&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+<span class="n">SEGMENTATION_LABS_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;GT_SegmentationLabels&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add folders to our different representations and the index files with which we can find them</span>
+<span class="n">INDEX_PATH</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;IndexAudio.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+<span class="n">TAB_INDEX_PATH</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;IndexTabs.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+<span class="n">AUDIO_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;Audio&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+<span class="n">MIDI_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MIDI&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+<span class="n">TABS_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;Tabs&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+
+<span class="c1"># Folders to output of audio chord recognition algorithms</span>
+<span class="n">CHORDIFY_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;ChordifyLabs&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+
+<span class="c1"># Names and folders of MIREX audio ACE results</span>
+<span class="n">MIREX_SUBMISSION_NAMES</span><span class="p">,</span> <span class="n">MIREX_SUBMISSION_FOLDERS</span> <span class="o">=</span> <span class="n">_get_mirex_submissions</span><span class="p">(</span><span class="mi">2017</span><span class="p">)</span>
+
+<span class="c1"># We need the sound font for synthesizing MIDI files</span>
+<span class="n">SOUND_FONT_PATH</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;FluidR3_GM.sf2&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+
+<span class="c1"># Folders where we save (large-sized/expensive to compute) temporary results</span>
+<span class="n">SYNTHMIDI_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;SynthMIDI&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+<span class="n">ALIGNMENTS_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;Alignments&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+<span class="n">AUDIO_FEATURES_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;AudioFeatures&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+<span class="n">CHORDS_FROM_TABS_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;ChordsFromTabs&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+
+<span class="c1"># Paths to .csv files with results (CSR and segmentation measures for each song)</span>
+<span class="n">MIDILABS_RESULTS_PATHS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MidiLabsResultsBar.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">),</span>
+                          <span class="s1">&#39;beat&#39;</span><span class="p">:</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MidiLabsResultsBeat.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)}</span>
+<span class="n">MIDILABS_CHORD_PROBABILITY_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MidiChordProbabilities&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+<span class="n">MIDILABS_ALIGNMENT_SCORE_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MidiAlignmentScores&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+<span class="n">LOG_LIKELIHOOD_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;LogLikelihoods&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+
+<span class="n">TABLABS_RESULTS_PATH</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;TabLabsResults.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+<span class="n">DUPLICATE_MIDI_PATH</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;DuplicateMIDIs.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+
+<span class="c1"># Folders for output chord label sequences for all three representation types</span>
+<span class="n">MIDILABS_FOLDERS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MIDIlabsBar&#39;</span><span class="p">,</span> <span class="s1">&#39;rl&#39;</span><span class="p">),</span> <span class="s1">&#39;beat&#39;</span><span class="p">:</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;MIDIlabsBeat&#39;</span><span class="p">,</span> <span class="s1">&#39;rl&#39;</span><span class="p">)}</span>
+<span class="n">TABLABS_FOLDER</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;TabLabs&#39;</span><span class="p">,</span> <span class="s1">&#39;rl&#39;</span><span class="p">)</span>
+
+<span class="n">DATA_FUSION_FOLDERS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">df_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">selection_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">]:</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">df_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">selection_method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span>
+        <span class="n">DATA_FUSION_FOLDERS</span><span class="p">[</span><span class="n">fn</span> <span class="o">+</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="n">fn</span> <span class="o">+</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">,</span> <span class="s1">&#39;rl&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mirex_submission_name</span> <span class="ow">in</span> <span class="n">MIREX_SUBMISSION_NAMES</span><span class="p">:</span>
+            <span class="n">DATA_FUSION_FOLDERS</span><span class="p">[</span><span class="n">fn</span> <span class="o">+</span> <span class="n">mirex_submission_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="n">fn</span> <span class="o">+</span> <span class="n">mirex_submission_name</span><span class="p">,</span> <span class="s1">&#39;rl&#39;</span><span class="p">)</span>
+
+<span class="n">RESULT_TABLES</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+<span class="n">RESULT_FIGURES</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;rf&#39;</span><span class="p">)</span>
+<span class="n">RESULT_VISUALISATIONS</span> <span class="o">=</span> <span class="n">_full_path_to</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;rv&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="init_folders"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.init_folders">[docs]</a><span class="k">def</span> <span class="nf">init_folders</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if all folders that we need, exist. If they do not exist yet, create them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">needed_folders</span> <span class="o">=</span> <span class="p">[</span><span class="n">SYNTHMIDI_FOLDER</span><span class="p">,</span> <span class="n">ALIGNMENTS_FOLDER</span><span class="p">,</span> <span class="n">AUDIO_FEATURES_FOLDER</span><span class="p">,</span> <span class="n">CHORDS_FROM_TABS_FOLDER</span><span class="p">,</span>
+                      <span class="n">MIDILABS_FOLDERS</span><span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">],</span> <span class="n">MIDILABS_FOLDERS</span><span class="p">[</span><span class="s1">&#39;beat&#39;</span><span class="p">],</span> <span class="n">TABLABS_FOLDER</span><span class="p">,</span>
+                      <span class="n">MIDILABS_CHORD_PROBABILITY_FOLDER</span><span class="p">,</span> <span class="n">LOG_LIKELIHOOD_FOLDER</span><span class="p">,</span> <span class="n">MIDILABS_ALIGNMENT_SCORE_FOLDER</span><span class="p">,</span>
+                      <span class="n">RESULT_TABLES</span><span class="p">,</span> <span class="n">RESULT_FIGURES</span><span class="p">,</span> <span class="n">RESULT_VISUALISATIONS</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">folder_name</span> <span class="ow">in</span> <span class="n">DATA_FUSION_FOLDERS</span><span class="p">:</span>
+        <span class="n">needed_folders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DATA_FUSION_FOLDERS</span><span class="p">[</span><span class="n">folder_name</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">needed_folder</span> <span class="ow">in</span> <span class="n">needed_folders</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">needed_folder</span><span class="p">):</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="n">needed_folder</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_all_songs"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_all_songs">[docs]</a><span class="k">def</span> <span class="nf">get_all_songs</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a dictionary of Song objects, indexed by integer keys. Key, title, album, ground truth chord labels,</span>
+<span class="sd">    audio path and Chordify labels path are added to each song.</span>
+
+<span class="sd">    :return: Dictionary of Songs in our data set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Import all songs, assign full paths</span>
+    <span class="n">all_songs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">INDEX_PATH</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">index_csv</span><span class="p">:</span>
+        <span class="n">index_csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">index_csv</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key_data_row</span> <span class="ow">in</span> <span class="n">index_csv_reader</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_data_row</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1"># This is a data row containing song information: key, title, album and path to ground truth label file</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key_data_row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># NB: this is not the musical key, but an index</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="n">key_data_row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">album</span> <span class="o">=</span> <span class="n">key_data_row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">full_chord_labs_path</span> <span class="o">=</span> <span class="n">get_full_chord_labs_path</span><span class="p">(</span><span class="n">key_data_row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">full_segmentation_labs_path</span> <span class="o">=</span> <span class="n">get_full_segmentation_labs_path</span><span class="p">(</span><span class="n">key_data_row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">all_songs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Song</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">album</span><span class="p">,</span> <span class="n">full_chord_labs_path</span><span class="p">,</span> <span class="n">get_full_audio_path</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
+                                      <span class="n">full_segmentation_labs_path</span><span class="p">)</span>
+
+    <span class="c1"># Find corresponding tabs</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">TAB_INDEX_PATH</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tab_index_csv</span><span class="p">:</span>
+        <span class="n">tab_index_csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">tab_index_csv</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tab_data_row</span> <span class="ow">in</span> <span class="n">tab_index_csv_reader</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tab_data_row</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1"># This is a data row containing tab link information.</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tab_data_row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">all_songs</span><span class="p">:</span>
+                    <span class="c1"># This tab file was manually matched to one of the songs in our data set.</span>
+                    <span class="n">tab_path</span> <span class="o">=</span> <span class="n">tab_data_row</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="n">all_songs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">add_tab_path</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TABS_FOLDER</span><span class="p">,</span> <span class="n">tab_path</span><span class="p">))</span>
+
+    <span class="c1"># Find corresponding MIDIs</span>
+    <span class="n">all_midis</span> <span class="o">=</span> <span class="n">_get_midi_path_list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">midi_file_name</span> <span class="ow">in</span> <span class="n">all_midis</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">midi_file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">all_songs</span><span class="p">:</span>
+            <span class="n">all_songs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">add_midi_path</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MIDI_FOLDER</span><span class="p">,</span> <span class="n">midi_file_name</span><span class="p">))</span>
+
+    <span class="c1"># Find labs from Audio Chord Estimation systems</span>
+    <span class="k">for</span> <span class="n">song_key</span> <span class="ow">in</span> <span class="n">all_songs</span><span class="p">:</span>
+        <span class="c1"># Chordify</span>
+        <span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span><span class="o">.</span><span class="n">full_chordify_chord_labs_path</span> <span class="o">=</span> <span class="n">get_full_chordify_chord_labs_path</span><span class="p">(</span><span class="n">song_key</span><span class="p">)</span>
+        <span class="c1"># MIREX</span>
+        <span class="k">for</span> <span class="n">mirex_submission_name_str</span> <span class="ow">in</span> <span class="n">MIREX_SUBMISSION_NAMES</span><span class="p">:</span>
+            <span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span><span class="o">.</span><span class="n">full_mirex_chord_lab_paths</span><span class="p">[</span><span class="n">mirex_submission_name_str</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">get_full_mirex_chord_labs_path</span><span class="p">(</span><span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">],</span> <span class="n">mirex_submission_name_str</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">all_songs</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_midi_chord_probability_path</span><span class="p">(</span><span class="n">segmentation_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get path of text file to read/write this MIDI chord probability from/to.</span>
+
+<span class="sd">    :param segmentation_method: Bar or beat segmentation</span>
+<span class="sd">    :param midi_name: Name of the MIDI file</span>
+<span class="sd">    :return: Path of text file to read/write this MIDI chord probability from/to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MIDILABS_CHORD_PROBABILITY_FOLDER</span><span class="p">,</span> <span class="n">segmentation_method</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">midi_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="write_midi_chord_probability"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.write_midi_chord_probability">[docs]</a><span class="k">def</span> <span class="nf">write_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_chord_probability</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write MIDI chord probability of this MIDI file to the corresponding text file</span>
+
+<span class="sd">    :param segmentation_method: Bar or beat segmentation</span>
+<span class="sd">    :param midi_name: Name of the MIDI file</span>
+<span class="sd">    :param midi_chord_probability: Chord probability float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">write_path</span> <span class="o">=</span> <span class="n">_get_midi_chord_probability_path</span><span class="p">(</span><span class="n">segmentation_method</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+        <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">midi_chord_probability</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="read_midi_chord_probability"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.read_midi_chord_probability">[docs]</a><span class="k">def</span> <span class="nf">read_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read MIDI chord probability of this MIDI file from the corresponding text file</span>
+
+<span class="sd">    :param segmentation_method: Bar or beat segmentation</span>
+<span class="sd">    :param midi_name: Name of the MIDI file</span>
+<span class="sd">    :return: Chord probability float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">read_path</span> <span class="o">=</span> <span class="n">_get_midi_chord_probability_path</span><span class="p">(</span><span class="n">segmentation_method</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reading_file</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">reading_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_midi_alignment_score_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get path of text file to read/write this MIDI alignment score from/to.</span>
+
+<span class="sd">    :param midi_name: Name of MIDI file</span>
+<span class="sd">    :return: Path of text file to read/write this MIDI alignment score from/to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MIDILABS_ALIGNMENT_SCORE_FOLDER</span><span class="p">,</span> <span class="n">midi_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="write_chord_alignment_score"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.write_chord_alignment_score">[docs]</a><span class="k">def</span> <span class="nf">write_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alignment_score</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write MIDI alignment score of this MIDI file to the corresponding file</span>
+
+<span class="sd">    :param midi_name: Name of MIDI file</span>
+<span class="sd">    :param alignment_score: MIDI alignment score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">write_path</span> <span class="o">=</span> <span class="n">_get_midi_alignment_score_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+        <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">alignment_score</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="read_chord_alignment_score"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.read_chord_alignment_score">[docs]</a><span class="k">def</span> <span class="nf">read_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read MIDI alignment score of this MIDI from the corresponding file</span>
+
+<span class="sd">    :param midi_name: Name of MIDI file</span>
+<span class="sd">    :return: MIDI alingment score float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">read_path</span> <span class="o">=</span> <span class="n">_get_midi_alignment_score_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reading_file</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">reading_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_log_likelihood_path</span><span class="p">(</span><span class="n">song_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get path of text file to read/write this tab log-likelihood from/to</span>
+
+<span class="sd">    :param song_key: Key of Song</span>
+<span class="sd">    :param tab_file_path: Path to tab file</span>
+<span class="sd">    :return: Path of text file to read/write this tab log-likelihood from/to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LOG_LIKELIHOOD_FOLDER</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">song_key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">tab_file_path</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="write_log_likelihood"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.write_log_likelihood">[docs]</a><span class="k">def</span> <span class="nf">write_log_likelihood</span><span class="p">(</span><span class="n">song_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">transposition</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write tab log-likelihood of this tab file to the corresponding text file</span>
+
+<span class="sd">    :param song_key: Key of Song</span>
+<span class="sd">    :param tab_file_path: Path to tab file</span>
+<span class="sd">    :param log_likelihood: Log-likelihood of this tab</span>
+<span class="sd">    :param transposition: Transposition of this tab</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">write_path</span> <span class="o">=</span> <span class="n">_get_log_likelihood_path</span><span class="p">(</span><span class="n">song_key</span><span class="p">,</span> <span class="n">tab_file_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+        <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">transposition</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="read_log_likelihood"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.read_log_likelihood">[docs]</a><span class="k">def</span> <span class="nf">read_log_likelihood</span><span class="p">(</span><span class="n">song_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read tab log-likelihood of this tab file from the corresponding text file</span>
+
+<span class="sd">    :param song_key: Key of Song</span>
+<span class="sd">    :param tab_file_path: Path to tab file</span>
+<span class="sd">    :return: Log-likelihood float and transposition int of this tab</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">read_path</span> <span class="o">=</span> <span class="n">_get_log_likelihood_path</span><span class="p">(</span><span class="n">song_key</span><span class="p">,</span> <span class="n">tab_file_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">reading_file</span><span class="p">:</span>
+        <span class="n">str_result</span> <span class="o">=</span> <span class="n">reading_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">str_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">str_result</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_evaluation_table_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_evaluation_table_path">[docs]</a><span class="k">def</span> <span class="nf">get_evaluation_table_path</span><span class="p">(</span><span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the csv file in which  this method is evaluated.</span>
+
+<span class="sd">    :param method_name: Name of an ACE method</span>
+<span class="sd">    :return: The full path to the csv file in which  this method is evaluated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_full_path_to</span><span class="p">(</span><span class="n">method_name</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_full_chord_labs_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_chord_labs_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_chord_labs_path</span><span class="p">(</span><span class="n">chord_labs_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the file in the ChordLabs folder</span>
+
+<span class="sd">    :param chord_labs_path: not-full path to chord labs file</span>
+<span class="sd">    :return: Full path to chord labs file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">chord_labs_path</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">chord_labs_path_parts</span> <span class="o">=</span> <span class="n">chord_labs_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHORDLABS_FOLDER</span><span class="p">,</span> <span class="n">chord_labs_path_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chord_labs_path_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">chord_labs_path_parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_full_segmentation_labs_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_segmentation_labs_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_segmentation_labs_path</span><span class="p">(</span><span class="n">chord_labs_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the file in the SegmentationLabs folder</span>
+
+<span class="sd">    :param chord_labs_path: not-full path to chord labs file</span>
+<span class="sd">    :return: Full path to chord labs file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">chord_labs_path</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">chord_labs_path_parts</span> <span class="o">=</span> <span class="n">chord_labs_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SEGMENTATION_LABS_FOLDER</span><span class="p">,</span> <span class="n">chord_labs_path_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chord_labs_path_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                     <span class="n">chord_labs_path_parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_full_chordify_chord_labs_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_chordify_chord_labs_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_chordify_chord_labs_path</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the Chordify chord labels, given the key of a song</span>
+
+<span class="sd">    :param key: The key of the song from which we need the Chordify chord labels</span>
+<span class="sd">    :return: Full path to the Chordify chord labels of our song</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHORDIFY_FOLDER</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_mirex_chord_labs_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_mirex_chord_labs_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_mirex_chord_labs_path</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">mirex_submission_name_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the MIREX chord labels, given the Song and MIREX submission name</span>
+
+<span class="sd">    :param song: Song for which we want to find the MIREX chord labels</span>
+<span class="sd">    :param mirex_submission_name_str: Name of MIREX submission</span>
+<span class="sd">    :return: Full path to the MIREX chord labels, given the Song and MIREX submission name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mirex_submission_name_str</span> <span class="o">==</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">:</span>  <span class="c1"># Chordify</span>
+        <span class="k">return</span> <span class="n">get_full_chordify_chord_labs_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">labs_path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">MIREX_SUBMISSION_NAMES</span><span class="p">,</span> <span class="n">MIREX_SUBMISSION_FOLDERS</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mirex_submission_name_str</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">labs_path</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_ground_truth_chord_labs_path</span><span class="p">,</span> <span class="n">CHORDLABS_FOLDER</span><span class="p">))</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Chord label file for this MIREX name was not found&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_midi_chord_labs_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_midi_chord_labs_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">midi_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the MIDI chord labels, given the midi file name</span>
+
+<span class="sd">    :param midi_file_name: File name (not a full path!) to our MIDI file</span>
+<span class="sd">    :param segmentation_type: Either &#39;bar&#39; or &#39;beat&#39;</span>
+<span class="sd">    :return: Full path to the MIDI chord labels of our MIDI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MIDILABS_FOLDERS</span><span class="p">[</span><span class="n">segmentation_type</span><span class="p">],</span> <span class="n">midi_file_name</span> <span class="o">+</span> <span class="s1">&#39;.lab&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_tab_chord_labs_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_tab_chord_labs_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">full_tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the tab chord labels, given the full path to the tab file</span>
+
+<span class="sd">    :param full_tab_file_path: Tab file</span>
+<span class="sd">    :return: Full path to the tab chord labels of our song</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_tab_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TABLABS_FOLDER</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_audio_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_audio_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_audio_path</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the .wav file, given the key of a song</span>
+
+<span class="sd">    :param key: The key of the song from which we need the audio</span>
+<span class="sd">    :return: Full path to the audio of our song</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">AUDIO_FOLDER</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_synthesized_midi_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_synthesized_midi_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_synthesized_midi_path</span><span class="p">(</span><span class="n">midi_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the .wav file that is a synthesized version of the MIDI specified by midi_file_name</span>
+
+<span class="sd">    :param midi_file_name: File name (not a full path!) to our MIDI file</span>
+<span class="sd">    :return: Full path to the .wav file that is a synthesized version of our MIDI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SYNTHMIDI_FOLDER</span><span class="p">,</span> <span class="n">midi_file_name</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_midi_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_midi_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_midi_path</span><span class="p">(</span><span class="n">midi_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the .mid file of the MIDI specified by midi_file_name</span>
+
+<span class="sd">    :param midi_file_name: File name (not a full path!) to our MIDI file</span>
+<span class="sd">    :return: Full path to the .mid file of our MIDI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MIDI_FOLDER</span><span class="p">,</span> <span class="n">midi_file_name</span> <span class="o">+</span> <span class="s1">&#39;.mid&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_alignment_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_alignment_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_alignment_path</span><span class="p">(</span><span class="n">midi_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the .txt file of the alignment between our MIDI and the audio file it is matched to</span>
+
+<span class="sd">    :param midi_file_name: File name (not a full path!) to our MIDI file</span>
+<span class="sd">    :return: Full path to the .txt file that represents the alignment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ALIGNMENTS_FOLDER</span><span class="p">,</span> <span class="n">midi_file_name</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_midi_path_list</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list with all .mid files in our MIDI folder</span>
+<span class="sd">    :return: The list with all .mid files in our MIDI folder</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">midi_file</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">MIDI_FOLDER</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">midi_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.mid&quot;</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">midi_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="get_relative_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_relative_path">[docs]</a><span class="k">def</span> <span class="nf">get_relative_path</span><span class="p">(</span><span class="n">full_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the relative path from the data folder</span>
+
+<span class="sd">    :param full_path: The full path</span>
+<span class="sd">    :return: Relative path from data folder</span>
+
+<span class="sd">    &gt;&gt;&gt; get_relative_path(path.join(DATA_PATH, &#39;MIDI/001-001.mid&#39;))</span>
+<span class="sd">    &#39;MIDI/001-001.mid&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">DATA_PATH</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_absolute_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_absolute_path">[docs]</a><span class="k">def</span> <span class="nf">get_absolute_path</span><span class="p">(</span><span class="n">relative_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the absolute path from the data folder</span>
+
+<span class="sd">    :param relative_path: Relative path from data folder</span>
+<span class="sd">    :return: The full path</span>
+
+<span class="sd">    &gt;&gt;&gt; get_absolute_path(&#39;MIDI/001-001.mid&#39;).startswith(DATA_PATH)</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">relative_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_file_name_from_full_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_file_name_from_full_path">[docs]</a><span class="k">def</span> <span class="nf">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the file name (without extension) from a full path</span>
+
+<span class="sd">    :param full_path: The full path we want to extract the file name from</span>
+<span class="sd">    :return: The file name from our full path</span>
+
+<span class="sd">    &gt;&gt;&gt; get_file_name_from_full_path(&#39;/media/daphne/Seagate Expansion Drive/Data/MIDI/001-001.mid&#39;)</span>
+<span class="sd">    &#39;001-001&#39;</span>
+<span class="sd">    &gt;&gt;&gt; get_file_name_from_full_path(&#39;/media/daphne/Seagate Expansion Drive/Data/MIDI/001-001.txt&#39;)</span>
+<span class="sd">    &#39;001-001&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="file_exists"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.file_exists">[docs]</a><span class="k">def</span> <span class="nf">file_exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shortcut method to check if a file, specified by its full path exists</span>
+
+<span class="sd">    :param full_path: Full path to the file of which we want to know if it exists</span>
+<span class="sd">    :return: Does our file exist already?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="remove_file"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.remove_file">[docs]</a><span class="k">def</span> <span class="nf">remove_file</span><span class="p">(</span><span class="n">remove_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove the file specified by remove_file_path</span>
+
+<span class="sd">    :param remove_file_path: Path to the file which we will remove</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">remove</span><span class="p">(</span><span class="n">remove_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_chords_from_tab_filename"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_chords_from_tab_filename">[docs]</a><span class="k">def</span> <span class="nf">get_chords_from_tab_filename</span><span class="p">(</span><span class="n">full_tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the filename to write the parsed chords from the tab file</span>
+
+<span class="sd">    :param full_tab_file_path: Tab file</span>
+<span class="sd">    :return: Filename for parsed chords</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_tab_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHORDS_FROM_TABS_FOLDER</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_full_audio_features_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_full_audio_features_path">[docs]</a><span class="k">def</span> <span class="nf">get_full_audio_features_path</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the full audio features path of the song specified by the key</span>
+
+<span class="sd">    :param key: Key of the song for which we need the audio features path</span>
+<span class="sd">    :return: Audio features path of our song</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">AUDIO_FEATURES_FOLDER</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_data_fusion_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_data_fusion_path">[docs]</a><span class="k">def</span> <span class="nf">get_data_fusion_path</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">df_type_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_method_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">audio_ace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the data fusion labels path of the song specified by the key</span>
+
+<span class="sd">    :param key: Key of the song for which we need the data fusion labels path</span>
+<span class="sd">    :param df_type_str: Which type of data fusion; either &#39;rand&#39;, &#39;mv&#39;, &#39;df&#39;</span>
+<span class="sd">    :param selection_method_str: Do we use all labels or only the expected best?</span>
+<span class="sd">    :param audio_ace: Which audio algorithm did we use (CHF or one of the MIREX algorithms)</span>
+<span class="sd">    :return: Data fusion labels path of our song</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_FUSION_FOLDERS</span><span class="p">[</span><span class="n">df_type_str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">selection_method_str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">audio_ace</span><span class="p">],</span>
+                     <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.lab&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_evaluation_table_by_audio_measure_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_evaluation_table_by_audio_measure_path">[docs]</a><span class="k">def</span> <span class="nf">get_evaluation_table_by_audio_measure_path</span><span class="p">(</span><span class="n">audio_ace</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">measure</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the full path to the csv file in which this method is evaluated.</span>
+
+<span class="sd">    :param audio_ace: Which audio algorithm did we use (CHF or one of the MIREX algorithms)</span>
+<span class="sd">    :param measure: Which measure (e.g. CSR)</span>
+<span class="sd">    :return: Data fusion labels path of our song</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_full_path_to</span><span class="p">(</span><span class="n">audio_ace</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">measure</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="find_duplicate_midis"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.find_duplicate_midis">[docs]</a><span class="k">def</span> <span class="nf">find_duplicate_midis</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Duplicate MIDI&#39;s are MIDI&#39;s that yield exactly the same chord sequences on the beat level, but the files were not</span>
+<span class="sd">    identified as identical based on MD5 checksum (typically due to some minor changes, like changing the MIDI title).</span>
+
+<span class="sd">    :param song: Song in our data set</span>
+<span class="sd">    :return: List of names of duplicate MIDI files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">duplicate_midis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
+        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">midi_path</span><span class="p">)</span>
+        <span class="n">midi_beat_lab_path</span> <span class="o">=</span> <span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">midi_beat_lab_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">read_midi_beat_file</span><span class="p">:</span>
+            <span class="n">my_labels</span> <span class="o">=</span> <span class="n">read_midi_beat_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">my_labels</span> <span class="ow">in</span> <span class="n">all_labels</span><span class="p">:</span>
+            <span class="n">duplicate_midis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_labels</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">duplicate_midis</span></div>
+
+
+<div class="viewcode-block" id="read_alignment_file"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.read_alignment_file">[docs]</a><span class="k">def</span> <span class="nf">read_alignment_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">([</span><span class="nb">float</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read the alignment from a file</span>
+
+<span class="sd">    :param file_path: Path to the alignment file</span>
+<span class="sd">    :return: The alignment, read from a file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">alignment_read_file</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">alignment_read_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">line_parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span></div>
+
+
+<div class="viewcode-block" id="get_well_aligned_midis"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_well_aligned_midis">[docs]</a><span class="k">def</span> <span class="nf">get_well_aligned_midis</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return names of only the well-aligned MIDIs for this Song (excluding duplicates)</span>
+
+<span class="sd">    :param song: Song in our data set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Find duplicate MIDIs in this song; we will exclude them</span>
+    <span class="n">duplicate_midis</span> <span class="o">=</span> <span class="n">find_duplicate_midis</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+
+    <span class="n">well_aligned_midis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">full_midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
+        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">midi_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">duplicate_midis</span><span class="p">:</span>
+            <span class="n">alignment_score</span> <span class="o">=</span> <span class="n">read_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">alignment_score</span> <span class="o">&lt;=</span> <span class="mf">0.85</span><span class="p">:</span>  <span class="c1"># Properly aligned</span>
+                <span class="n">well_aligned_midis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">well_aligned_midis</span></div>
+
+
+<div class="viewcode-block" id="get_expected_best_midi"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_expected_best_midi">[docs]</a><span class="k">def</span> <span class="nf">get_expected_best_midi</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find name of the expected best well-aligned MIDI and segmentation type for this Song</span>
+<span class="sd">    (based on MIDI chord probability)</span>
+
+<span class="sd">    :param song: Song in our data set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># We only consider well-aligned MIDIs</span>
+    <span class="n">well_aligned_midis</span> <span class="o">=</span> <span class="n">get_well_aligned_midis</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+
+    <span class="c1"># Return path to the best MIDI of the song</span>
+    <span class="n">best_midi_name</span><span class="p">,</span> <span class="n">best_midi_quality</span><span class="p">,</span> <span class="n">best_segmentation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999999999</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">segmentation_type</span> <span class="ow">in</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">full_midi_path</span> <span class="ow">in</span> <span class="n">well_aligned_midis</span><span class="p">:</span>
+            <span class="n">midi_name</span> <span class="o">=</span> <span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">)</span>
+            <span class="n">midi_chord_probability</span> <span class="o">=</span> <span class="n">read_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_type</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">midi_chord_probability</span> <span class="o">&gt;</span> <span class="n">best_midi_quality</span><span class="p">:</span>
+                <span class="c1"># This is the best MIDI &amp; segmentation type we have seen until now</span>
+                <span class="n">best_midi_name</span><span class="p">,</span> <span class="n">best_midi_quality</span><span class="p">,</span> <span class="n">best_segmentation</span> <span class="o">=</span> \
+                    <span class="n">midi_name</span><span class="p">,</span> <span class="n">midi_chord_probability</span><span class="p">,</span> <span class="n">segmentation_type</span>
+
+    <span class="k">return</span> <span class="n">best_midi_name</span><span class="p">,</span> <span class="n">best_segmentation</span></div>
+
+
+<div class="viewcode-block" id="get_expected_best_tab_lab"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_expected_best_tab_lab">[docs]</a><span class="k">def</span> <span class="nf">get_expected_best_tab_lab</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the lab file of the expected best tab for this Song (based on log-likelihood returned by Jump Alignment)</span>
+
+<span class="sd">    :param song: Song in our data set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">best_tab_lab</span><span class="p">,</span> <span class="n">best_tab_quality</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">tab_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">:</span>
+        <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">tab_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">):</span>
+            <span class="n">tab_quality</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">read_log_likelihood</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">tab_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tab_quality</span> <span class="o">&gt;</span> <span class="n">best_tab_quality</span><span class="p">:</span>
+                <span class="n">best_tab_lab</span><span class="p">,</span> <span class="n">best_tab_quality</span> <span class="o">=</span> <span class="n">tab_write_path</span><span class="p">,</span> <span class="n">tab_quality</span>
+
+    <span class="k">return</span> <span class="n">best_tab_lab</span></div>
+
+
+<div class="viewcode-block" id="get_lab_visualisation_path"><a class="viewcode-back" href="../../../codedescription/utils.html#decibel.utils.filehandler.get_lab_visualisation_path">[docs]</a><span class="k">def</span> <span class="nf">get_lab_visualisation_path</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">audio_ace</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the location of the png of the lab visualisation path for a given song and audio ace method.</span>
+<span class="sd">    :param song: Song for which we need the lab visualisation path</span>
+<span class="sd">    :param audio_ace: Audio method for which we need the lab visualisation path</span>
+<span class="sd">    :return: The location of the png of the lab visualisation path for a given song and audio ace method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RESULT_VISUALISATIONS</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">audio_ace</span> <span class="o">+</span> <span class="s1">&#39;.png&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

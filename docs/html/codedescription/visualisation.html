@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Visualisation &mdash; DECIBEL  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Utility Functions" href="utils.html" />
+    <link rel="prev" title="Evaluation" href="evaluator.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> DECIBEL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../thesis/abstract.html">What is DECIBEL?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filescraper.html">Scraping MIDI and tab files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiomidialigner.html">Aligning MIDI to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="midiace.html">Extracting chords from MIDI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tabparser.html">Extracting chords from tabs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audiotabaligner.html">Aligning tab to audio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datafusion.html">Data Fusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluator.html">Evaluation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Visualisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DECIBEL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Visualisation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/codedescription/visualisation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="visualisation">
+<h1>Visualisation<a class="headerlink" href="#visualisation" title="Permalink to this headline">¶</a></h1>
+<p>We have seen how DECIBEL’s subsystems estimate chord label sequences from audio, MIDI and tab representations of a song.
+Audio files are obtained by digitizing the waveform; MIDI files are a series of note on and note off events; whereas tab
+files show the guitar fingering or chord labels, aligned to the lyrics. The timing information in audio is represented
+in seconds, based on the underlying performance; in MIDI files, timing is measured in ticks; in tabs, timing information
+is missing. Also, the source of information differs: audio files are recordings of a performance; MIDI files are either
+score-based or transcriptions of a recording; tabs can be considered as (untimed) chord label sequences, manually
+annotated by music enthusiasts.</p>
+<p>However, the chord label estimation and synchronization steps performed by DECIBEL’s subsystems transform these three
+heterogeneous representations into a homogeneous format, i.e. as a series of &lt;start time, end time, chord label&gt;
+3-tuples. The combination of the set of chord label sequences from each of the representations of a song results in a
+<strong>rich harmonic representation</strong>.</p>
+<p>This rich harmonic representation is a very interesting by-product of the DECIBEL system, as it allows for
+cross-version analysis, i.e. comparing analysis results from different representations. The chord label sequences can
+easily be visualized, which makes it very easy to see the consistencies and inconsistencies in chord labels between
+different representations. Having such a unified view of different analysis results deepens the understanding of both
+the algorithm’s behavior and the properties of the underlying musical material.</p>
+<p>Consider for example the visualization of the chord label sequence for the Beatles song <em>Golden Slumbers</em> below.
+In our data set, we have matched three MIDI files and eight tab files to the audio version of the song. CASSETTE, our
+MIDI ACE method, analyzes the chords both on a bar and a beat level, so we have six chord label sequences based on the
+three MIDI files. In combination with the eight chord label sequences based on the tab files and a single analysis by
+the Chordify algorithm based on the audio file, we have 6 + 8 + 1 = 15 chord label sequences. Each of these estimated
+chord sequences, as well as the ground truth, is visually represented by a horizontal bar in which the color represent
+the chord label and time in seconds can be read from the position on the x-axis. In this example, we observe there are
+some parts of the song for which (most of) the 15 estimated chord sequences agree on the labels, e.g. the D minor chord
+starting after 11 seconds; the G major chord sounding immediately thereafter or the C major chord that starts at 32
+seconds. However, in other musical passages there is some disagreement. If there is a single deviating chord sequence
+estimation, this is typically either due to some error in the MIDI or tab file or due to an error in the estimation
+method. For example, when estimating the chord sounding in the 38th second from our third MIDI file, using CASSETTE on
+the bar level, we falsely find a F major chord instead of a C major chord. In some passages, we observe multiple
+“clusters” of possible chord labels, i.e. different perspectives on the harmonic content of a musical passage, each of
+them supported by multiple chord label estimations. For example, we can consider the start of the song either as a
+long A minor chord or as a sequence of A minor and C major chords. Also, there exist different perspectives on the chord
+in the 23rd second (is it a C major, E major, F minor or something else?) and the modality of the A (major or minor)
+chord starting after 62 seconds.</p>
+<img alt="../_images/165.png" src="../_images/165.png" />
+<p>MIDI and tab files implicitly incorporate musical knowledge, as they are (in the popular music genre) typically
+transcriptions made by music enthusiasts. Therefore, the comparison of analysis results from different music
+representations reveals passages in the music for which there are multiple possible perspectives. Studying these
+passages can give us a deeper understanding of subjectivity issues in the musical material.</p>
+<span class="target" id="module-decibel.evaluator.chord_label_visualiser"></span><dl class="function">
+<dt id="decibel.evaluator.chord_label_visualiser.export_result_image">
+<code class="descclassname">decibel.evaluator.chord_label_visualiser.</code><code class="descname">export_result_image</code><span class="sig-paren">(</span><em>song</em>, <em>chords_list</em>, <em>midi=True</em>, <em>tab=True</em>, <em>audio='CHF_2017'</em>, <em>df=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/chord_label_visualiser.html#export_result_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.chord_label_visualiser.export_result_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export visualisation to a png file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>song</strong> – Song for which we want to export the visualisation</li>
+<li><strong>chords_list</strong> – Chord vocabulary</li>
+<li><strong>midi</strong> – Show MIDI files?</li>
+<li><strong>tab</strong> – Show Tab files?</li>
+<li><strong>audio</strong> – Audio ACE method</li>
+<li><strong>df</strong> – Show all DF results?</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utility Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="evaluator.html" class="btn btn-neutral" title="Evaluation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daphne Odekerken
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
