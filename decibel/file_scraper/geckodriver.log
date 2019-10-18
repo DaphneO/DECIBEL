@@ -1,0 +1,442 @@
+1542491984352	geckodriver	INFO	geckodriver 0.21.0
+1542491984362	geckodriver	INFO	Listening on 127.0.0.1:56043
+1542491985362	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.JyDPPtbA6Zc7"
+1542491986773	Marionette	INFO	Listening on port 41311
+1542491986881	Marionette	WARN	TLS certificate errors will be ignored for this session
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542492034561	geckodriver	INFO	geckodriver 0.21.0
+1542492034565	geckodriver	INFO	Listening on 127.0.0.1:45575
+1542492035574	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.75tWssRDZr6y"
+1542492036884	Marionette	INFO	Listening on port 45865
+1542492036979	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:30868): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542492092890	geckodriver	INFO	geckodriver 0.21.0
+1542492092893	geckodriver	INFO	Listening on 127.0.0.1:52901
+1542492093901	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.F7BqZhzQeN3q"
+1542492095211	Marionette	INFO	Listening on port 43767
+1542492095310	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:31085): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542492675095	geckodriver	INFO	geckodriver 0.21.0
+1542492675098	geckodriver	INFO	Listening on 127.0.0.1:59631
+1542492676107	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.hz3376DFMNn7"
+1542492677364	Marionette	INFO	Listening on port 35477
+1542492677413	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:31565): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493271888	geckodriver	INFO	geckodriver 0.21.0
+1542493271893	geckodriver	INFO	Listening on 127.0.0.1:53935
+1542493272899	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.fdewYLxsu79R"
+1542493274205	Marionette	INFO	Listening on port 35489
+1542493274322	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:32070): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+
+###!!! [Child][MessageChannel] Error: (msgtype=0x540027,name=PNecko::Msg_RemoveRequestContext) Channel closing: too late to send/recv, messages will be lost
+
+[Parent 32009, Gecko_IOThread] WARNING: pipe error (69): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493281489	geckodriver	INFO	geckodriver 0.21.0
+1542493281493	geckodriver	INFO	Listening on 127.0.0.1:47997
+1542493282496	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.lELYhdkdZUQZ"
+1542493283784	Marionette	INFO	Listening on port 45205
+1542493283808	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:32252): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 32186, Gecko_IOThread] WARNING: pipe error (99): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493292933	geckodriver	INFO	geckodriver 0.21.0
+1542493292936	geckodriver	INFO	Listening on 127.0.0.1:39213
+1542493293945	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.jfENOlYSycXm"
+1542493295245	Marionette	INFO	Listening on port 36103
+1542493295253	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:32430): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493297909	geckodriver	INFO	geckodriver 0.21.0
+1542493297912	geckodriver	INFO	Listening on 127.0.0.1:54339
+1542493298919	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.PD3yGKxFajvN"
+1542493300205	Marionette	INFO	Listening on port 37319
+1542493300231	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:32607): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 32543, Gecko_IOThread] WARNING: pipe error (80): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493304450	geckodriver	INFO	geckodriver 0.21.0
+1542493304453	geckodriver	INFO	Listening on 127.0.0.1:42745
+1542493305461	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.LgEI4UfJ8aSZ"
+1542493306723	Marionette	INFO	Listening on port 43473
+1542493306775	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:313): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493313140	geckodriver	INFO	geckodriver 0.21.0
+1542493313143	geckodriver	INFO	Listening on 127.0.0.1:34801
+1542493314150	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.5lS6VeQWhHON"
+1542493315418	Marionette	INFO	Listening on port 34987
+1542493315464	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:502): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493323584	geckodriver	INFO	geckodriver 0.21.0
+1542493323588	geckodriver	INFO	Listening on 127.0.0.1:35679
+1542493324595	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.XpCYEHZKva1I"
+1542493325865	Marionette	INFO	Listening on port 43873
+1542493325909	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:683): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493333911	geckodriver	INFO	geckodriver 0.21.0
+1542493333914	geckodriver	INFO	Listening on 127.0.0.1:54849
+1542493334923	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.GTELeRzSTNZe"
+1542493336202	Marionette	INFO	Listening on port 34743
+1542493336232	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:894): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 818, Gecko_IOThread] WARNING: pipe error (70): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493350402	geckodriver	INFO	geckodriver 0.21.0
+1542493350405	geckodriver	INFO	Listening on 127.0.0.1:40337
+1542493351413	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.FxFIrQIMHCFp"
+1542493352696	Marionette	INFO	Listening on port 45973
+1542493352729	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:1127): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493359791	geckodriver	INFO	geckodriver 0.21.0
+1542493359795	geckodriver	INFO	Listening on 127.0.0.1:46107
+1542493360802	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.TuPgts68O5cd"
+1542493362086	Marionette	INFO	Listening on port 45445
+1542493362109	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:1384): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493370210	geckodriver	INFO	geckodriver 0.21.0
+1542493370213	geckodriver	INFO	Listening on 127.0.0.1:39545
+1542493371221	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.3eHBfqSvNDYC"
+1542493372525	Marionette	INFO	Listening on port 37673
+1542493372633	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:1560): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 1500, Gecko_IOThread] WARNING: pipe error (99): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493384634	geckodriver	INFO	geckodriver 0.21.0
+1542493384637	geckodriver	INFO	Listening on 127.0.0.1:47167
+1542493385646	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.pwjGd29Zm8sf"
+1542493386898	Marionette	INFO	Listening on port 39739
+1542493386952	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:1736): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493397997	geckodriver	INFO	geckodriver 0.21.0
+1542493398001	geckodriver	INFO	Listening on 127.0.0.1:36669
+1542493399009	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.eGPR7yoDPk4l"
+1542493400313	Marionette	INFO	Listening on port 33245
+1542493400417	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:1912): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493414460	geckodriver	INFO	geckodriver 0.21.0
+1542493414464	geckodriver	INFO	Listening on 127.0.0.1:54139
+1542493415472	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.479AGOQ2MUCJ"
+1542493416784	Marionette	INFO	Listening on port 36657
+1542493416882	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:2092): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 2027, Gecko_IOThread] WARNING: pipe error (3): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493419405	geckodriver	INFO	geckodriver 0.21.0
+1542493419409	geckodriver	INFO	Listening on 127.0.0.1:36029
+1542493420416	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.ZrigZ15Lij6u"
+1542493421706	Marionette	INFO	Listening on port 34699
+1542493421728	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:2295): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 2233, Gecko_IOThread] WARNING: pipe error (3): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493426003	geckodriver	INFO	geckodriver 0.21.0
+1542493426006	geckodriver	INFO	Listening on 127.0.0.1:58133
+1542493427013	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.DQJu4keP2JnH"
+1542493428307	Marionette	INFO	Listening on port 37147
+1542493428331	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:2547): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493434451	geckodriver	INFO	geckodriver 0.21.0
+1542493434455	geckodriver	INFO	Listening on 127.0.0.1:58995
+1542493435463	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.j61PtqL5zesq"
+1542493436758	Marionette	INFO	Listening on port 44495
+1542493436769	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:2744): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493444937	geckodriver	INFO	geckodriver 0.21.0
+1542493444940	geckodriver	INFO	Listening on 127.0.0.1:37463
+1542493445948	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.uXRiob5Y1frm"
+1542493447237	Marionette	INFO	Listening on port 33343
+1542493447257	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:2927): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 2866, Gecko_IOThread] WARNING: pipe error (88): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+[Parent 2866, Gecko_IOThread] WARNING: pipe error (106): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493453749	geckodriver	INFO	geckodriver 0.21.0
+1542493453753	geckodriver	INFO	Listening on 127.0.0.1:54713
+1542493454760	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.fqiHpK2j7z7d"
+1542493456029	Marionette	INFO	Listening on port 45839
+1542493456072	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:3101): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493464093	geckodriver	INFO	geckodriver 0.21.0
+1542493464096	geckodriver	INFO	Listening on 127.0.0.1:49311
+1542493465105	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.VBSFXAsFtLQw"
+1542493466483	Marionette	INFO	Listening on port 46191
+1542493466519	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:3275): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 3213, Gecko_IOThread] WARNING: pipe error (106): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493480466	geckodriver	INFO	geckodriver 0.21.0
+1542493480469	geckodriver	INFO	Listening on 127.0.0.1:54515
+1542493481474	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.uaSaNkVBPRBW"
+1542493482746	Marionette	INFO	Listening on port 37823
+1542493482786	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:3464): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493491868	geckodriver	INFO	geckodriver 0.21.0
+1542493491871	geckodriver	INFO	Listening on 127.0.0.1:48563
+1542493492878	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.xkDWjqrDqY4M"
+1542493494185	Marionette	INFO	Listening on port 34835
+1542493494291	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:3657): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 3583, Gecko_IOThread] WARNING: pipe error (3): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+[Parent 3583, Gecko_IOThread] WARNING: pipe error (92): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493508251	geckodriver	INFO	geckodriver 0.21.0
+1542493508255	geckodriver	INFO	Listening on 127.0.0.1:50151
+1542493509262	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.A57tLYoYzoys"
+1542493510591	Marionette	INFO	Listening on port 45549
+1542493510672	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:3841): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493522646	geckodriver	INFO	geckodriver 0.21.0
+1542493522649	geckodriver	INFO	Listening on 127.0.0.1:48489
+1542493523658	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.nzqs7bgh3Sbb"
+1542493524958	Marionette	INFO	Listening on port 39755
+1542493524964	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:4023): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 3958, Gecko_IOThread] WARNING: pipe error (89): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+[Parent 3958, Gecko_IOThread] WARNING: pipe error (99): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493536142	geckodriver	INFO	geckodriver 0.21.0
+1542493536146	geckodriver	INFO	Listening on 127.0.0.1:60797
+1542493537154	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.VCVDBP2hREZ9"
+1542493538452	Marionette	INFO	Listening on port 37593
+1542493538461	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:4204): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493542596	geckodriver	INFO	geckodriver 0.21.0
+1542493542599	geckodriver	INFO	Listening on 127.0.0.1:50957
+1542493543607	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.bOEiObwwKTTu"
+1542493544918	Marionette	INFO	Listening on port 45949
+1542493545017	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:4383): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493552178	geckodriver	INFO	geckodriver 0.21.0
+1542493552181	geckodriver	INFO	Listening on 127.0.0.1:50831
+1542493553190	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.jGdgmCyuHhwU"
+1542493554468	Marionette	INFO	Listening on port 41967
+1542493554503	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:4570): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 4503, Gecko_IOThread] WARNING: pipe error (90): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493566470	geckodriver	INFO	geckodriver 0.21.0
+1542493566473	geckodriver	INFO	Listening on 127.0.0.1:60455
+1542493567481	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.7mw43yHdKXMZ"
+1542493568791	Marionette	INFO	Listening on port 34147
+1542493568887	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:4751): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493580504	geckodriver	INFO	geckodriver 0.21.0
+1542493580507	geckodriver	INFO	Listening on 127.0.0.1:56293
+1542493581516	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.vbJOJ4BvYCqn"
+1542493582807	Marionette	INFO	Listening on port 35493
+1542493582831	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:4929): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 4867, Gecko_IOThread] WARNING: pipe error (99): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493589095	geckodriver	INFO	geckodriver 0.21.0
+1542493589099	geckodriver	INFO	Listening on 127.0.0.1:55791
+1542493590108	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.W3OyDY5gbxfn"
+1542493591466	Marionette	INFO	Listening on port 38185
+1542493591518	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:5108): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 5044, Gecko_IOThread] WARNING: pipe error (78): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493600503	geckodriver	INFO	geckodriver 0.21.0
+1542493600506	geckodriver	INFO	Listening on 127.0.0.1:50911
+1542493601515	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.J8trTyP6J4Jv"
+1542493602838	Marionette	INFO	Listening on port 45573
+1542493602921	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:5284): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 5222, Gecko_IOThread] WARNING: pipe error (61): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+1542493668753	geckodriver	INFO	geckodriver 0.21.0
+1542493668757	geckodriver	INFO	Listening on 127.0.0.1:38471
+1542493669762	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.Sa8IKP0e6ffh"
+1542493671095	Marionette	INFO	Listening on port 44131
+1542493671170	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:5489): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493677033	geckodriver	INFO	geckodriver 0.21.0
+1542493677037	geckodriver	INFO	Listening on 127.0.0.1:51131
+1542493678044	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.1kM6bVPIeWrA"
+1542493679353	Marionette	INFO	Listening on port 42997
+1542493679451	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:5667): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493763846	geckodriver	INFO	geckodriver 0.21.0
+1542493763850	geckodriver	INFO	Listening on 127.0.0.1:60291
+1542493764855	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.FDyR9Vpi0vTT"
+1542493766239	Marionette	INFO	Listening on port 35013
+1542493766262	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:5919): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+
+###!!! [Child][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493772471	geckodriver	INFO	geckodriver 0.21.0
+1542493772475	geckodriver	INFO	Listening on 127.0.0.1:47001
+1542493773482	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.BCXFJSfXeo7F"
+1542493774817	Marionette	INFO	Listening on port 42417
+1542493774897	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:6102): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493780962	geckodriver	INFO	geckodriver 0.21.0
+1542493780965	geckodriver	INFO	Listening on 127.0.0.1:52737
+1542493781975	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.rloyNfSsftqy"
+1542493783306	Marionette	INFO	Listening on port 33807
+1542493783389	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:6282): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493788440	geckodriver	INFO	geckodriver 0.21.0
+1542493788443	geckodriver	INFO	Listening on 127.0.0.1:59005
+1542493789451	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.yvpo5bIV2yYN"
+1542493790748	Marionette	INFO	Listening on port 40803
+1542493790767	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:6462): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+[Parent 6400, Gecko_IOThread] WARNING: pipe error (78): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+[Parent 6400, Gecko_IOThread] WARNING: pipe error (82): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+[Parent 6400, Gecko_IOThread] WARNING: pipe error (99): Connection reset by peer: file /build/firefox-BUiTS1/firefox-60.0.2+build1/ipc/chromium/src/chrome/common/ipc_channel_posix.cc, line 353
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493796918	geckodriver	INFO	geckodriver 0.21.0
+1542493796922	geckodriver	INFO	Listening on 127.0.0.1:39247
+1542493797926	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.PjT6NRcM3lr4"
+1542493799270	Marionette	INFO	Listening on port 44923
+1542493799336	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:6648): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493807444	geckodriver	INFO	geckodriver 0.21.0
+1542493807447	geckodriver	INFO	Listening on 127.0.0.1:36603
+1542493808455	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.w8i306cs9Oof"
+1542493809784	Marionette	INFO	Listening on port 43991
+1542493809862	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:6828): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493813962	geckodriver	INFO	geckodriver 0.21.0
+1542493813966	geckodriver	INFO	Listening on 127.0.0.1:56623
+1542493814972	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.30mu7Xj16IEm"
+1542493816362	Marionette	INFO	Listening on port 45451
+1542493816379	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:7005): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493823419	geckodriver	INFO	geckodriver 0.21.0
+1542493823422	geckodriver	INFO	Listening on 127.0.0.1:47789
+1542493824426	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.YL0r5vpLmBSD"
+1542493825902	Marionette	INFO	Listening on port 46531
+1542493825934	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:7184): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493833977	geckodriver	INFO	geckodriver 0.21.0
+1542493833980	geckodriver	INFO	Listening on 127.0.0.1:52697
+1542493834988	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.lTz4o59o4SJY"
+1542493836310	Marionette	INFO	Listening on port 33213
+1542493836394	Marionette	WARN	TLS certificate errors will be ignored for this session
+
+(/usr/lib/firefox/firefox:7366): dconf-WARNING **: Unable to open /var/lib/menu-xdg/dconf/profile/user: Permission denied
+JavaScript error: jar:file:///usr/lib/firefox/omni.ja!/components/PeerConnection.js, line 1810: TypeError: this._dompc._pc is undefined
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
+1542493843373	geckodriver	INFO	geckodriver 0.21.0
+1542493843376	geckodriver	INFO	Listening on 127.0.0.1:48475
+1542493844383	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofile.mRf17Bq5czEM"
+1542493845697	Marionette	INFO	Listening on port 35547
+1542493845789	Marionette	WARN	TLS certificate errors will be ignored for this session

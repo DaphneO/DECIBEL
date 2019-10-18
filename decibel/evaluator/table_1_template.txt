@@ -1,0 +1,18 @@
+\begin{{table}}
+\centering
+\begin{{tabular}}{{ l l l r }}
+\textbf{{ACE system}}&&\textbf{{\textsc{{mirex}} year}}&\textbf{{Audio \textsc{{wcsr}}}}\\
+\hline
+\textsc{{chf}}&\cite{{koops2017chord}}&-&{0}\%\\
+\textsc{{cm2/cm1}}&\cite{{cannam2017mirex}}&2017, 2018&{1}\%\\
+\textsc{{jlw1}}&\cite{{jiang2017extended}}&2017&{2}\%\\
+\textsc{{jlw2}}&\cite{{jiang2017extended}}&2017&{3}\%\\
+\textsc{{kbk1}}&\cite{{korzeniowski2016fully}}&2017&{4}\%\\
+\textsc{{kbk2/fk2}}&\cite{{korzeniowski2016fully}}&2017, 2018&{5}\%\\
+\textsc{{wl1}}&\cite{{wu2017mirex}}&2017&{6}\%\\
+\textsc{{jlcx1}}&\cite{{jiang2018mirex}}&2018&{7}\%\\
+\textsc{{jlcx2}}&\cite{{jiang2018mirex}}&2018&{8}\%\\
+\textsc{{sg1}}&\cite{{gasser2018mirex}}&2018&{9}\%\\\\
+\end{{tabular}}
+\caption{{\textsc{{wcsr}} of recent audio \textsc{{ace}} systems tested on Beatles and Queen songs of the Isophonics reference annotations \cite{{mauch2009omras2}}. Note that two of the 2017 systems were resubmitted in \textsc{{mirex}} 2018.}}\label{{tab:audio-wcsr}}
+\end{{table}}

@@ -1,0 +1,11 @@
+\begin{{table}}
+\centering
+\begin{{tabular}}{{ll}}
+\hline
+\textbf{{}} & \textbf{{\textsc{{wcsr}}}} \\ \hline
+\textbf{{Average \textsc{{csr}} of all tabs}} & {0}\% \\
+\textbf{{Best log-likelihood of all tabs}} & {1}\% \\
+\textbf{{Best \textsc{{csr}} of all tabs}} & {2}\% \\ \hline \\
+\end{{tabular}}
+\caption{{\textsc{{wcsr}} of all songs, with different tab file selection methods}}\label{{tab:tab-file-selection-evaluation}}
+\end{{table}}

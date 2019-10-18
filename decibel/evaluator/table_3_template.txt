@@ -1,0 +1,13 @@
+\begin{{table}}[t]
+\centering
+\resizebox{{\columnwidth}}{{!}}{{
+\begin{{tabular}}{{lllllllll}}
+\hline
+ & \multicolumn{{2}}{{c}}{{\textbf{{\textsc{{wcsr}}}}}} & \multicolumn{{2}}{{c}}{{\textbf{{OvSeg}}}} & \multicolumn{{2}}{{c}}{{\textbf{{UnSeg}}}} & \multicolumn{{2}}{{c}}{{\textbf{{Seg}}}} \\
+\textbf{{}} & \textbf{{Beat}} & \textbf{{Bar}} & \textbf{{Beat}} & \textbf{{Bar}} & \textbf{{Beat}} & \textbf{{Bar}} & \textbf{{Beat}} & \textbf{{Bar}} \\ \hline
+\textbf{{All}} & {0}\% & {1}\% & {2}\% & {3}\% & {4}\% & {5}\% & {6}\% & {7}\% \\
+\textbf{{Best-\textsc{{ats}}}} & {8}\% & {9}\% & {10}\% & {11}\% & {12}\% & {13}\% & {14}\% & {15}\% \\
+\textbf{{Best-\textsc{{csr}}}} & {16}\% & {17}\% & {18}\% & {19}\% & {20}\% & {21}\% & {22}\% & {23}\% \\ \hline \\
+\end{{tabular}}}}
+\caption{{Performance comparison of three \textsc{{midi}} selection methods (no selection, \textsc{{midi}} file with best \textsc{{ats}} and \textsc{{midi}} file with best \textsc{{csr}}) in terms of \textsc{{wcsr}}, oversegmentation, undersegmentation and segmentation as defined in \cite{{harte2010towards}}.}}\label{{tab:midi-selection-performance}}
+\end{{table}}

@@ -1,0 +1,10 @@
+\begin{{table}}[tbp]
+\centering
+\begin{{tabular}}{{lllll}}
+\hline
+\textbf{{Sementation method}} & \textbf{{\textsc{{wcsr}}}} & \textbf{{OvS}} & \textbf{{UnS}} & \textbf{{Seg}} \\ \hline
+Beat & {0}\% & {1}\% & {2}\% & {3}\% \\
+Bar & {4}\% & {5}\% & {6}\% & {7}\% \\ \hline \\
+\end{{tabular}}
+\caption{{Results of \textsc{{midi}} chord recognition for the 50 \textsc{{midi}}s with the lowest alignment error.}}\label{{tab:midi-ace-evaluation}}
+\end{{table}}

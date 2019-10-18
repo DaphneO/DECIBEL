@@ -1,0 +1,19 @@
+\begin{{table}}
+\centering
+\begin{{tabular}}{{ l r r r }}
+\textbf{{Audio ACE}}&\textbf{{Audio \textsc{{wcsr}}}}&\textbf{{\textsc{{Df-best}} \textsc{{wcsr}}}}&\textbf{{Improvement}}\\
+\hline
+\textsc{{chf}}&{0}\\
+\textsc{{cm2/cm1}}&{1}\\
+\textsc{{jlw1}}&{2}\\
+\textsc{{jlw2}}&{3}\\
+\textsc{{kbk1}}&{4}\\
+\textsc{{kbk2/fk2}}&{5}\\
+\textsc{{wl1}}&{6}\\
+\textsc{{jlcx1}}&{7}\\
+\textsc{{jlcx2}}&{8}\\
+\textsc{{sg1}}&{9}\\
+\end{{tabular}}
+\caption{{\textsc{{wcsr}} of audio \textsc{{ace}} systems and \textsc{{df-best}}. Using \textsc{{df-best}} improves \textsc{{ace}} \textsc{{wcsr}} on average by {10}\%.}}\label{{tab:wcsr}}
+\vspace{{-0.5cm}}
+\end{{table}}
