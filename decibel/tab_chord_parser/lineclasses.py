@@ -1,6 +1,10 @@
 from enum import Enum
 from decibel.utils import chordtemplategenerator
-from decibel.utils.musicobjects import Fingering, Chord, PitchClass, PITCH_CLASSES, Interval
+from decibel.utils.musicobjects import PITCH_CLASSES
+from decibel.music_objects.chord import Chord
+from decibel.music_objects.interval import Interval
+from decibel.music_objects.fingering import Fingering
+from decibel.music_objects.pitch_class import PitchClass
 import re
 import scipy.spatial.distance as ssd
 

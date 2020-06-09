@@ -17,7 +17,10 @@ the given Song.
 
 # -*- coding: utf-8 -*-
 import pretty_midi
-from decibel.utils.musicobjects import Pitch, PitchClass, Chord, PITCH_CLASSES
+from decibel.utils.musicobjects import PITCH_CLASSES
+from decibel.music_objects.chord import Chord
+from decibel.music_objects.pitch_class import PitchClass
+from decibel.music_objects.pitch import Pitch
 from decibel.utils import filehandler
 
 

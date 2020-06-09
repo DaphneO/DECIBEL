@@ -1,7 +1,9 @@
 from math import ceil
 import numpy as np
 from os import path
-from decibel.utils.musicobjects import Chord, PITCH_CLASSES, Interval
+from decibel.utils.musicobjects import PITCH_CLASSES
+from decibel.music_objects.chord import Chord
+from decibel.music_objects.interval import Interval
 from decibel.utils import filehandler
 
 

@@ -1,6 +1,8 @@
 import numpy as np
 from decibel.utils import filehandler
-from decibel.utils.musicobjects import Chord, Interval, PITCH_CLASSES
+from decibel.utils.musicobjects import PITCH_CLASSES
+from decibel.music_objects.chord import Chord
+from decibel.music_objects.interval import Interval
 
 
 class HMMParameters:

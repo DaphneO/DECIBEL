@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import path, listdir, makedirs, remove
 import csv
-from decibel.utils.musicobjects import Song
+from decibel.music_objects.song import Song
 import random
 
 
