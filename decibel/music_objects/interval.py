@@ -1,4 +1,19 @@
-from decibel.utils.musicobjects import HARTE_INTERVALS, INTERVALS, _find_item
+from decibel.utils.find_item_in_list import find_item
+
+
+INTERVALS = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7', '8',
+             'b9', '9', 'b10', '10', '11', 'b12', '12', 'b13', '13', '#13']
+
+HARTE_INTERVALS = [
+    ['1', 'bb2'], ['#1', 'b2'], ['2', 'bb3'],
+    ['#2', 'b3'], ['3', 'b4'], ['#3', '4'],
+    ['#4', 'b5'], ['5', 'bb6'], ['#5', 'b6'],
+    ['6', 'bb7'], ['#6', 'b7'], ['7', 'b8'],
+    ['#7', '8', 'bb9'], ['#8', 'b9'], ['9', 'bb10'],
+    ['#9', 'b10'], ['10', 'b11'], ['#10', '11'],
+    ['#11', 'b12'], ['12', 'bb13'], ['#12', 'b13'],
+    ['13'], ['#13']
+]
 
 
 class Interval:
@@ -80,7 +95,7 @@ class Interval:
         if isinstance(harte_interval_string, int):
             harte_interval_string = str(harte_interval_string)
         harte_interval_string = harte_interval_string.strip(' ')
-        return cls(_find_item(HARTE_INTERVALS, harte_interval_string))
+        return cls(find_item(HARTE_INTERVALS, harte_interval_string))
 
     @classmethod
     def from_pitch_class_distances(cls, from_pitch_class, to_pitch_class):

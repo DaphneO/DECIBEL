@@ -1,6 +1,7 @@
 import math
 
-from decibel.utils.musicobjects import PITCH_CLASSES, HARTE_PITCH_CLASSES
+from decibel.music_objects.pitch_class import PitchClass
+from decibel.music_objects.interval import Interval
 
 
 class Pitch:
@@ -20,7 +21,7 @@ class Pitch:
         self._fix()
 
     @classmethod
-    def from_pitch_class_and_octave_number(cls, pitch_class, octave_number):
+    def from_pitch_class_and_octave_number(cls, pitch_class: PitchClass, octave_number):
         """
         Create a Pitch instance based on its pitch class and octave number (e.g. 'A' and 4)
 
@@ -28,14 +29,13 @@ class Pitch:
         :param octave_number: Octave number (e.g. 4)
         :return: Pitch, as specified by the pitch class and octave number
 
-        >>> p = Pitch.from_pitch_class_and_octave_number('A', 4)
+        >>> p = Pitch.from_pitch_class_and_octave_number(PitchClass.from_harte_pitch_class('A'), 4)
         >>> p.midi_pitch
         69
         >>> p.harte_pitch_class
         ['G##', 'A', 'Bbb']
         """
-        pitch_class_number = PITCH_CLASSES.index(pitch_class)
-        return cls(12 * octave_number + pitch_class_number + 12)
+        return cls(12 * octave_number + pitch_class.pitch_class_number + 12)
 
     @classmethod
     def from_pitch_name(cls, pitch_name):
@@ -56,8 +56,10 @@ class Pitch:
         ValueError: invalid literal for int() with base 10: 'b4'
         """
         if 'b' in pitch_name or '#' in pitch_name:
-            return cls.from_pitch_class_and_octave_number(pitch_name[0:2], int(pitch_name[2:]))
-        return cls.from_pitch_class_and_octave_number(pitch_name[0], int(pitch_name[1:]))
+            return cls.from_pitch_class_and_octave_number(
+                PitchClass.from_harte_pitch_class(pitch_name[0:2]), int(pitch_name[2:]))
+        return cls.from_pitch_class_and_octave_number(
+            PitchClass.from_harte_pitch_class(pitch_name[0]), int(pitch_name[1:]))
 
     def _midi_pitch_to_pitch_class(self):
         """
@@ -65,10 +67,10 @@ class Pitch:
 
         :return: Pitch class from the midi pitch of our Pitch object
 
-        >>> Pitch(69)._midi_pitch_to_pitch_class()
+        >>> str(Pitch(69)._midi_pitch_to_pitch_class())
         'A'
         """
-        return PITCH_CLASSES[self.midi_pitch % 12]
+        return PitchClass(self.midi_pitch % 12)
 
     def _midi_pitch_to_harte_class(self):
         """
@@ -79,7 +81,7 @@ class Pitch:
         >>> Pitch(69)._midi_pitch_to_harte_class()
         ['G##', 'A', 'Bbb']
         """
-        return HARTE_PITCH_CLASSES[self.midi_pitch % 12]
+        return PitchClass(self.midi_pitch % 12).harte_pitch_class
 
     def _midi_pitch_to_octave_number(self):
         """

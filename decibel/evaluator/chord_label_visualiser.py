@@ -1,18 +1,21 @@
 from math import ceil
 import numpy as np
-from decibel.utils import filehandler
+
+from decibel.music_objects.chord_template import ChordTemplate
+from decibel.music_objects.song import Song
+from decibel.import_export import filehandler
 from decibel.evaluator.evaluator import evaluate
 import matplotlib as mpl
 import matplotlib.colors
 import matplotlib.pyplot as plt
 
 
-from decibel.data_fusion.data_fusion import load_lab_file_into_chord_matrix, _chords_list_to_alphabet
+# from decibel.data_fusion.data_fusion import load_lab_file_into_chord_matrix, _chords_list_to_alphabet
 
 
-def _get_segmentation(song):
+def _get_segmentation(song: Song):
     """
-    Get the segmentation of the sont (only for visualisation purposes)
+    Get the segmentation of the song (only for visualisation purposes)
 
     :param song: Song from which we want the segmentation information
     :return: Segmentation information (start time and description) from Isophonics dataset
@@ -27,7 +30,7 @@ def _get_segmentation(song):
     return result
 
 
-def _show_chord_sequences(song, all_chords, best_indices, names, results, alphabet):
+def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, alphabet):
     """
     Return plot of chord sequences of this song
 
@@ -105,7 +108,8 @@ def _show_chord_sequences(song, all_chords, best_indices, names, results, alphab
     return plt
 
 
-def export_result_image(song, chords_list, midi=True, tab=True, audio='CHF_2017', df=True):
+def export_result_image(song: Song, chords_list: [ChordTemplate], midi: bool = True, tab: bool = True,
+                        audio: str = 'CHF_2017', df: bool = True):
     """
     Export visualisation to a png file.
 

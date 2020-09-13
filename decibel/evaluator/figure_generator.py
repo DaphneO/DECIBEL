@@ -2,7 +2,7 @@ import matplotlib.pylab as pylab
 import scipy.stats as ss
 import matplotlib.pyplot as plt
 import pandas
-from decibel.utils import filehandler
+from decibel.import_export import filehandler
 from os import path
 
 params = {'legend.fontsize': 'xx-large',

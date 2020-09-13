@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import path, listdir, makedirs, remove
 import csv
+
 from decibel.music_objects.song import Song
 import random
 
@@ -220,41 +221,6 @@ def read_midi_chord_probability(segmentation_method: str, midi_name: str) -> flo
     :return: Chord probability float
     """
     read_path = _get_midi_chord_probability_path(segmentation_method, midi_name)
-    with open(read_path, 'r') as reading_file:
-        result = float(reading_file.read().rstrip())
-    return result
-
-
-def _get_midi_alignment_score_path(midi_name: str) -> str:
-    """
-    Get path of text file to read/write this MIDI alignment score from/to.
-
-    :param midi_name: Name of MIDI file
-    :return: Path of text file to read/write this MIDI alignment score from/to
-    """
-    return path.join(MIDILABS_ALIGNMENT_SCORE_FOLDER, midi_name + '.txt')
-
-
-def write_chord_alignment_score(midi_name: str, alignment_score: float):
-    """
-    Write MIDI alignment score of this MIDI file to the corresponding file
-
-    :param midi_name: Name of MIDI file
-    :param alignment_score: MIDI alignment score
-    """
-    write_path = _get_midi_alignment_score_path(midi_name)
-    with open(write_path, 'w') as write_file:
-        write_file.write(str(alignment_score))
-
-
-def read_chord_alignment_score(midi_name: str) -> float:
-    """
-    Read MIDI alignment score of this MIDI from the corresponding file
-
-    :param midi_name: Name of MIDI file
-    :return: MIDI alingment score float
-    """
-    read_path = _get_midi_alignment_score_path(midi_name)
     with open(read_path, 'r') as reading_file:
         result = float(reading_file.read().rstrip())
     return result
@@ -504,7 +470,7 @@ def get_chords_from_tab_filename(full_tab_file_path: str) -> str:
     :return: Filename for parsed chords
     """
     filename = get_file_name_from_full_path(full_tab_file_path)
-    return path.join(CHORDS_FROM_TABS_FOLDER, filename + '.npy')
+    return path.join(CHORDS_FROM_TABS_FOLDER, filename + '.txt')
 
 
 def get_full_audio_features_path(key: int) -> str:
@@ -562,86 +528,6 @@ def find_duplicate_midis(song: Song) -> [str]:
         else:
             all_labels.append(my_labels)
     return duplicate_midis
-
-
-def read_alignment_file(file_path: str) -> ([float], [float]):
-    """
-    Read the alignment from a file
-
-    :param file_path: Path to the alignment file
-    :return: The alignment, read from a file
-    """
-    with open(file_path, 'r') as alignment_read_file:
-        lines = alignment_read_file.readlines()
-        p = []
-        q = []
-        for line in lines:
-            line_parts = line.split()
-            p.append(float(line_parts[1]))
-            q.append(float(line_parts[2].rstrip()))
-        return p, q
-
-
-def get_well_aligned_midis(song: Song) -> [str]:
-    """
-    Return names of only the well-aligned MIDIs for this Song (excluding duplicates)
-
-    :param song: Song in our data set
-    """
-    # Find duplicate MIDIs in this song; we will exclude them
-    duplicate_midis = find_duplicate_midis(song)
-
-    well_aligned_midis = []
-    for full_midi_path in song.full_midi_paths:
-        midi_name = get_file_name_from_full_path(full_midi_path)
-        if midi_name not in duplicate_midis:
-            alignment_score = read_chord_alignment_score(midi_name)
-            if alignment_score <= 0.85:  # Properly aligned
-                well_aligned_midis.append(midi_name)
-
-    return well_aligned_midis
-
-
-def get_expected_best_midi(song: Song) -> (str, str):
-    """
-    Find name of the expected best well-aligned MIDI and segmentation type for this Song
-    (based on MIDI chord probability)
-
-    :param song: Song in our data set
-    """
-    # We only consider well-aligned MIDIs
-    well_aligned_midis = get_well_aligned_midis(song)
-
-    # Return path to the best MIDI of the song
-    best_midi_name, best_midi_quality, best_segmentation = '', -9999999999, ''
-    for segmentation_type in 'bar', 'beat':
-        for full_midi_path in well_aligned_midis:
-            midi_name = get_file_name_from_full_path(full_midi_path)
-            midi_chord_probability = read_midi_chord_probability(segmentation_type, midi_name)
-            if midi_chord_probability > best_midi_quality:
-                # This is the best MIDI & segmentation type we have seen until now
-                best_midi_name, best_midi_quality, best_segmentation = \
-                    midi_name, midi_chord_probability, segmentation_type
-
-    return best_midi_name, best_segmentation
-
-
-def get_expected_best_tab_lab(song: Song) -> str:
-    """
-    Find the lab file of the expected best tab for this Song (based on log-likelihood returned by Jump Alignment)
-
-    :param song: Song in our data set
-    """
-    best_tab_lab, best_tab_quality = '', 0
-
-    for tab_path in song.full_tab_paths:
-        tab_write_path = get_full_tab_chord_labs_path(tab_path)
-        if file_exists(tab_write_path):
-            tab_quality, _ = read_log_likelihood(song.key, tab_path)
-            if tab_quality > best_tab_quality:
-                best_tab_lab, best_tab_quality = tab_write_path, tab_quality
-
-    return best_tab_lab
 
 
 def get_lab_visualisation_path(song: Song, audio_ace: str) -> str:

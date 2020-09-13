@@ -5,10 +5,10 @@ fluidsynth software synthesizer.
 
 import librosa
 import pretty_midi
-import decibel.utils.filehandler as fh
+import decibel.import_export.filehandler as fh
 
 
-def synthesize_midi_to_wav(midi_file_path_from, sampling_rate=22050):
+def synthesize_midi_to_wav(midi_file_path_from: str, sampling_rate: int = 22050):
     """
     Converts a midi file, specified to its path, to a waveform and writes the result as a wav file
 

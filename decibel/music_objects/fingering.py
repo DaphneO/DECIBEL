@@ -1,5 +1,4 @@
 from decibel.music_objects.pitch import Pitch
-from decibel.utils.musicobjects import PITCH_CLASSES
 
 
 class Fingering:
@@ -16,9 +15,11 @@ class Fingering:
         :param e4: Finger position on the e4 string. Can be either a digit or an 'x'
 
         >>> f = Fingering('1', 'x', '0', '2', '2', '1', '0')
-        >>> f.pitch_class_set == ['A', 'C', 'E']
-        True
-        >>> f.bass_pitch.pitch_class
+        >>> str_pitch_classes = [str(pitch_class) for pitch_class in list(f.pitch_class_set)]
+        >>> str_pitch_classes.sort()
+        >>> str_pitch_classes
+        ['A', 'C', 'E']
+        >>> str(f.bass_pitch.pitch_class)
         'A'
         >>> f.finger_list == ('x', '0', '2', '2', '1', '0')
         True
@@ -85,6 +86,6 @@ class Fingering:
         """
         result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for pitch_class in self.pitch_class_set:
-            result[PITCH_CLASSES.index(pitch_class)] = 1
+            result[pitch_class.pitch_class_number] = 1
         result.append(self.bass_pitch.midi_pitch % 12)
         return result

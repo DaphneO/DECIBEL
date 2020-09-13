@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 import re
-from decibel.tab_chord_parser.lineclasses import LineType, Line
+from typing import List, Union
+
+from decibel.tab_chord_parser.line import Line
+from decibel.tab_chord_parser.line_type import LineType
 
 
-def classify_lines(chord_sheet_path) -> [Line]:
+def classify_lines(chord_sheet_path: str) -> List[Line]:
     """
     Classify all lines in chord_sheet_path to a Line
 
     :param chord_sheet_path: Path to a chord sheet
     :return: List of Line objects corresponding to the chord sheet
     """
-    """"""
     result = []
     with open(chord_sheet_path, 'r') as chord_sheet:
         content = chord_sheet.readlines()
@@ -52,7 +54,7 @@ def classify_line_type(line: str) -> LineType:
     return LineType.Undefined
 
 
-def find_chords(line: str) -> [str]:
+def find_chords(line: str) -> List[str]:
     """
     Find all words looking like chords in this line and return them in a list
 
@@ -87,7 +89,7 @@ def _is_structural_marker(line: str) -> bool:
     return False
 
 
-def _contains_any_of(word: str, substring_list: [str]) -> bool:
+def _contains_any_of(word: str, substring_list: Union[str, List[str]]) -> bool:
     """
     Check if word contains any of the substrings in list
 
@@ -242,4 +244,5 @@ def _is_chords_and_lyrics_line(line: str) -> bool:
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

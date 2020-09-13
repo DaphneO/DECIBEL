@@ -1,4 +1,23 @@
-from decibel.utils.musicobjects import HARTE_PITCH_CLASSES, PITCH_CLASSES, _find_item
+from decibel.utils.find_item_in_list import find_item
+
+
+PITCH_CLASSES = ['C', 'C#', 'D', 'Eb', 'E', 'F',
+                 'F#', 'G', 'G#', 'A', 'Bb', 'B']
+
+HARTE_PITCH_CLASSES = [
+    ['B#', 'C', 'Dbb'],
+    ['B##', 'C#', 'Db'],
+    ['C##', 'D', 'Ebb'],
+    ['D#', 'Eb', 'Fbb'],
+    ['D##', 'E', 'Fb'],
+    ['E#', 'F', 'Gbb'],
+    ['E##', 'F#', 'Gb'],
+    ['F##', 'G', 'Abb'],
+    ['G#', 'Ab'],
+    ['G##', 'A', 'Bbb'],
+    ['A#', 'Bb', 'Cbb'],
+    ['A##', 'B', 'Cb']
+]
 
 
 class PitchClass:
@@ -40,6 +59,9 @@ class PitchClass:
         """
         return self.pitch_class_number == other.pitch_class_number
 
+    def __lt__(self, other):
+        return self.pitch_class_number < other.pitch_class_number
+
     def __hash__(self):
         """
         Hashes a PitchClass to an int, so we can use it as dictionary index
@@ -59,7 +81,7 @@ class PitchClass:
         return PITCH_CLASSES[self.pitch_class_number]
 
     @classmethod
-    def from_harte_pitch_class(cls, harte_pitch_class):
+    def from_harte_pitch_class(cls, harte_pitch_class: str):
         """
         Create a PitchClass object from its Harte pitch class
 
@@ -69,5 +91,5 @@ class PitchClass:
         >>> PitchClass.from_harte_pitch_class('Gbb').pitch_class_number
         5
         """
-        pitch_class_number = _find_item(HARTE_PITCH_CLASSES, harte_pitch_class)
+        pitch_class_number = find_item(HARTE_PITCH_CLASSES, harte_pitch_class)
         return cls(pitch_class_number)

@@ -1,24 +1,57 @@
+from typing import Tuple, List
+
 import librosa
 import numpy as np
 import mir_eval
-from decibel.utils import filehandler
+
+from decibel.music_objects.song import Song
+from decibel.import_export import filehandler
 
 
-def _find_longest_chord_per_beat(beats: np.ndarray, ref_intervals: np.ndarray, ref_labels: np.ndarray):
+def get_audio_features(audio_path: str, sampling_rate: int, hop_length: int) -> Tuple[np.ndarray, np.ndarray]:
+    # Load audio with small sampling rate and convert to mono. Audio is an array with a value per *sample*
+    audio, _ = librosa.load(audio_path, sr=sampling_rate, mono=True)
+
+    # Separate harmonics and percussives into two waveforms. We get two arrays, each with one value per *sample*
+    audio_harmonic, audio_percussive = librosa.effects.hpss(audio)
+
+    # Beat track on the percussive signal. The result is an array of *frames* which are on a beat
+    _, beat_frames = librosa.beat.beat_track(y=audio_percussive, sr=sampling_rate, hop_length=hop_length,
+                                             trim=False)
+
+    # Compute chroma features from the harmonic signal. We get a 12D array of chroma for each *frame*
+    chromagram = librosa.feature.chroma_cqt(y=audio_harmonic, sr=sampling_rate, hop_length=hop_length)
+
+    # Make sure the last beat is not longer than the length of the chromagram
+    beat_frames = librosa.util.fix_frames(beat_frames, x_max=chromagram.shape[1])
+
+    # Aggregate chroma features between *beat events*. We use the mean value of each feature between beat frames
+    beat_chroma = librosa.util.sync(chromagram, beat_frames)
+    beat_chroma = np.transpose(beat_chroma)
+
+    # Translate beats from frames to time domain
+    beat_times = librosa.frames_to_time(beat_frames, sr=sampling_rate, hop_length=hop_length)
+
+    return beat_times, beat_chroma
+
+
+def beat_align_ground_truth_labels(ground_truth_labels_path: str, beat_times: np.ndarray) -> List[str]:
     """
     Beat-synchronize the reference chord annotations, by assigning the chord with the longest duration within that beat
 
-    :param beats: Array of beats, measured in seconds
-    :param ref_intervals: Array of (start-time, end-time) intervals
-    :param ref_labels: Array of chord labels belonging to the ref_intervals
+    :param ground_truth_labels_path: Path to the ground truth file
+    :param beat_times: Array of beats, measured in seconds
     :return: List of chords within each beat
     """
+    # Load chords from ground truth file
+    (ref_intervals, ref_labels) = mir_eval.io.load_labeled_intervals(ground_truth_labels_path)
+
     # Find start and end locations of each beat
-    beat_starts = beats[:-1]
-    beat_ends = beats[1:]
+    beat_starts = beat_times[:-1]
+    beat_ends = beat_times[1:]
 
     # Create the longest_chords list, which we will fill in the for loop
-    longest_chords = []
+    longest_chords_per_beat = []
     for i in range(beat_starts.size):
         # Iterate over the beats in this song, keeping the chord with the longest duration
         b_s = beat_starts[i]
@@ -38,11 +71,22 @@ def _find_longest_chord_per_beat(beats: np.ndarray, ref_intervals: np.ndarray, r
                     longest_chord_duration = duration_inside_beat
                     longest_chord = ref_labels[j]
         # Add the chord with the longest duration to our list
-        longest_chords.append(longest_chord)
-    return longest_chords
+        longest_chords_per_beat.append(longest_chord)
+
+    return longest_chords_per_beat
 
 
-def export_audio_features(song) -> None:
+def get_feature_ground_truth_matrix(full_audio_path: str, ground_truth_labs_path: str) -> np.matrix:
+    # First obtain the audio features per beat using librosa.
+    beat_times, beat_chroma = get_audio_features(full_audio_path, sampling_rate=22050, hop_length=256)
+    # Align the ground truth annotations to the beats.
+    longest_chords_per_beat = beat_align_ground_truth_labels(ground_truth_labs_path, beat_times)
+    # Combine the beat times, chroma values and chord labels into a matrix with 14 columns and |beats| rows.
+    times_features_class = np.c_[beat_times[:-1], beat_chroma, longest_chords_per_beat]
+    return times_features_class
+
+
+def export_audio_features_for_song(song: Song) -> None:
     """
     Export the audio features of this song to a file.
 
@@ -64,41 +108,9 @@ def export_audio_features(song) -> None:
             # We already extracted the audio features
             song.audio_features_path = write_path
         else:
-            # We did not extract the audio features yet
-            sampling_rate = 22050
-            hop_length = 256
-
-            # Load audio with small sampling rate and convert to mono. Audio is an array with a value per *sample*
-            audio, _ = librosa.load(song.full_audio_path, sr=sampling_rate, mono=True)
-
-            # Separate harmonics and percussives into two waveforms. We get two arrays, each with one value per *sample*
-            audio_harmonic, audio_percussive = librosa.effects.hpss(audio)
-
-            # Beat track on the percussive signal. The result is an array of *frames* which are on a beat
-            _, beat_frames = librosa.beat.beat_track(y=audio_percussive, sr=sampling_rate, hop_length=hop_length,
-                                                     trim=False)
-
-            # Compute chroma features from the harmonic signal. We get a 12D array of chroma for each *frame*
-            chromagram = librosa.feature.chroma_cqt(y=audio_harmonic, sr=sampling_rate, hop_length=hop_length)
-
-            # Make sure the last beat is not longer than the length of the chromagram
-            beat_frames = librosa.util.fix_frames(beat_frames, x_max=chromagram.shape[1])
-
-            # Aggregate chroma features between *beat events*. We use the mean value of each feature between beat frames
-            beat_chroma = librosa.util.sync(chromagram, beat_frames)
-            beat_chroma = np.transpose(beat_chroma)
-
-            # Translate beats from frames to time domain
-            beats = librosa.frames_to_time(beat_frames, sr=sampling_rate, hop_length=hop_length)
-
-            # Load chords from ground truth file
-            (ref_intervals, ref_labels) = mir_eval.io.load_labeled_intervals(song.full_ground_truth_chord_labs_path)
-
-            # Decide for every beat which chord has the longest duration within that beat
-            longest_chords_per_beat = _find_longest_chord_per_beat(beats, ref_intervals, ref_labels)
-
-            # Combine the beat times, chroma values and chord labels into a matrix with 14 columns and |beats| rows
-            times_features_class = np.c_[beats[:-1], beat_chroma, longest_chords_per_beat]
+            # We still need to extract the audio features.
+            times_features_class = get_feature_ground_truth_matrix(song.full_audio_path,
+                                                                   song.full_ground_truth_chord_labs_path)
 
             # Export the beat, feature and class matrix to the write_path (a binary .npy file)
             song.audio_features_path = write_path

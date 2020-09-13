@@ -15,6 +15,7 @@ class Song:
         :param full_segmentation_labs_path: Path to the segmentation label file
         """
         # Key, title, album and ground truth chord_labs_path are known from the beginning
+        self.audio_features_path = None
         self.key = key
         self.title = title
         self.album = album
@@ -28,6 +29,9 @@ class Song:
         self.full_tab_paths = []
         self.full_chordify_chord_labs_path = ''
         self.full_mirex_chord_lab_paths = dict()
+
+    def __str__(self):
+        return 'Song {} ({} from {})'.format(str(self.key), self.title, self.album)
 
     def add_midi_path(self, full_midi_path):
         self.full_midi_paths.append(full_midi_path)

@@ -1,7 +1,7 @@
 """
 This module generates the tables used in the paper.
 """
-from decibel.utils import filehandler
+from decibel.import_export import filehandler
 import pandas
 import os.path as path
 

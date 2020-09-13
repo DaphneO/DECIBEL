@@ -1,130 +1,17 @@
-from enum import Enum
-from decibel.utils import chordtemplategenerator
-from decibel.utils.musicobjects import PITCH_CLASSES
-from decibel.music_objects.chord import Chord
-from decibel.music_objects.interval import Interval
-from decibel.music_objects.fingering import Fingering
-from decibel.music_objects.pitch_class import PitchClass
 import re
-import scipy.spatial.distance as ssd
+
+from scipy.spatial import distance as ssd
+
+from decibel.music_objects.chord import Chord
+from decibel.music_objects.chord_vocabulary import ChordVocabulary
+from decibel.music_objects.fingering import Fingering
+from decibel.music_objects.interval import Interval
+from decibel.music_objects.pitch_class import PitchClass
+from decibel.tab_chord_parser.line import Line
+from decibel.tab_chord_parser.line_type import LineType
 
 
-ALL_CHORDS_LIST = chordtemplategenerator.generate_chroma_all_chords()
-
-
-class LineType(Enum):
-    """
-    Possible types of a line in a chord or tab file
-    """
-    ChordDefinition = 1
-    CapoChange = 2
-    TuningDefinition = 3
-    StructuralMarker = 4
-    StructureLayout = 5
-    ChordsAndLyrics = 6
-    Chords = 7
-    Lyrics = 8
-    Tablature = 9
-    StrokePattern = 10
-    Empty = 11
-    Undefined = 12
-
-
-PUBLIC_ENUMS = {
-    'LineType': LineType
-}
-
-
-class Line:
-    def __init__(self, line_nr, content, line_type):
-        """
-        Creates a Line object
-
-        :param line_nr: y-coordinate of the line
-        :param content: Textual content of the line
-        :param line_type: Line type (e.g. ChordDefinition, Lyrics, ...)
-        """
-        self.line_nr = line_nr
-        self.content = content
-        self.line_type = line_type
-
-
-class Segment:
-    def __init__(self, segment_nr: int):
-        self.segment_nr = segment_nr
-        self.lines = []
-        self.structure_label = ''
-        self.systems = []
-
-    def __eq__(self, other):
-        return self.segment_nr == other.segment_nr
-
-    def add_line(self, line: Line):
-        if line.line_type == LineType.StructuralMarker:
-            self.structure_label = line.content
-        else:
-            self.lines.append(line)
-
-    def find_systems(self):
-        system_nr = 0
-        self_line_nr = 0
-        while self_line_nr < len(self.lines):
-            line = self.lines[self_line_nr]
-            if line.line_type == LineType.ChordsAndLyrics:
-                self.systems.append(System(system_nr))
-                self.systems[system_nr].add_chords_and_lyrics_line(line)
-                self_line_nr += 1
-                system_nr += 1
-            elif line.line_type == LineType.Chords:
-                self.systems.append(System(system_nr))
-                self.systems[system_nr].add_chords_line(line)
-                self_line_nr += 1
-                if self_line_nr == len(self.lines):
-                    break
-                if self.is_start_of_tab_block(self_line_nr):
-                    # Here is a tab block, but we ignore it as we already know the chords
-                    self_line_nr += 6
-                # If the tab block is followed by max. 3 subsequent lyrics lines, add the lyrics to the system
-                nr_of_subsequent_lyrics_lines = self.length_of_lyrics_block(self_line_nr)
-                for subsequent_lyric_i in range(0, nr_of_subsequent_lyrics_lines):
-                    self.systems[system_nr].add_lyrics_line(self.lines[self_line_nr + subsequent_lyric_i])
-                self_line_nr += nr_of_subsequent_lyrics_lines
-                system_nr += 1
-            elif self.is_start_of_tab_block(self_line_nr):
-                # Add new system
-                self.systems.append(System(system_nr))
-                tab_block_str = [block_line.content for block_line in self.lines[self_line_nr:self_line_nr + 6]]
-                self.systems[system_nr].add_tab_block(tab_block_str)
-                self_line_nr += 6
-                # If the tab block is followed by max. 3 subsequent lyrics lines, add the lyrics to the system
-                nr_of_subsequent_lyrics_lines = self.length_of_lyrics_block(self_line_nr)
-                for subsequent_lyric_i in range(0, nr_of_subsequent_lyrics_lines):
-                    self.systems[system_nr].add_lyrics_line(self.lines[self_line_nr + subsequent_lyric_i])
-                self_line_nr += nr_of_subsequent_lyrics_lines
-                system_nr += 1
-            else:
-                self_line_nr += 1
-
-    def is_start_of_tab_block(self, line_nr: int):
-        if line_nr + 6 > len(self.lines):
-            return False
-        for j in range(0, 6):
-            if self.lines[line_nr + j].line_type != LineType.Tablature:
-                return False
-        if line_nr + 6 < len(self.lines) and self.lines[line_nr + 6].line_type != LineType.Tablature:
-            return False
-        return True
-
-    def length_of_lyrics_block(self, line_nr: int):
-        length = 0
-        for j in range(0, 3):
-            if line_nr + j >= len(self.lines):
-                return length
-            if self.lines[line_nr + j].line_type == LineType.Lyrics:
-                length += 1
-            else:
-                return length
-        return length
+ALL_CHORDS_LIST = ChordVocabulary.generate_chroma_all_chords()
 
 
 class System:
@@ -181,7 +68,7 @@ class System:
             chord_str = chords_and_lyrics_line_str[chord_start + 1:chord_end - 1]
             self._add_chord_from_str(chord_str, chord_end)
 
-    def add_tab_block(self, tab_block_str):
+    def add_tab_block(self, tab_block_str: [Line]):
         """
         Process the content of a tab block (6 subsequent lines of LineType Tablature), add chords to self.chords
 
@@ -204,11 +91,11 @@ class System:
                 # Find nearest chord from vocabulary
                 smallest_distance = 2
                 best_matching_chord_str = 'X'
-                for [key_note, chord_type, chord_template] in ALL_CHORDS_LIST:
+                for chord_template in ALL_CHORDS_LIST:
                     cosine_distance = ssd.cosine(fingering_chroma[:12], chord_template)
                     if cosine_distance < smallest_distance:
                         smallest_distance = cosine_distance
-                        best_matching_chord_str = PITCH_CLASSES[key_note][0] + chord_type
+                        best_matching_chord_str = str(PitchClass(chord_template.key))[0] + chord_template.mode
                 chord = Chord.from_common_tab_notation_string(best_matching_chord_str)
 
                 # Fix bass note

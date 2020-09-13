@@ -2,7 +2,9 @@ import mir_eval
 import pandas
 import numpy as np
 from os import path
-from decibel.utils import filehandler
+
+import decibel.import_export.midi_alignment_score_io
+from decibel.import_export import filehandler
 import multiprocessing as mp
 
 
@@ -154,7 +156,8 @@ def evaluate_midis(all_songs) -> None:
                     song = all_songs[song_key]
                     for midi_path in song.full_midi_paths:
                         midi_name = filehandler.get_file_name_from_full_path(midi_path)
-                        alignment_score = filehandler.read_chord_alignment_score(midi_name)
+                        alignment_score = \
+                            decibel.import_export.midi_alignment_score_io.read_chord_alignment_score(midi_name)
                         chord_probability = filehandler.read_midi_chord_probability(segmentation_type, midi_name)
                         midi_lab_path = filehandler.get_full_midi_chord_labs_path(midi_name, segmentation_type)
 
