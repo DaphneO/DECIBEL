@@ -13,7 +13,8 @@
 \textsc{{jlcx1}}&{7}\\
 \textsc{{jlcx2}}&{8}\\
 \textsc{{sg1}}&{9}\\
+\textsc{{clsyj1}}&{10}\\
 \end{{tabular}}
-\caption{{\textsc{{wcsr}} of audio \textsc{{ace}} systems and \textsc{{df-best}}. Using \textsc{{df-best}} improves \textsc{{ace}} \textsc{{wcsr}} on average by {10}\%.}}\label{{tab:wcsr}}
+\caption{{\textsc{{wcsr}} of audio \textsc{{ace}} systems and \textsc{{df-best}}. Using \textsc{{df-best}} improves \textsc{{ace}} \textsc{{wcsr}} on average by {11}\%.}}\label{{tab:wcsr}}
 \vspace{{-0.5cm}}
 \end{{table}}

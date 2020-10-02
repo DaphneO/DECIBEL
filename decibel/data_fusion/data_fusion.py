@@ -194,8 +194,8 @@ def data_fuse_song(song, chords_list):
     :param chords_list: The chord vocabulary
     """
     # Check if data fusion has already been calculated  TODO: make this check more robust
-    if path.isfile(filehandler.get_data_fusion_path(song.key, 'df', 'best', 'CHF_2017')):
-        return
+    # if path.isfile(filehandler.get_data_fusion_path(song.key, 'df', 'best', 'CHF_2017')):
+    #     return
 
     # Get list of symbolic lab files (all / expected best)
     well_aligned_midis = filehandler.get_well_aligned_midis(song)

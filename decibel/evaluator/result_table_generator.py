@@ -84,6 +84,7 @@ def table_5_latex(all_songs):
 
     latex_table = template.format(w('CHF_2017'), w('CM2_2017'), w('JLW1_2017'), w('JLW2_2017'), w('KBK1_2017'),
                                   w('KBK2_2017'), w('WL1_2017'), w('JLCX1_2018'), w('JLCX2_2018'), w('SG1_2018'),
+                                  w('CLSYJ1_2019'),
                                   str(round((sum(differences) / len(differences) * 100), 2)))
     return latex_table
 
