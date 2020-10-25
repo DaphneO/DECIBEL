@@ -15,6 +15,7 @@ from numba import jit
 import scipy.spatial
 import decibel.import_export.filehandler as fh
 import decibel.import_export.midi_alignment_score_io
+import decibel.import_export.midi_alignment_io
 from decibel.audio_midi_aligner import synthesizer
 from decibel.audio_midi_aligner.alignment_parameters import AlignmentParameters
 from decibel.audio_midi_aligner.midi_alignment import MIDIAlignment
@@ -176,7 +177,7 @@ def align_midi(audio_cqt: np.ndarray, audio_times: np.ndarray, full_synthesized_
     p, q, score = _dtw(distance_matrix, alignment_parameters.gully, additive_penalty, multiplicative_penalty)
 
     # Compute MIDIAlignment
-    midi_alignment = MIDIAlignment(midi_times.__getitem__(p), midi_times.__getitem__(q))
+    midi_alignment = MIDIAlignment(midi_times.__getitem__(p), audio_times.__getitem__(q))
 
     # Normalize by path length and the distance matrix sub-matrix within the path
     score = score / len(p)
@@ -187,9 +188,10 @@ def align_midi(audio_cqt: np.ndarray, audio_times: np.ndarray, full_synthesized_
     decibel.import_export.midi_alignment_score_io.write_chord_alignment_score(midi_name, score)
 
     # Write alignment
-    with open(full_alignment_write_path, 'w') as write_file:
-        for i in range(len(p)):
-            write_file.write('{0} {1} {2}\n'.format(str(i), str(midi_times[p[i]]), str(audio_times[q[i]])))
+    decibel.import_export.midi_alignment_io.write_alignment_file(midi_alignment, full_alignment_write_path)
+    # with open(full_alignment_write_path, 'w') as write_file:
+    #     for i in range(len(p)):
+    #         write_file.write('{0} {1} {2}\n'.format(str(i), str(midi_times[p[i]]), str(audio_times[q[i]])))
 
 
 def align_single_song(song: Song, alignment_parameters: Optional[AlignmentParameters] = None):

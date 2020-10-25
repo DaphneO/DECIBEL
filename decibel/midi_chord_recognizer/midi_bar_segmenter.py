@@ -16,6 +16,8 @@ class MIDIBarSegmenter(MIDISegmenterInterface):
         :return: Partition points on bar level
         """
         bars = list(realigned_midi.midi_data.get_downbeats())
-        # Extrapolate one ending bar
-        bars.append(bars[-1] + (bars[-1] - bars[-2]))
+        # Extrapolate one ending bar to the end
+        end_time = realigned_midi.midi_data.get_end_time()
+        if bars[-1] != end_time:
+            bars.append(end_time)
         return bars

@@ -26,5 +26,5 @@ def export_chord_annotation(chord_annotation: ChordAnnotation, write_path: str):
             chord_str = str(chord_annotation_item.chord)
             if chord_str == 'None':
                 chord_str = 'N'
-            write_file.write('{0} {1} {2}\n'.format(chord_str, str(chord_annotation_item.from_time),
-                                                    str(chord_annotation_item.to_time)))
+            write_file.write('{0} {1} {2}\n'.format(str(chord_annotation_item.from_time),
+                                                    str(chord_annotation_item.to_time), chord_str))

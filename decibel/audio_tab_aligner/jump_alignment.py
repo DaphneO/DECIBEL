@@ -4,6 +4,7 @@ import numpy as np
 
 from decibel.audio_tab_aligner.hmm_parameters import HMMParameters
 from decibel.import_export import filehandler
+from decibel.import_export.untimed_chord_sequence_io import read_untimed_chord_sequence
 from decibel.music_objects.chord import Chord
 from decibel.music_objects.chord_alphabet import ChordAlphabet
 from decibel.music_objects.chord_vocabulary import ChordVocabulary
@@ -87,19 +88,19 @@ def _read_tab_file_path(chords_from_tab_file_path: str, alphabet: ChordAlphabet)
     :param chords_from_tab_file_path: File that contains chord information
     :return: (nr_of_chords_in_tab, chord_ids, is_first_in_line, is_last_in_line)
     """
-    # Load .npy file consisting of: [line_nr, segment_nr, system_nr, chord_x, chord_str]
-    chords_from_tab = np.load(chords_from_tab_file_path)
-    nr_of_chords_in_tab = chords_from_tab.shape[0]
+    # Load .txt file consisting of: [line_nr, segment_nr, system_nr, chord_x, chord_str] (UntimedChordSequence)
+    untimed_chord_sequence = read_untimed_chord_sequence(chords_from_tab_file_path)
+    nr_of_chords_in_tab = len(untimed_chord_sequence.untimed_chord_sequence_item_items)
     # If we found less than 5 chords, we will not use this tab
     if nr_of_chords_in_tab < 5:
         return nr_of_chords_in_tab, [], [], []
 
     # Chord id's
-    line_nrs = chords_from_tab[:, 0].astype(int)
+    line_nrs = [ucs_item.line_nr for ucs_item in untimed_chord_sequence.untimed_chord_sequence_item_items]
     chord_ids = np.zeros(nr_of_chords_in_tab).astype(int)
     for i in range(nr_of_chords_in_tab):
         chord_ids[i] = alphabet.get_index_of_chord_in_alphabet(
-            Chord.from_harte_chord_string(chords_from_tab[i, 4]))
+            Chord.from_harte_chord_string(untimed_chord_sequence.untimed_chord_sequence_item_items[i].chord_str))
 
     # Array: is this chord first and/or last in its line?
     is_first_in_line = np.zeros(nr_of_chords_in_tab).astype(int)
@@ -176,7 +177,8 @@ def train(chord_vocabulary: ChordVocabulary, train_songs: Dict[int, Song]) -> HM
         sigma_inverse[i] = np.mat(np.linalg.pinv(obs_sigma[i]))
 
     return HMMParameters(alphabet=alphabet, trans=trans, init=init, obs_mu=obs_mu, obs_sigma=obs_sigma,
-                         log_det_sigma=log_det_sigma, sigma_inverse=sigma_inverse, twelve_log_two_pi=twelve_log_two_pi)
+                         log_det_sigma=log_det_sigma, sigma_inverse=sigma_inverse, twelve_log_two_pi=twelve_log_two_pi,
+                         trained_on_keys=list(train_songs.keys()))
 
 
 def jump_alignment(chords_from_tab_file_path: str, audio_features_path: str, lab_write_path: str,
@@ -296,18 +298,18 @@ def test_single_song(song: Song, hmm_parameters: HMMParameters) -> None:
     :param song: Song for which we estimate tab-based chords
     :param hmm_parameters: Parameters of the trained HMM
     """
-    if song.audio_features_path != '':
-        # There are audio features for this path
-        for full_tab_path in song.full_tab_paths:
-            tab_chord_path = filehandler.get_chords_from_tab_filename(full_tab_path)
-            tab_write_path = filehandler.get_full_tab_chord_labs_path(full_tab_path)
-            if not filehandler.file_exists(tab_write_path):
-                log_likelihood, transposition_semitone = \
-                    jump_alignment(tab_chord_path, song.audio_features_path, tab_write_path, hmm_parameters)
-                if log_likelihood is not None:
-                    # We found an alignment, write this to our log-likelihoods file
-                    if not tab_write_path.startswith(filehandler.DATA_PATH):
-                        print('WRITING ERROR')
-                    # Remove start of path
-                    tab_write_path = tab_write_path[len(filehandler.DATA_PATH) + 1:]
-                    filehandler.write_log_likelihood(song.key, tab_write_path, log_likelihood, transposition_semitone)
+    audio_features_path = filehandler.get_full_audio_features_path(song.key)
+
+    for full_tab_path in song.full_tab_paths:
+        tab_chord_path = filehandler.get_chords_from_tab_filename(full_tab_path)
+        tab_write_path = filehandler.get_full_tab_chord_labs_path(full_tab_path)
+        if not filehandler.file_exists(tab_write_path):
+            log_likelihood, transposition_semitone = \
+                jump_alignment(tab_chord_path, audio_features_path, tab_write_path, hmm_parameters)
+            if log_likelihood is not None:
+                # We found an alignment, write this to our log-likelihoods file
+                if not tab_write_path.startswith(filehandler.DATA_PATH):
+                    print('WRITING ERROR')
+                # Remove start of path
+                tab_write_path = tab_write_path[len(filehandler.DATA_PATH) + 1:]
+                filehandler.write_log_likelihood(song.key, tab_write_path, log_likelihood, transposition_semitone)

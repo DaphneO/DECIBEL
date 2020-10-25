@@ -3,7 +3,9 @@ from os import path
 
 import numpy as np
 
+from decibel.import_export.chord_annotation_io import import_chord_annotation
 from decibel.music_objects.chord import Chord
+from decibel.music_objects.chord_alphabet import ChordAlphabet
 from decibel.music_objects.chord_vocabulary import ChordVocabulary
 from decibel.music_objects.song import Song
 from decibel.import_export import filehandler
@@ -190,6 +192,24 @@ def _data_fusion_chord_label_combination(chord_matrix, nr_of_samples, alphabet):
     return final_labels
 
 
+def load_lab_file_into_chord_matrix(lab_path, i, chord_matrix, alphabet, nr_of_samples):
+    """
+    Load a chord file (in Harte's chord annotation format) into a chord matrix, having the chord label per 10ms sample.
+    :param lab_path: Path to the .lab file with chord annotation/estimation
+    :param i: Index to the row in the chord_matrix to fill
+    :param chord_matrix: Chord matrix to which we add samples from this .lab file
+    :param alphabet: The chord vocabulary (used to get the index belonging to a chord string)
+    :param nr_of_samples: Total number of samples in the song
+    :return: Chord matrix to which we just added samples from this .lab file to row i
+    """
+    chord_annotation = import_chord_annotation(lab_path)
+    for chord_annotation_item in chord_annotation.chord_annotation_items:
+        chord_label_alphabet_index = alphabet.get_index_of_chord_in_alphabet(chord_annotation_item.chord)
+        for s in range(int(chord_annotation_item.from_time * 100),
+                       min(int(chord_annotation_item.to_time * 100), nr_of_samples - 1)):
+            chord_matrix[i, s] = chord_label_alphabet_index
+
+
 def data_fuse_song(song: Song, chord_vocabulary: ChordVocabulary):
     """
     Data fuse a song using all combinations of selection and combination methods, write the final labels to .lab files
@@ -202,22 +222,22 @@ def data_fuse_song(song: Song, chord_vocabulary: ChordVocabulary):
         return
 
     # Get list of symbolic lab files (all / expected best)
-    well_aligned_midis = filehandler.get_well_aligned_midis(song)
-    all_symbolic_labs = \
+    well_aligned_midis = get_well_aligned_midis(song)
+    all_symbolic_lab_paths = \
         [filehandler.get_full_midi_chord_labs_path(wam, 'bar') for wam in well_aligned_midis] + \
         [filehandler.get_full_midi_chord_labs_path(wam, 'beat') for wam in well_aligned_midis] + \
         [filehandler.get_full_tab_chord_labs_path(t) for t in song.full_tab_paths]
-    expected_best_symbolic_paths = []
+    expected_best_symbolic_lab_paths = []
     if well_aligned_midis:
-        expected_best_symbolic_paths.append(
-            filehandler.get_full_midi_chord_labs_path(*filehandler.get_expected_best_midi(song)))
+        expected_best_symbolic_lab_paths.append(
+            filehandler.get_full_midi_chord_labs_path(*get_expected_best_midi(song)))
     if [filehandler.get_full_tab_chord_labs_path(t) for t in song.full_tab_paths]:
-        expected_best_symbolic_paths.append(
-            filehandler.get_full_tab_chord_labs_path(filehandler.get_expected_best_tab_lab(song)))
+        expected_best_symbolic_lab_paths.append(
+            filehandler.get_full_tab_chord_labs_path(get_expected_best_tab_lab(song)))
 
     # Remove non-existing files (e.g. tab files in which too little chords were observed)
-    all_symbolic_labs = [lab for lab in all_symbolic_labs if filehandler.file_exists(lab)]
-    expected_best_symbolic_paths = [lab for lab in expected_best_symbolic_paths if filehandler.file_exists(lab)]
+    all_symbolic_lab_paths = [lab for lab in all_symbolic_lab_paths if filehandler.file_exists(lab)]
+    expected_best_symbolic_lab_paths = [lab for lab in expected_best_symbolic_lab_paths if filehandler.file_exists(lab)]
 
     # Get list of audio lab files
     audio_labs = song.full_mirex_chord_lab_paths
@@ -228,13 +248,14 @@ def data_fuse_song(song: Song, chord_vocabulary: ChordVocabulary):
     nr_of_samples = int(ceil(song_duration * 100))
 
     # Turn the chords list (a list of (key, mode-str, chroma-list) tuples) into an chord_vocabulary (a list of strings)
-    alphabet = _chords_list_to_alphabet(chords_list)
+    # alphabet = _chords_list_to_alphabet(chords_list) TODO remove if possible
+    alphabet = ChordAlphabet(chord_vocabulary)
 
     # Iterate over the two types of selection (all / best)
     for lab_list_i in [0, 1]:
-        lab_list = [all_symbolic_labs, expected_best_symbolic_paths][lab_list_i]
-        selection_name = ['all', 'best'][lab_list_i]
+        lab_list = [all_symbolic_lab_paths, expected_best_symbolic_lab_paths][lab_list_i]
         lab_list = [i for i in lab_list if i != '']
+        selection_name = ['all', 'best'][lab_list_i]
 
         # Fill a numpy array with chord labels for each of the lab files
         chord_matrix = np.zeros((len(lab_list) + 1, nr_of_samples), dtype=int)

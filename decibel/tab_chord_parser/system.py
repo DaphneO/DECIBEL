@@ -11,7 +11,7 @@ from decibel.tab_chord_parser.line import Line
 from decibel.tab_chord_parser.line_type import LineType
 
 
-ALL_CHORDS_LIST = ChordVocabulary.generate_chroma_all_chords()
+ALL_CHORDS_LIST: ChordVocabulary = ChordVocabulary.generate_chroma_all_chords()
 
 
 class System:
@@ -91,8 +91,8 @@ class System:
                 # Find nearest chord from vocabulary
                 smallest_distance = 2
                 best_matching_chord_str = 'X'
-                for chord_template in ALL_CHORDS_LIST:
-                    cosine_distance = ssd.cosine(fingering_chroma[:12], chord_template)
+                for chord_template in ALL_CHORDS_LIST.chord_templates:
+                    cosine_distance = ssd.cosine(fingering_chroma[:12], chord_template.chroma_list)
                     if cosine_distance < smallest_distance:
                         smallest_distance = cosine_distance
                         best_matching_chord_str = str(PitchClass(chord_template.key))[0] + chord_template.mode

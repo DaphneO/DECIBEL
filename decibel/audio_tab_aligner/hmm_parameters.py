@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 from decibel.music_objects.chord_alphabet import ChordAlphabet
@@ -6,7 +8,7 @@ from decibel.music_objects.chord_alphabet import ChordAlphabet
 class HMMParameters:
     def __init__(self, alphabet: ChordAlphabet, trans: np.ndarray, init: np.ndarray, obs_mu: np.ndarray,
                  obs_sigma: np.ndarray, log_det_sigma: np.ndarray, sigma_inverse: np.ndarray,
-                 twelve_log_two_pi: np.float64):
+                 twelve_log_two_pi: np.float64, trained_on_keys: List[int]):
         self.alphabet = alphabet
         self.trans = trans
         self.init = init
@@ -15,3 +17,4 @@ class HMMParameters:
         self.log_det_sigma = log_det_sigma
         self.sigma_inverse = sigma_inverse
         self.twelve_log_two_pi = twelve_log_two_pi
+        self.trained_on_keys = trained_on_keys

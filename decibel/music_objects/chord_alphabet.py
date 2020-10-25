@@ -20,6 +20,12 @@ class ChordAlphabet:
         raise NotImplementedError('This is not (yet?) supported for chord vocabularies other than "MajMin".')
         # TODO Implement for other chord vocabularies (e.g. seventh chords)
 
+    def __len__(self):
+        return len(self.alphabet_list)
+
+    def __getitem__(self, item):
+        return self.alphabet_list.__getitem__(item)
+
     def get_index_of_chord_in_alphabet(self, chord: Chord):
         """
         Given a Chord object, retrieve the index in the chord alphabet

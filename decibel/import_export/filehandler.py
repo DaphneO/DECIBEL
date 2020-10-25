@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import path, listdir, makedirs, remove
 import csv
+from typing import List
 
 from decibel.music_objects.song import Song
 import random
@@ -93,6 +94,7 @@ SYNTHMIDI_FOLDER = _full_path_to('SynthMIDI', 'f')
 ALIGNMENTS_FOLDER = _full_path_to('Alignments', 'f')
 AUDIO_FEATURES_FOLDER = _full_path_to('AudioFeatures', 'f')
 CHORDS_FROM_TABS_FOLDER = _full_path_to('ChordsFromTabs', 'f')
+HMM_PARAMETERS_FOLDER = _full_path_to('HMMParameters', 'f')
 
 # Paths to .csv files with results (CSR and segmentation measures for each song)
 MIDILABS_RESULTS_PATHS = {'bar': _full_path_to('MidiLabsResultsBar.csv', 'rt'),
@@ -126,6 +128,7 @@ def init_folders():
     Check if all folders that we need, exist. If they do not exist yet, create them.
     """
     needed_folders = [SYNTHMIDI_FOLDER, ALIGNMENTS_FOLDER, AUDIO_FEATURES_FOLDER, CHORDS_FROM_TABS_FOLDER,
+                      HMM_PARAMETERS_FOLDER,
                       MIDILABS_FOLDERS['bar'], MIDILABS_FOLDERS['beat'], TABLABS_FOLDER,
                       MIDILABS_CHORD_PROBABILITY_FOLDER, LOG_LIKELIHOOD_FOLDER, MIDILABS_ALIGNMENT_SCORE_FOLDER,
                       RESULT_TABLES, RESULT_FIGURES, RESULT_VISUALISATIONS]
@@ -481,6 +484,11 @@ def get_full_audio_features_path(key: int) -> str:
     :return: Audio features path of our song
     """
     return path.join(AUDIO_FEATURES_FOLDER, str(key) + '.npy')
+
+
+def get_hmm_parameters_path(train_indices: List[int]) -> str:
+    file_name = str(tuple(train_indices).__hash__())
+    return path.join(HMM_PARAMETERS_FOLDER, file_name + '.json')
 
 
 def get_data_fusion_path(key: int, df_type_str: str, selection_method_str: str, audio_ace: str) -> str:

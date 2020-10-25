@@ -66,6 +66,17 @@ class ChordVocabulary:
                 self.chord_templates.append(ChordTemplate(key_note, chord_template[0], chroma))
 
     @classmethod
+    def from_name(cls, name: str):
+        if name == 'MajMin':
+            return cls.generate_chroma_major_minor()
+        if name == 'Sevenths':
+            return cls.generate_chroma_major_minor_sevenths()
+        if name == 'All':
+            return cls.generate_chroma_all_chords()
+        raise ValueError('Name of this ChordVocabulary was not known.')
+
+
+    @classmethod
     def generate_chroma_major_minor(cls):
         """
         Generate a list of major and minor chord templates

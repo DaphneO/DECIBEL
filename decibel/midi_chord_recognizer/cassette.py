@@ -76,19 +76,19 @@ def classify_aligned_midis_for_song(song: Song, chord_vocabulary: ChordVocabular
         write_path = filehandler.get_full_midi_chord_labs_path(midi_name, segmenter.segmenter_name)
         if not filehandler.file_exists(write_path):
             # The file does not exist yet, so we need to find the chords
-            try:
+            # try:
                 # Realign the MIDI using the alignment path
-                realigned_midi = RealignedMIDI(full_midi_path, full_alignment_path)
-                # Find Events, using the specified partition method
-                events = segmenter.find_events(realigned_midi)
-                # Assign most likely chords to each event
-                most_likely_chords = _assign_most_likely_chords(events, chord_vocabulary)
-                # Compute average chord probability
-                midi_chord_probability = _compute_midi_chord_probability(most_likely_chords)
-                # Concatenate annotation items with the same chord labels into one annotation.
-                concatenated_annotation = _get_midi_chord_annotation(most_likely_chords)
-                # Export results
-                export_chord_annotation(concatenated_annotation, write_path)
-                filehandler.write_midi_chord_probability(segmenter.segmenter_name, midi_name, midi_chord_probability)
-            except:
-                print(midi_name + " went wrong")
+            realigned_midi = RealignedMIDI(full_midi_path, full_alignment_path)
+            # Find Events, using the specified partition method
+            events = segmenter.find_events(realigned_midi)
+            # Assign most likely chords to each event
+            most_likely_chords = _assign_most_likely_chords(events, chord_vocabulary)
+            # Compute average chord probability
+            midi_chord_probability = _compute_midi_chord_probability(most_likely_chords)
+            # Concatenate annotation items with the same chord labels into one annotation.
+            concatenated_annotation = _get_midi_chord_annotation(most_likely_chords)
+            # Export results
+            export_chord_annotation(concatenated_annotation, write_path)
+            filehandler.write_midi_chord_probability(segmenter.segmenter_name, midi_name, midi_chord_probability)
+                # except:
+                #     print(midi_name + " went wrong")
