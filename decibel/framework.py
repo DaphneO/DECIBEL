@@ -118,6 +118,23 @@ print('Test phase (calculating labs of all methods) finished')
 
 evaluator.evaluate_midis(all_songs)
 evaluator.evaluate_tabs(all_songs)
+
+
+def additional_actual_best_df_round(song: Song, chord_vocab: ChordVocabulary):
+    data_fusion.data_fuse_song_with_actual_best_midi_and_tab(song=song, chord_vocabulary=chord_vocab)
+    return '{} is data fused with actual best MIDI and tab.'.format(str(song))
+
+
+pool3 = mp.Pool(NR_CPU)
+for song_key in all_songs:
+    pool3.apply_async(additional_actual_best_df_round,
+                      args=(all_songs[song_key], chord_vocabulary),
+                      callback=print)
+pool3.close()
+pool3.join()
+# for song_key in all_songs:
+#     additional_actual_best_df_round(all_songs[song_key], chord_vocabulary)
+
 evaluator.evaluate_song_based(all_songs)
 
 print('Evaluation finished!')
@@ -127,14 +144,14 @@ print('Evaluation finished!')
 ###############################
 
 # Generate lab visualisations for each song and audio method
-pool3 = mp.Pool(NR_CPU)
+pool4 = mp.Pool(NR_CPU)
 for song_key in all_songs:
     for audio_method in ['CHF_2017'] + filehandler.MIREX_SUBMISSION_NAMES:
-        pool3.apply_async(chord_label_visualiser.export_result_image,
+        pool4.apply_async(chord_label_visualiser.export_result_image,
                           args=(all_songs[song_key], chord_vocabulary, True, True, audio_method, True),
                           callback=print)
-pool3.close()
-pool3.join()
+pool4.close()
+pool4.join()
 print("Visualisation finished!")
 
 # Export tables and figures used in the journal paper

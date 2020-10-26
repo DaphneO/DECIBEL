@@ -74,6 +74,25 @@ def get_expected_best_tab_lab(song: Song) -> str:
     return best_tab_lab
 
 
+def get_actual_best_midi_lab(song: Song) -> str:
+    """
+    Find path to the actual best MIDI and segmentation type for this Song (based on CSR). Only use after evaluation.
+
+    :param song: Song in our data set
+    """
+    best_beat_midi_name, best_beat_midi_csr = filehandler.get_actual_best_midi_for_song('beat', song.key)
+    best_bar_midi_name, best_bar_midi_csr = filehandler.get_actual_best_midi_for_song('bar', song.key)
+    if best_beat_midi_csr > best_bar_midi_csr:
+        return filehandler.get_full_midi_chord_labs_path(best_beat_midi_name, 'beat')
+    else:
+        return filehandler.get_full_midi_chord_labs_path(best_bar_midi_name, 'bar')
+
+
+def get_actual_best_tab_lab(song: Song) -> str:
+    best_tab_name, _ = filehandler.get_actual_best_tab_for_song(song.key)
+    return filehandler.get_full_tab_chord_labs_path(best_tab_name)
+
+
 def _write_final_labels(final_labels, lab_path, alphabet):
     """
     Write the row of final labels (after data fusion) from the chord matrix to a .lab file at lab_path
@@ -280,3 +299,44 @@ def data_fuse_song(song: Song, chord_vocabulary: ChordVocabulary):
                 _write_final_labels(final_labels_data_fusion,
                                     filehandler.get_data_fusion_path(song.key, 'df', selection_name, audio_name),
                                     alphabet)
+
+
+def data_fuse_song_with_actual_best_midi_and_tab(song: Song, chord_vocabulary: ChordVocabulary):
+    """
+    Data fuse a song using all combinations of selection and combination methods, write the final labels to .lab files
+
+    :param song: The song on which we want to apply data fusion
+    :param chord_vocabulary: The chord vocabulary
+    """
+    # Check if data fusion has already been calculated  TODO: make this check more robust
+    if path.isfile(filehandler.get_data_fusion_path(song.key, 'df', 'actual-best', 'CHF_2017')):
+        return
+
+    # Get list of audio lab files
+    audio_labs = song.full_mirex_chord_lab_paths
+    audio_labs['CHF_2017'] = song.full_chordify_chord_labs_path
+
+    # Sample every 10ms, so 100 samples per second
+    song_duration = song.duration
+    nr_of_samples = int(ceil(song_duration * 100))
+
+    # Turn the chords list (a list of (key, mode-str, chroma-list) tuples) into an chord_vocabulary (a list of strings)
+    alphabet = ChordAlphabet(chord_vocabulary)
+
+    selection_name = 'actual-best'
+    lab_list = [get_actual_best_midi_lab(song), get_actual_best_tab_lab(song)]
+
+    # Fill a numpy array with chord labels for each of the lab files
+    chord_matrix = np.zeros((len(lab_list) + 1, nr_of_samples), dtype=int)
+    for lab_nr in range(len(lab_list)):
+        load_lab_file_into_chord_matrix(lab_list[lab_nr], lab_nr, chord_matrix, alphabet, nr_of_samples)
+
+    # Iterate over the audio types:
+    for audio_name, audio_lab in audio_labs.items():
+        if filehandler.file_exists(audio_lab):
+            # Add the lab file to our chord matrix
+            load_lab_file_into_chord_matrix(audio_lab, len(lab_list), chord_matrix, alphabet, nr_of_samples)
+            final_labels_data_fusion = _data_fusion_chord_label_combination(chord_matrix, nr_of_samples, alphabet)
+            _write_final_labels(final_labels_data_fusion,
+                                filehandler.get_data_fusion_path(song.key, 'df', selection_name, audio_name),
+                                alphabet)

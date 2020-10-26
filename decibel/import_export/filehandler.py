@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from os import path, listdir, makedirs, remove
 import csv
-from typing import List
+from typing import List, Tuple
+
+import pandas
 
 from decibel.music_objects.song import Song
 import random
@@ -117,6 +119,10 @@ for df_type in ['rnd', 'mv', 'df']:
         DATA_FUSION_FOLDERS[fn + 'CHF_2017'] = _full_path_to(fn + 'CHF_2017', 'rl')
         for mirex_submission_name in MIREX_SUBMISSION_NAMES:
             DATA_FUSION_FOLDERS[fn + mirex_submission_name] = _full_path_to(fn + mirex_submission_name, 'rl')
+fn = 'DF_ACTUAL-BEST_'
+DATA_FUSION_FOLDERS[fn + 'CHF_2017'] = _full_path_to(fn + 'CHF_2017', 'rl')
+for mirex_submission_name in MIREX_SUBMISSION_NAMES:
+    DATA_FUSION_FOLDERS[fn + mirex_submission_name] = _full_path_to(fn + mirex_submission_name, 'rl')
 
 RESULT_TABLES = _full_path_to('', 'rt')
 RESULT_FIGURES = _full_path_to('', 'rf')
@@ -227,6 +233,39 @@ def read_midi_chord_probability(segmentation_method: str, midi_name: str) -> flo
     with open(read_path, 'r') as reading_file:
         result = float(reading_file.read().rstrip())
     return result
+
+
+def get_actual_best_midi_for_song(segmentation_method: str, song_key: int) -> Tuple[str, float]:
+    """
+    Read name and CSR of best MIDI file for song, segmented with segmentation_method. Only use after evaluation.
+
+    :param segmentation_method: Bar or beat segmentation
+    :param song_key: Song for which we want to find the best MIDI
+    :return: Name and CSR of best MIDI
+
+    >>> get_actual_best_midi_for_song('beat', 1)
+    ('001-002', 0.7635384045589756)
+    """
+    method_results = pandas.read_csv(MIDILABS_RESULTS_PATHS[segmentation_method], sep=';',
+                                     names=['song_key', 'duration', 'midi_name', 'alignment_error', 'template_sim',
+                                            'wcsr', 'ovs', 'uns', 'seg'], index_col=2)
+    actual_best_midi_name = method_results[method_results.song_key == song_key].wcsr.idxmax()
+    return actual_best_midi_name, method_results.wcsr[actual_best_midi_name]
+
+
+def get_actual_best_tab_for_song(song_key: int) -> Tuple[str, float]:
+    """
+    Read name and CSR of best tab file for song. Only use after evaluation.
+
+    :param song_key: Song for which we want to find the best tab
+    :return: Name and CSR of best tab
+    """
+    method_results = pandas.read_csv(TABLABS_RESULTS_PATH, sep=';',
+                                     names=['song_key', 'duration', 'tab_name', 'likelihood', 'transposition',
+                                            'wcsr', 'overseg', 'underseg', 'seg'])
+    method_results_song = method_results[method_results.song_key == song_key]
+    highest_csr_index = method_results_song.wcsr.idxmax()
+    return tuple(method_results_song.loc[highest_csr_index][['tab_name', 'wcsr']])
 
 
 def _get_log_likelihood_path(song_key: int, tab_file_path: str):
@@ -546,3 +585,8 @@ def get_lab_visualisation_path(song: Song, audio_ace: str) -> str:
     :return: The location of the png of the lab visualisation path for a given song and audio ace method.
     """
     return path.join(RESULT_VISUALISATIONS, str(song.key) + '_' + audio_ace + '.png')
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

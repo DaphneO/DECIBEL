@@ -93,13 +93,12 @@ def write_method_evaluations(all_songs, method_name, get_lab_function):
         evaluation_df.to_csv(evaluation_path)
 
 
-def _evaluate_audio_type(all_songs, df_types, selection_names, audio_type):
+def _evaluate_audio_type(all_songs, df_combination_and_selection_types, audio_type):
     """
     Evaluate all songs and selected df_types and selection_names for the selected audio_type
 
     :param all_songs: All songs in our data set
-    :param df_types: Data combination types to test (rnd/mv/df)
-    :param selection_names: Data selection types to test (all/best)
+    :param df_combination_and_selection_types: Data combination/selection types (rnd/mv/df)-(all/best/actual-best)
     :param audio_type: Audio method to test (CHF_2017 or one of the MIREX methods)
     :return: String indicating if the evaluation succeeded
     """
@@ -111,13 +110,12 @@ def _evaluate_audio_type(all_songs, df_types, selection_names, audio_type):
 
     write_method_evaluations(all_songs, audio_type, get_lab_function)
 
-    for df_type in df_types:
-        for selection_name in selection_names:
-            # Evaluate this method of combining audio, MIDI and tabs
-            method_name = audio_type + '_' + df_type.upper() + '-' + selection_name.upper()
-            write_method_evaluations(
-                all_songs, method_name,
-                lambda song: filehandler.get_data_fusion_path(song.key, df_type, selection_name, audio_type))
+    for df_type, selection_name in df_combination_and_selection_types:
+        # Evaluate this method of combining audio, MIDI and tabs
+        method_name = audio_type + '_' + df_type.upper() + '-' + selection_name.upper()
+        write_method_evaluations(
+            all_songs, method_name,
+            lambda song: filehandler.get_data_fusion_path(song.key, df_type, selection_name, audio_type))
 
     return audio_type + ' was evaluated.'
 
@@ -130,12 +128,17 @@ def evaluate_song_based(all_songs):
     :return: Print statement indicating that the evaluation was finished
     """
     audio_types = ['CHF_2017'] + filehandler.MIREX_SUBMISSION_NAMES
-    selection_names = ['all', 'best']
-    df_types = ['rnd', 'mv', 'df']
+    df_combination_and_selection_types = [('rnd', 'all'), ('mv', 'all'), ('df', 'all'),
+                                          ('rnd', 'best'), ('mv', 'best'), ('df', 'best'),
+                                          ('df', 'actual-best')]
+
+    # for audio_type in audio_types:
+    #     _evaluate_audio_type(all_songs, df_combination_and_selection_types, audio_type)
 
     pool = mp.Pool(mp.cpu_count() - 1)  # use all available cores except one
     for audio_type in audio_types:
-        pool.apply_async(_evaluate_audio_type, args=(all_songs, df_types, selection_names, audio_type), callback=print)
+        pool.apply_async(_evaluate_audio_type, args=(all_songs, df_combination_and_selection_types, audio_type),
+                         callback=print)
     pool.close()
     pool.join()
     print('Evaluation finished!')
