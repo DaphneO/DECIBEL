@@ -8,6 +8,7 @@ from decibel.audio_tab_aligner import feature_extractor, jump_alignment
 from decibel.audio_tab_aligner.hmm_parameters import HMMParameters
 from decibel.data_fusion import data_fusion
 from decibel.evaluator import evaluator, result_table_generator, chord_label_visualiser, figure_generator
+from decibel.evaluator.chord_label_visualiser import export_result_image
 from decibel.import_export import filehandler, hmm_parameter_io
 from decibel.midi_chord_recognizer import cassette
 from decibel.midi_chord_recognizer.midi_bar_segmenter import MIDIBarSegmenter
@@ -144,17 +145,18 @@ print('Evaluation finished!')
 ###############################
 
 # Generate lab visualisations for each song and audio method
-pool4 = mp.Pool(NR_CPU)
-for song_key in all_songs:
-    for audio_method in ['CHF_2017'] + filehandler.MIREX_SUBMISSION_NAMES:
-        pool4.apply_async(chord_label_visualiser.export_result_image,
-                          args=(all_songs[song_key], chord_vocabulary, True, True, audio_method, True),
-                          callback=print)
-pool4.close()
-pool4.join()
-print("Visualisation finished!")
+# pool4 = mp.Pool(NR_CPU)
+# for song_key in all_songs:
+#     for audio_method in ['CHF_2017'] + filehandler.MIREX_SUBMISSION_NAMES:
+#         pool4.apply_async(chord_label_visualiser.export_result_image,
+#                           args=(all_songs[song_key], chord_vocabulary, True, True, audio_method, True),
+#                           callback=print)
+# pool4.close()
+# pool4.join()
+# print("Visualisation finished!")
 
 # Export tables and figures used in the journal paper
 result_table_generator.write_tables(all_songs)
 result_table_generator.print_wcsr_midi_information()
 figure_generator.export_figures(all_songs)
+chord_label_visualiser.export_result_image(all_songs[165], chord_vocabulary, True, True, 'CHF_2017', True)

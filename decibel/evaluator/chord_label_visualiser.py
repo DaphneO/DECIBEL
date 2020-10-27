@@ -1,16 +1,15 @@
 from math import ceil
 import numpy as np
 
-from decibel.music_objects.chord_template import ChordTemplate
+from decibel.data_fusion import data_fusion
+from decibel.music_objects.chord_alphabet import ChordAlphabet
+from decibel.music_objects.chord_vocabulary import ChordVocabulary
 from decibel.music_objects.song import Song
 from decibel.import_export import filehandler
 from decibel.evaluator.evaluator import evaluate
 import matplotlib as mpl
 import matplotlib.colors
 import matplotlib.pyplot as plt
-
-
-# from decibel.data_fusion.data_fusion import load_lab_file_into_chord_matrix, _chords_list_to_alphabet
 
 
 def _get_segmentation(song: Song):
@@ -57,6 +56,8 @@ def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, 
     plt.suptitle(song.title.split(' - ')[-1] + ' (Index: ' + str(song.key) + ')', fontsize=25,
                  y=list(axes[0].get_position().bounds)[1] + 2 * list(axes[0].get_position().bounds)[3])
 
+    lab_font_size = 20
+
     # Add Chord Sequences (and legend) one by one
     for i in range(len(all_chords)):
         # Chord sequence bar
@@ -69,33 +70,33 @@ def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, 
         x_text = pos[0] - 0.01
         y_text = pos[1] + pos[3] / 2.
         if i in best_indices:
-            fig.text(x_text, y_text, names[i], va='center', ha='right', fontsize=14, fontweight='bold')
+            fig.text(x_text, y_text, names[i], va='center', ha='right', fontsize=lab_font_size, fontweight='bold')
         else:
-            fig.text(x_text, y_text, names[i], va='center', ha='right', fontsize=14)
-        fig.text(pos[0] + pos[2] + 0.01, y_text, results[i], va='center', ha='left', fontsize=14)
+            fig.text(x_text, y_text, names[i], va='center', ha='right', fontsize=lab_font_size)
+        fig.text(pos[0] + pos[2] + 0.01, y_text, results[i], va='center', ha='left', fontsize=lab_font_size)
 
         # Remove axes
         axes[i].set_axis_off()
 
     # Add text to legend (note names for each color)
     for j in range(len(alphabet)):
-        axes[len(all_chords) - 1].text(j, 0.5, alphabet[j], ha="center", va="center", color="w", fontsize=14)
+        axes[len(all_chords) - 1].text(j, 0.5, alphabet[j], ha="center", va="center", color="w", fontsize=18)
 
     # Add segmentation bar
     segmentation = _get_segmentation(song)
     segment_starts = np.zeros(int(ceil(song.duration * 100)))
     for i in range(len(segmentation)):
         start_x = int(ceil(segmentation[i][0] * 100))
-        for l in range(50):
-            if start_x + l < len(segment_starts):
-                segment_starts[start_x + l] = 1
-        axes[len(all_chords)].text(start_x + 100, 0.2 + 0.6 * (i % 2), segmentation[i][1], va="center", fontsize=10)
+        for offset in range(50):
+            if start_x + offset < len(segment_starts):
+                segment_starts[start_x + offset] = 1
+        axes[len(all_chords)].text(start_x + 100, 0.2 + 0.6 * (i % 2), segmentation[i][1], va="center", fontsize=12)
     segment_starts = np.vstack((segment_starts, segment_starts))
     axes[len(all_chords)].imshow(segment_starts, aspect='auto', cmap='Greys')
     pos = list(axes[len(all_chords)].get_position().bounds)
     x_text = pos[0] - 0.01
     y_text = pos[1] + pos[3] / 2.
-    fig.text(x_text, y_text, 'Segmentation', va='center', ha='right', fontsize=14)
+    fig.text(x_text, y_text, 'Segmentation', va='center', ha='right', fontsize=lab_font_size)
 
     # Set song duration in seconds on x-axis
     ticks = [100 * x for x in range(int(song.duration) + 1)]
@@ -108,23 +109,23 @@ def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, 
     return plt
 
 
-def export_result_image(song: Song, chords_list: [ChordTemplate], midi: bool = True, tab: bool = True,
+def export_result_image(song: Song, chords_vocabulary: ChordVocabulary, midi: bool = True, tab: bool = True,
                         audio: str = 'CHF_2017', df: bool = True):
     """
     Export visualisation to a png file.
 
     :param song: Song for which we want to export the visualisation
-    :param chords_list: Chord vocabulary
+    :param chords_vocabulary: Chord vocabulary
     :param midi: Show MIDI files?
     :param tab: Show Tab files?
     :param audio: Audio ACE method
     :param df: Show all DF results?
     """
-    if filehandler.file_exists(filehandler.get_lab_visualisation_path(song, audio)):
-        return song.title + " was already visualised for the ACE method " + audio + "."
+    # if filehandler.file_exists(filehandler.get_lab_visualisation_path(song, audio)):
+    #     return song.title + " was already visualised for the ACE method " + audio + "."
 
     nr_of_samples = int(ceil(song.duration * 100))
-    alphabet = _chords_list_to_alphabet(chords_list)
+    alphabet = ChordAlphabet(chords_vocabulary)
 
     # Select labs based on parameter setting
     label_data = [{'name': 'Ground truth', 'index': 0, 'lab_path': song.full_ground_truth_chord_labs_path,
@@ -133,12 +134,12 @@ def export_result_image(song: Song, chords_list: [ChordTemplate], midi: bool = T
     best_indices = []  # For expected best MIDI and tab
     if midi:
         duplicate_midis = filehandler.find_duplicate_midis(song)
-        best_midi_name, best_segmentation = filehandler.get_expected_best_midi(song)
+        best_midi_name, best_segmentation = data_fusion.get_expected_best_midi(song)
         full_midi_paths = song.full_midi_paths
         full_midi_paths.sort()
         for full_midi_path in full_midi_paths:
             midi_name = filehandler.get_file_name_from_full_path(full_midi_path)
-            for segmentation_method in['bar', 'beat']:
+            for segmentation_method in ['bar', 'beat']:
                 full_midi_chords_path = filehandler.get_full_midi_chord_labs_path(midi_name, segmentation_method)
                 if filehandler.file_exists(full_midi_chords_path) \
                         and midi_name not in duplicate_midis:
@@ -154,7 +155,7 @@ def export_result_image(song: Song, chords_list: [ChordTemplate], midi: bool = T
                     i += 1
 
     if tab:
-        best_tab = filehandler.get_expected_best_tab_lab(song)
+        best_tab = data_fusion.get_expected_best_tab_lab(song)
         for tab_counter, full_tab_path in enumerate(song.full_tab_paths, 1):
             tab_chord_labs_path = filehandler.get_full_tab_chord_labs_path(full_tab_path)
             if filehandler.file_exists(tab_chord_labs_path):
@@ -185,7 +186,8 @@ def export_result_image(song: Song, chords_list: [ChordTemplate], midi: bool = T
     # Fill a numpy array with chord labels for each of the lab files
     chord_matrix = np.zeros((len(label_data), nr_of_samples), dtype=int)
     for lab_nr in range(len(label_data)):
-        load_lab_file_into_chord_matrix(label_data[lab_nr]['lab_path'], lab_nr, chord_matrix, alphabet, nr_of_samples)
+        data_fusion.load_lab_file_into_chord_matrix(label_data[lab_nr]['lab_path'], lab_nr, chord_matrix,
+                                                    alphabet, nr_of_samples)
 
     all_chords = [chord_matrix[x] for x in range(len(label_data))]
 
