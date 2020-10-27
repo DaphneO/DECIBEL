@@ -1,10 +1,14 @@
-\begin{{table}}[tbp]
+\begin{{table*}}[t]
 \centering
-\begin{{tabular}}{{lllll}}
+\begin{{tabular}}{{lllllllll}}
 \hline
-\textbf{{Sementation method}} & \textbf{{\textsc{{wcsr}}}} & \textbf{{OvS}} & \textbf{{UnS}} & \textbf{{Seg}} \\ \hline
-Beat & {0}\% & {1}\% & {2}\% & {3}\% \\
-Bar & {4}\% & {5}\% & {6}\% & {7}\% \\ \hline \\
+ & \multicolumn{{2}}{{c}}{{\textbf{{\textsc{{wcsr}}}}}} & \multicolumn{{2}}{{c}}{{\textbf{{OvSeg}}}} & \multicolumn{{2}}{{c}}{{\textbf{{UnSeg}}}} & \multicolumn{{2}}{{c}}{{\textbf{{Seg}}}} \\
+\textbf{{}} & \textbf{{Beat}} & \textbf{{Bar}} & \textbf{{Beat}} & \textbf{{Bar}} & \textbf{{Beat}} & \textbf{{Bar}} & \textbf{{Beat}} & \textbf{{Bar}} \\ \hline
+\textbf{{Min \textsc{{csr}}}} & {0}\% & {1}\% & {2}\% & {3}\% & {4}\% & {5}\% & {6}\% & {7}\% \\
+\textbf{{All}} & {8}\% & {9}\% & {10}\% & {11}\% & {12}\% & {13}\% & {14}\% & {15}\% \\
+\textbf{{Well-aligned}} & {16}\% & {17}\% & {18}\% & {19}\% & {20}\% & {21}\% & {22}\% & {23}\% \\
+\textbf{{Estimated best}} & \textbf{{{24}}}\% & \textbf{{{25}\%}} & \textbf{{{26}\%}} & \textbf{{{27}\%}} & \textbf{{{28}\%}} & \textbf{{{29}\%}} & \textbf{{{30}\%}} & \textbf{{{31}\%}} \\
+\textbf{{Max textsc{{csr}}}} & {32}\% & {33}\% & {34}\% & {35}\% & {36}\% & {37}\% & {38}\% & {39}\% \\ \hline \\
 \end{{tabular}}
-\caption{{Results of \textsc{{midi}} chord recognition for the 50 \textsc{{midi}}s with the lowest alignment error.}}\label{{tab:midi-ace-evaluation}}
-\end{{table}}
+\caption{{Performance comparison of five \textsc{{midi}} selection methods in terms of \textsc{{wcsr}}, oversegmentation, undersegmentation and segmentation as defined in \cite{{harte2010towards}}.}}\label{{tab:midi-selection-performance}}
+\end{{table*}}

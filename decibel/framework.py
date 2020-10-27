@@ -155,26 +155,6 @@ pool4.join()
 print("Visualisation finished!")
 
 # Export tables and figures used in the journal paper
-print('Table I: WCSR of AUDIO ACE SYSTEMS')
-print(result_table_generator.table_1_latex(all_songs))
-print('---------------------')
-
-print('Table II: RESULTS OF MIDI CHORD RECOGNITION FOR THE 50 MIDIS WITH THE LOWEST ALIGNMENT ERROR')
-print(result_table_generator.table_2_latex())
-print('---------------------')
-
-print('Table III: PERFORMANCE OF THREE MIDI SELECTION METHODS')
-print(result_table_generator.table_3_latex(all_songs))
-print('---------------------')
-
-print('Table IV: PERFORMANCE OF THREE TAB SELECTION METHODS')
-print(result_table_generator.table_4_latex(all_songs))
-print('---------------------')
-
-print('Table V: WCSR OF AUDIO ACE SYSTEMS AND DF-BEST')
-print(result_table_generator.table_5_latex(all_songs))
-print('---------------------')
+result_table_generator.write_tables(all_songs)
 result_table_generator.print_wcsr_midi_information()
-
-figure_generator.figure_2()
-figure_generator.figure_3(all_songs)
+figure_generator.export_figures(all_songs)

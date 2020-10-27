@@ -18,6 +18,12 @@ with open(path.join(path.dirname(__file__), 'data_path.txt'), 'r') as read_file:
     DATA_PATH = read_file.readline()
 
 
+ROOT_PATH = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
+REPORT_PATH = path.join(ROOT_PATH, 'reports')
+FIGURES_PATH = path.join(REPORT_PATH, 'figures')
+TABLES_PATH = path.join(REPORT_PATH, 'tables')
+
+
 def _full_path_to(folder_name: str, i_f_r: str):
     """
     Helper method to find the full path to a folder in Data
@@ -125,7 +131,6 @@ for mirex_submission_name in MIREX_SUBMISSION_NAMES:
     DATA_FUSION_FOLDERS[fn + mirex_submission_name] = _full_path_to(fn + mirex_submission_name, 'rl')
 
 RESULT_TABLES = _full_path_to('', 'rt')
-RESULT_FIGURES = _full_path_to('', 'rf')
 RESULT_VISUALISATIONS = _full_path_to('', 'rv')
 
 
@@ -137,7 +142,7 @@ def init_folders():
                       HMM_PARAMETERS_FOLDER,
                       MIDILABS_FOLDERS['bar'], MIDILABS_FOLDERS['beat'], TABLABS_FOLDER,
                       MIDILABS_CHORD_PROBABILITY_FOLDER, LOG_LIKELIHOOD_FOLDER, MIDILABS_ALIGNMENT_SCORE_FOLDER,
-                      RESULT_TABLES, RESULT_FIGURES, RESULT_VISUALISATIONS]
+                      RESULT_TABLES, RESULT_VISUALISATIONS]
     for folder_name in DATA_FUSION_FOLDERS:
         needed_folders.append(DATA_FUSION_FOLDERS[folder_name])
     for needed_folder in needed_folders:
