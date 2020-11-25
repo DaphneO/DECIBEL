@@ -134,6 +134,17 @@ def figure_4(all_songs):
             selected_tab = method_results_tab_song.likelihood.idxmax()
             wcsr_selected_tab.append(method_results_tab_song.loc[selected_tab].wcsr)
 
+    for song_key in all_songs:
+        method_results_bar_song = method_results_bar[method_results_bar.song_key == song_key]
+        method_results_beat_song = method_results_beat[method_results_beat.song_key == song_key]
+        if method_results_bar_song.empty and method_results_beat_song.empty:
+            print('There is no well-aligned midi for song ' + str(all_songs[song_key]))
+        if method_results_bar_song.empty or method_results_beat_song.empty:
+            print(str(all_songs[song_key]) + ' can only be well-aligned in at most one way.')
+        method_results_tab_song = method_results_tab[method_results_tab.song_key == song_key]
+        if method_results_tab_song.empty:
+            print('There is no good tab for song ' + str(all_songs[song_key]))
+
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(21, 6))
     nr_bins = 49
     ax1.hist(wcsr_all_bar, bins=nr_bins, label='All')

@@ -94,7 +94,7 @@ def estimate_chords_of_song(song: Song, chord_vocab: ChordVocabulary, hmm_parame
     jump_alignment.test_single_song(song=song, hmm_parameters=hmm_parameters_of_fold)
 
     # Data fusion
-    data_fusion.data_fuse_song(song=song, chord_vocabulary=chord_vocab)  # TODO check: chord_vocabulary?
+    data_fusion.data_fuse_song(song=song, chord_vocabulary=chord_vocab)
 
     return '{} is estimated.'.format(str(song))
 
