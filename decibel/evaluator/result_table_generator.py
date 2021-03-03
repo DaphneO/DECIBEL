@@ -17,7 +17,7 @@ def write_tables(all_songs):
         write_file.write(table_3_latex(all_songs))
 
     with open(path.join(filehandler.TABLES_PATH, 'table_4.txt'), 'w') as write_file:
-        write_file.write(table_4_latex(all_songs))
+        write_file.write(table_4_latex_with_best_midi_tab_only(all_songs))
 
 
 def table_1_latex():
@@ -107,8 +107,9 @@ def _midi_selection_methods_table(all_songs):
     for segmentation_method in segmentation_methods:
         # Read csv file with results for this segmentation method.
         all_method_results = pandas.read_csv(filehandler.MIDILABS_RESULTS_PATHS[segmentation_method], sep=';',
-                                         names=['song_key', 'duration', 'midi_name', 'alignment_error', 'template_sim',
-                                                'wcsr', 'ovs', 'uns', 'seg'], index_col=2)
+                                             names=['song_key', 'duration', 'midi_name', 'alignment_error',
+                                                    'template_sim',
+                                                    'wcsr', 'ovs', 'uns', 'seg'], index_col=2)
         # well_aligned_method_results = all_method_results[all_method_results['alignment_error'] <= 0.85]
         measures = ['wcsr', 'ovs', 'uns', 'seg']
         result[segmentation_method] = {}
@@ -238,7 +239,49 @@ def table_4_latex(all_songs):
         df_actual_best_wcsr = _get_wcsr(all_songs, audio_method + '_DF-ACTUAL-BEST')
         differences.append(df_wcsr - original_wcsr)
         return str(round(original_wcsr * 100, 1)) + '\\%&' + str(round(df_wcsr * 100, 1)) + '\\%&' + \
-            str(round((df_wcsr - original_wcsr) * 100, 1)) + '\\%&' + str(round(df_actual_best_wcsr * 100, 1)) + '\\%'
+               str(round((df_wcsr - original_wcsr) * 100, 1)) + '\\%&' + str(
+            round(df_actual_best_wcsr * 100, 1)) + '\\%'
+
+    latex_table = template.format(w('CHF_2017'), w('CM2_2017'), w('JLW1_2017'), w('JLW2_2017'), w('KBK1_2017'),
+                                  w('KBK2_2017'), w('WL1_2017'), w('JLCX1_2018'), w('JLCX2_2018'), w('SG1_2018'),
+                                  w('CLSYJ1_2019'), w('HL2_2020'),
+                                  str(round((sum(differences) / len(differences) * 100), 2)))
+    return latex_table
+
+
+def table_4_latex_with_best_midi_tab_only(all_songs):
+    """
+    Export table 4 info to latex table.
+
+    :param all_songs: all songs in the data set
+    """
+    with open(path.join(path.dirname(__file__), 'table_4_with_best_midi_tab_only_template.txt'), 'r') as file:
+        template = file.read()
+
+    differences = []
+
+    def w(audio_method):
+        original_wcsr = _get_wcsr(all_songs, audio_method)
+        df_wcsr = _get_wcsr(all_songs, audio_method + '_DF-BEST')
+        df_actual_best_wcsr = _get_wcsr(all_songs, audio_method + '_DF-ACTUAL-BEST')
+        df_midi_wcsr = _get_wcsr(all_songs, audio_method + '_DF-BESTMIDI')
+        df_midi_tab = _get_wcsr(all_songs, audio_method + '_DF-BESTTAB')
+        df_all_wcsr = _get_wcsr(all_songs, audio_method + '_DF-ALL')
+        df_all_midi_wcsr = _get_wcsr(all_songs, audio_method + '_DF-ALLMIDI')
+        df_all_tab_wcsr = _get_wcsr(all_songs, audio_method + '_DF-ALLTAB')
+        differences.append(df_wcsr - original_wcsr)
+
+        output_str = str(round(original_wcsr * 100, 1)) + '\\%&'
+        for extra_result in [df_all_midi_wcsr, df_all_tab_wcsr, df_all_wcsr,
+                             df_midi_wcsr, df_midi_tab, df_wcsr]:
+            if extra_result > original_wcsr:
+                output_str += '\\textbf{{' + str(round(extra_result * 100, 1)) + '\\%}}&'
+            else:
+                output_str += str(round(extra_result * 100, 1)) + '\\%&'
+        output_str += str(round((df_wcsr - original_wcsr) * 100, 1)) + '\\%&'
+        output_str += str(round(df_actual_best_wcsr * 100, 1)) + '\\%'
+
+        return output_str
 
     latex_table = template.format(w('CHF_2017'), w('CM2_2017'), w('JLW1_2017'), w('JLW2_2017'), w('KBK1_2017'),
                                   w('KBK2_2017'), w('WL1_2017'), w('JLCX1_2018'), w('JLCX2_2018'), w('SG1_2018'),

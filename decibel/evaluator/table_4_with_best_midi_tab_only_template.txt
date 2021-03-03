@@ -1,0 +1,32 @@
+\begin{{sidewaystable*}}
+\centering
+\begin{{tabular}}{{l l | r | r r r | r r r | r | r}}
+\thead[l]{{\textbf{{Audio ACE}}}}&
+\thead[l]{{\textbf{{\textsc{{Mirex}}}}}}&
+\thead[r]{{\textbf{{Audio}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-all}}}} \\ \textbf{{ MIDI}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-all}}}} \\ \textbf{{ Tab}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-all}}}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-best}}}} \\ \textbf{{ MIDI}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-best}}}} \\ \textbf{{ Tab}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-best}}}} \\ \textbf{{\textsc{{wcsr}}}}}}&
+\thead[r]{{\textbf{{Improve-}} \\ \textbf{{ment}}}}&
+\thead[r]{{\textbf{{\textsc{{Df-gt-best}}}} \\ \textbf{{\textsc{{wcsr}}}}}}\\
+\hline
+\textsc{{chf}} \citep{{koops2017chord}}&-&{0}\\
+\textsc{{cm2/cm1}} \citep{{cannam2017mirex}}&'17, '18, '19&{1}\\
+\textsc{{jlw1}} \citep{{jiang2017extended}}&'17&{2}\\
+\textsc{{jlw2}} \citep{{jiang2017extended}}&'17&{3}\\
+\textsc{{kbk1}} \citep{{korzeniowski2016fully}}&'17&{4}\\
+\textsc{{kbk2/fk2}} \citep{{korzeniowski2016fully}}&'17, '18&{5}\\
+\textsc{{wl1}} \citep{{wu2017mirex}}&'17&{6}\\
+\textsc{{jlcx1}} \citep{{jiang2018mirex}}&'18&{7}\\
+\textsc{{jlcx2}} \citep{{jiang2018mirex}}&'18&{8}\\
+\textsc{{sg1}} \citep{{gasser2018mirex}}&'18&{9}\\
+\textsc{{clsyj1}} \citep{{lee2019mirex}}&'19&{10}\\
+\textsc{{hl2}} - &'20&{11}\\
+\end{{tabular}}
+\caption{{\textsc{{wcsr}} of audio \textsc{{ace}} systems and \textsc{{df-best}}. Note that two of the 2017 systems were resubmitted in \textsc{{mirex}} 2018 and one system was also resubmitted in 2019. Significant improvements are shown in bold. Using \textsc{{df-best}} improves \textsc{{ace}} \textsc{{wcsr}} on average by {12}\%.
+}}\label{{tab:wcsr}}
+\vspace{{-0.5cm}}
+\end{{sidewaystable*}}

@@ -120,7 +120,7 @@ TABLABS_FOLDER = _full_path_to('TabLabs', 'rl')
 
 DATA_FUSION_FOLDERS = dict()
 for df_type in ['rnd', 'mv', 'df']:
-    for selection_method in ['all', 'best']:
+    for selection_method in ['all', 'best', 'allmidi', 'bestmidi', 'alltab', 'besttab']:
         fn = df_type.upper() + '_' + selection_method.upper() + '_'
         DATA_FUSION_FOLDERS[fn + 'CHF_2017'] = _full_path_to(fn + 'CHF_2017', 'rl')
         for mirex_submission_name in MIREX_SUBMISSION_NAMES:

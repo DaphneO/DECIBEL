@@ -130,7 +130,13 @@ def evaluate_song_based(all_songs):
     audio_types = ['CHF_2017'] + filehandler.MIREX_SUBMISSION_NAMES
     df_combination_and_selection_types = [('rnd', 'all'), ('mv', 'all'), ('df', 'all'),
                                           ('rnd', 'best'), ('mv', 'best'), ('df', 'best'),
-                                          ('df', 'actual-best')]
+                                          ('df', 'actual-best'),
+                                          ('rnd', 'alltab'), ('rnd', 'besttab'),
+                                          ('rnd', 'allmidi'), ('rnd', 'bestmidi'),
+                                          ('mv', 'alltab'), ('mv', 'besttab'),
+                                          ('mv', 'allmidi'), ('mv', 'bestmidi'),
+                                          ('df', 'alltab'), ('df', 'besttab'),
+                                          ('df', 'allmidi'), ('df', 'bestmidi')]
 
     # for audio_type in audio_types:
     #     _evaluate_audio_type(all_songs, df_combination_and_selection_types, audio_type)
