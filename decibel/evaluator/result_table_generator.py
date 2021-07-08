@@ -57,6 +57,14 @@ def _low_alignment_error_midi_wcsrs():
                                                 'wcsr', 'ovs', 'uns', 'seg'], index_col=2)
         top_method_results = method_results.sort_values('alignment_error', ascending=True).head(50)
 
+        print(segmentation_method + ':')
+        print('Lowest CSR of 50 best aligned MIDIs: ' + str(top_method_results['wcsr'].min()))
+        print('Highest CSR of 50 best aligned MIDIs: ' + str(top_method_results['wcsr'].max()))
+        print('Average CSR of 50 best aligned MIDIs: ' + str(top_method_results['wcsr'].mean()))
+        print('Stdev CSR of 50 best aligned MIDIs: ' + str(top_method_results['wcsr'].std()))
+
+        top_method_results.to_csv('Best_midi_files_' + segmentation_method + '.csv')
+
         def get_weighted_performance(measure_str):
             total_duration = 0
             measure_duration = 0
@@ -96,6 +104,69 @@ def table_2_latex(all_songs):
     return latex_table
 
 
+# def _midi_selection_methods_table(all_songs):
+#     """
+#     Corresponds to Table II in the paper
+#     :param all_songs:
+#     :return:
+#     """
+#     segmentation_methods = ['beat', 'bar']
+#     result = {}
+#     for segmentation_method in segmentation_methods:
+#         # Read csv file with results for this segmentation method.
+#         all_method_results = pandas.read_csv(filehandler.MIDILABS_RESULTS_PATHS[segmentation_method], sep=';',
+#                                              names=['song_key', 'duration', 'midi_name', 'alignment_error',
+#                                                     'template_sim',
+#                                                     'wcsr', 'ovs', 'uns', 'seg'], index_col=2)
+#         # well_aligned_method_results = all_method_results[all_method_results['alignment_error'] <= 0.85]
+#         measures = ['wcsr', 'ovs', 'uns', 'seg']
+#         result[segmentation_method] = {}
+#         for measure in measures:
+#             total_duration = 0
+#             total_well_aligned_duration = 0
+#
+#             min_csr_duration = 0
+#             avg_csr_duration = 0
+#             avg_well_aligned_duration = 0
+#             estimated_best_duration = 0
+#             max_csr_duration = 0
+#
+#             for song_key in all_songs:
+#                 song_duration = all_songs[song_key].duration
+#
+#                 if song_key in all_method_results['song_key'].values:
+#                     all_method_results_this_song = all_method_results[all_method_results.song_key == song_key]
+#                     well_aligned_method_results_this_song = \
+#                         all_method_results_this_song[all_method_results_this_song.alignment_error <= 0.85]
+#
+#                     min_csr_index = all_method_results_this_song.wcsr.idxmin()
+#                     max_csr_index = all_method_results_this_song.wcsr.idxmax()
+#
+#                     total_duration += song_duration
+#                     min_csr_duration += (song_duration * all_method_results_this_song[measure][min_csr_index])
+#                     avg_csr_duration += (song_duration * all_method_results_this_song[measure].mean())
+#                     max_csr_duration += (song_duration * all_method_results_this_song[measure][max_csr_index])
+#                     if not well_aligned_method_results_this_song.empty:
+#                         estimated_best_index = well_aligned_method_results_this_song.template_sim.idxmax()
+#
+#                         total_well_aligned_duration += song_duration
+#                         avg_well_aligned_duration += \
+#                             (song_duration * well_aligned_method_results_this_song[measure].mean())
+#                         estimated_best_duration += \
+#                             (song_duration * well_aligned_method_results_this_song[measure][estimated_best_index])
+#
+#             min_csr_duration /= total_duration
+#             avg_csr_duration /= total_duration
+#             avg_well_aligned_duration /= total_well_aligned_duration
+#             estimated_best_duration /= total_well_aligned_duration
+#             max_csr_duration /= total_duration
+#             result[segmentation_method][measure] = [round(min_csr_duration * 100, 1),
+#                                                     round(avg_csr_duration * 100, 1),
+#                                                     round(avg_well_aligned_duration * 100, 1),
+#                                                     round(estimated_best_duration * 100, 1),
+#                                                     round(max_csr_duration * 100, 1)]
+#     return pandas.DataFrame(result)
+
 def _midi_selection_methods_table(all_songs):
     """
     Corresponds to Table II in the paper
@@ -131,21 +202,26 @@ def _midi_selection_methods_table(all_songs):
                     well_aligned_method_results_this_song = \
                         all_method_results_this_song[all_method_results_this_song.alignment_error <= 0.85]
 
-                    min_csr_index = all_method_results_this_song.wcsr.idxmin()
-                    max_csr_index = all_method_results_this_song.wcsr.idxmax()
+                    if well_aligned_method_results_this_song.empty:
+                        print('No well-aligned midi for ' + str(song_key))
+                    else:
+                        min_csr_index = all_method_results_this_song.wcsr.idxmin()
+                        max_csr_index = all_method_results_this_song.wcsr.idxmax()
 
-                    total_duration += song_duration
-                    min_csr_duration += (song_duration * all_method_results_this_song[measure][min_csr_index])
-                    avg_csr_duration += (song_duration * all_method_results_this_song[measure].mean())
-                    max_csr_duration += (song_duration * all_method_results_this_song[measure][max_csr_index])
-                    if not well_aligned_method_results_this_song.empty:
-                        estimated_best_index = well_aligned_method_results_this_song.template_sim.idxmax()
+                        total_duration += song_duration
+                        min_csr_duration += (song_duration * all_method_results_this_song[measure][min_csr_index])
+                        avg_csr_duration += (song_duration * all_method_results_this_song[measure].mean())
+                        max_csr_duration += (song_duration * all_method_results_this_song[measure][max_csr_index])
+                        if not well_aligned_method_results_this_song.empty:
+                            estimated_best_index = well_aligned_method_results_this_song.template_sim.idxmax()
 
-                        total_well_aligned_duration += song_duration
-                        avg_well_aligned_duration += \
-                            (song_duration * well_aligned_method_results_this_song[measure].mean())
-                        estimated_best_duration += \
-                            (song_duration * well_aligned_method_results_this_song[measure][estimated_best_index])
+                            total_well_aligned_duration += song_duration
+                            avg_well_aligned_duration += \
+                                (song_duration * well_aligned_method_results_this_song[measure].mean())
+                            estimated_best_duration += \
+                                (song_duration * well_aligned_method_results_this_song[measure][estimated_best_index])
+                else:
+                    print('No midi for ' + str(song_key))
 
             min_csr_duration /= total_duration
             avg_csr_duration /= total_duration
@@ -288,6 +364,30 @@ def table_4_latex_with_best_midi_tab_only(all_songs):
                                   w('CLSYJ1_2019'), w('HL2_2020'),
                                   str(round((sum(differences) / len(differences) * 100), 2)))
     return latex_table
+
+
+def _print_large_csr_improvement(all_songs, method_name):
+    method_results_audio = pandas.read_csv(filehandler.get_evaluation_table_path(method_name), index_col=0)
+    method_results_decibel = \
+        pandas.read_csv(filehandler.get_evaluation_table_path(method_name + '_DF-BEST'), index_col=0)
+
+    for song_key in all_songs.keys():
+        try:
+            audio_csr = method_results_audio.loc[song_key, method_name + '_CSR']
+            decibel_csr = method_results_decibel.loc[song_key, method_name + '_DF-BEST_CSR']
+            difference = decibel_csr - audio_csr
+            if difference > 0.2:
+                print('For ' + method_name + ' a good song was ' + str(all_songs[song_key]) + ' (improved by ' +
+                      str(difference) + ').')
+        except KeyError:
+            pass
+
+
+def print_max_improvements(all_songs):
+    all_method_names = ['CHF_2017','CM2_2017','JLW1_2017','JLW2_2017','KBK1_2017','KBK2_2017','WL1_2017','JLCX1_2018',
+                        'JLCX2_2018','SG1_2018','CLSYJ1_2019','HL2_2020']
+    for method_name in all_method_names:
+        _print_large_csr_improvement(all_songs, method_name)
 
 
 def _get_wcsr(all_songs, method_name):

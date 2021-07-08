@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas
 from decibel.import_export import filehandler
 from os import path
+import numpy as np
 
 params = {'legend.fontsize': 'xx-large',
           'figure.figsize': (15, 5),
@@ -18,6 +19,7 @@ def export_figures(all_songs):
     figure_2()
     figure_3(all_songs)
     figure_4(all_songs)
+    figure_7()
 
 
 def figure_2():
@@ -80,13 +82,13 @@ def figure_3(all_songs):
 
     fig, ax = plt.subplots(ncols=2, figsize=(16, 8))
     ax[0].plot([0, 1], [0, 1], c=plt.get_cmap("tab10").colors[1])
-    ax[0].scatter(all_est_beat, all_csr_beat)
+    ax[0].scatter(all_est_beat, all_csr_beat, alpha=0.5)
     ax[0].set_title('Beat Segmentation')
     ax[0].set_xlabel('CSR of best estimated MIDI')
     ax[0].set_ylabel('CSR of best MIDI')
 
     ax[1].plot([0, 1], [0, 1], c=plt.get_cmap("tab10").colors[1])
-    ax[1].scatter(all_est_bar, all_csr_bar)
+    ax[1].scatter(all_est_bar, all_csr_bar, alpha=0.5)
     ax[1].set_title('Bar Segmentation')
     ax[1].set_xlabel('CSR of best estimated MIDI')
     ax[1].set_ylabel('CSR of best MIDI')
@@ -152,18 +154,38 @@ def figure_4(all_songs):
     ax1.legend(loc='upper left')
     ax1.set_title('MIDI-Bar CSR')
     ax1.set_xlabel('CSR')
-    ax1.set_ylabel('Nr of MIDI files')
+    ax1.set_ylabel('Number of MIDI files')
     ax2.hist(wcsr_all_beat, bins=nr_bins, label='All')
     ax2.hist(wcsr_selected_beat, bins=nr_bins, label='Selected')
     ax2.legend(loc='upper left')
     ax2.set_title('MIDI-Beat CSR')
     ax2.set_xlabel('CSR')
-    ax2.set_ylabel('Nr of MIDI files')
+    ax2.set_ylabel('Number of MIDI files')
     ax3.hist(wcsr_all_tab, bins=nr_bins, label='All')
     ax3.hist(wcsr_selected_beat, bins=nr_bins, label='Selected')
     ax3.legend(loc='upper left')
     ax3.set_title('Tab CSR')
     ax3.set_xlabel('CSR')
-    ax3.set_ylabel('Nr of tab files')
+    ax3.set_ylabel('Number of tab files')
 
     plt.savefig(path.join(filehandler.FIGURES_PATH, 'symbolic-csr-hist'), bbox_inches='tight')
+
+
+def figure_7():
+    all_method_names = ['CHF_2017', 'CM2_2017', 'JLW1_2017', 'JLW2_2017', 'KBK1_2017', 'KBK2_2017', 'WL1_2017',
+                        'JLCX1_2018', 'JLCX2_2018', 'SG1_2018', 'CLSYJ1_2019', 'HL2_2020']
+    fig, axes = plt.subplots(4, 3, figsize=(15, 16))
+    for ax_i, method_name in enumerate(all_method_names):
+        method_results_audio = pandas.read_csv(filehandler.get_evaluation_table_path(method_name), index_col=0)
+        method_results_decibel = \
+            pandas.read_csv(filehandler.get_evaluation_table_path(method_name + '_DF-BEST'), index_col=0)
+        ax = axes.flatten()[ax_i]
+        bins = np.arange(0, 1.000001, 0.05)
+        ax.hist(method_results_audio[method_name + '_CSR'], bins=bins, label='Audio', alpha=0.5)
+        ax.hist(method_results_decibel[method_name + '_DF-BEST_CSR'], bins=bins, label='DF-BEST', alpha=0.5)
+        ax.legend(loc='upper left')
+        ax.set_title(method_name)
+        ax.set_xlabel('CSR')
+        ax.set_ylabel('Number of songs')
+    plt.tight_layout()
+    plt.savefig(path.join(filehandler.FIGURES_PATH, 'improve-hist'), bbox_inches='tight')

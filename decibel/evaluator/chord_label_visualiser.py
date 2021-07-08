@@ -53,7 +53,7 @@ def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, 
                                        '#7f0b01', '#7e2d01', '#7e4c01', '#7e6302', '#7f7f01', '#586a15', '#3a631c',
                                        '#214d5f', '#01227f', '#23126d', '#61017f', '#730c39'])
     fig, axes = plt.subplots(len(all_chords) + 1, figsize=(18, len(all_chords)))
-    plt.suptitle(song.title.split(' - ')[-1] + ' (Index: ' + str(song.key) + ')', fontsize=25,
+    plt.suptitle(song.title.split(' - ')[-1], fontsize=25,
                  y=list(axes[0].get_position().bounds)[1] + 2 * list(axes[0].get_position().bounds)[3])
 
     lab_font_size = 20
@@ -63,7 +63,7 @@ def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, 
         # Chord sequence bar
         new_chords = all_chords[i]
         new_chords = np.vstack((new_chords, new_chords))
-        axes[i].imshow(new_chords, aspect='auto', cmap=c_map, vmin=0, vmax=24)
+        axes[i].imshow(new_chords, aspect='auto', cmap=c_map, vmin=0, vmax=24, resample=False, interpolation='nearest')
 
         # Text: name on left side, results (CSR, ovS, unS, Seg) on right side
         pos = list(axes[i].get_position().bounds)
@@ -90,7 +90,8 @@ def _show_chord_sequences(song: Song, all_chords, best_indices, names, results, 
         for offset in range(50):
             if start_x + offset < len(segment_starts):
                 segment_starts[start_x + offset] = 1
-        axes[len(all_chords)].text(start_x + 100, 0.2 + 0.6 * (i % 2), segmentation[i][1], va="center", fontsize=12)
+        # axes[len(all_chords)].text(start_x + 100, 0.2 + 0.6 * (i % 2), segmentation[i][1], va="center", fontsize=12)
+        axes[len(all_chords)].text(start_x + 100, 0.5, segmentation[i][1], va="center", fontsize=12)
     segment_starts = np.vstack((segment_starts, segment_starts))
     axes[len(all_chords)].imshow(segment_starts, aspect='auto', cmap='Greys')
     pos = list(axes[len(all_chords)].get_position().bounds)
@@ -146,7 +147,7 @@ def export_result_image(song: Song, chords_vocabulary: ChordVocabulary, midi: bo
                     # Evaluate song
                     csr, ovs, uns, seg = evaluate(song.full_ground_truth_chord_labs_path, full_midi_chords_path)
                     # Save evaluation values to label_data
-                    label_data.append({'name': 'MIDI ' + midi_name + ' | ' + segmentation_method,
+                    label_data.append({'name': 'MIDI ' + str(int(midi_name[-3:])) + ' | ' + segmentation_method,
                                        'index': i, 'lab_path': full_midi_chords_path,
                                        'csr': csr, 'ovs': ovs, 'uns': uns, 'seg': seg})
                     # Check if this is the expected best MIDI & segmentation method for this song
@@ -179,7 +180,7 @@ def export_result_image(song: Song, chords_vocabulary: ChordVocabulary, midi: bo
             for combination_name in 'rnd', 'mv', 'df':
                 df_lab_path = filehandler.get_data_fusion_path(song.key, combination_name, selection_name, audio)
                 csr, ovs, uns, seg = evaluate(song.full_ground_truth_chord_labs_path, df_lab_path)
-                label_data.append({'name': audio + '-' + combination_name.upper() + '-' + selection_name.upper(),
+                label_data.append({'name': combination_name.upper() + '-' + selection_name.upper(),
                                    'index': i, 'lab_path': df_lab_path,
                                    'csr': csr, 'ovs': ovs, 'uns': uns, 'seg': seg})
 

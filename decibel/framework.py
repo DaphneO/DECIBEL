@@ -8,7 +8,10 @@ from decibel.audio_tab_aligner import feature_extractor, jump_alignment
 from decibel.audio_tab_aligner.hmm_parameters import HMMParameters
 from decibel.data_fusion import data_fusion
 from decibel.evaluator import evaluator, result_table_generator, chord_label_visualiser, figure_generator
+from decibel.evaluator.chord_label_comparator import print_overlap_audio_df_best, print_overlap_audio_methods, \
+    print_overlap_df_best_methods
 from decibel.evaluator.chord_label_visualiser import export_result_image
+from decibel.evaluator.result_table_generator import print_max_improvements
 from decibel.import_export import filehandler, hmm_parameter_io
 from decibel.midi_chord_recognizer import cassette
 from decibel.midi_chord_recognizer.midi_bar_segmenter import MIDIBarSegmenter
@@ -145,18 +148,42 @@ print('Evaluation finished!')
 ###############################
 
 # Generate lab visualisations for each song and audio method
-# pool4 = mp.Pool(NR_CPU)
-# for song_key in all_songs:
-#     for audio_method in ['CHF_2017'] + filehandler.MIREX_SUBMISSION_NAMES:
-#         pool4.apply_async(chord_label_visualiser.export_result_image,
-#                           args=(all_songs[song_key], chord_vocabulary, True, True, audio_method, True),
-#                           callback=print)
-# pool4.close()
-# pool4.join()
-# print("Visualisation finished!")
+all_method_names = ['CHF_2017','CM2_2017','JLW1_2017','JLW2_2017','KBK1_2017','KBK2_2017','WL1_2017','JLCX1_2018',
+                        'JLCX2_2018','SG1_2018','CLSYJ1_2019','HL2_2020']
+pool4 = mp.Pool(NR_CPU)
+for song_key in all_songs:
+    for audio_method in all_method_names:
+        pool4.apply_async(chord_label_visualiser.export_result_image,
+                          args=(all_songs[song_key], chord_vocabulary, True, True, audio_method, True),
+                          callback=print)
+pool4.close()
+pool4.join()
+print("Visualisation finished!")
 
 # Export tables and figures used in the journal paper
 result_table_generator.write_tables(all_songs)
 result_table_generator.print_wcsr_midi_information()
 figure_generator.export_figures(all_songs)
-chord_label_visualiser.export_result_image(all_songs[165], chord_vocabulary, True, True, 'CHF_2017', True)
+
+print_max_improvements(all_songs)
+
+# audio_vs_df_best_overlaps = print_overlap_audio_df_best(all_songs)
+# audio_vs_df_best_overlaps.to_csv('audio_vs_df_best_overlaps.csv')
+# audio_overlaps = print_overlap_audio_methods(all_songs)
+# audio_overlaps.to_csv('audio_overlaps.csv')
+# df_best_overlaps = print_overlap_df_best_methods(all_songs)
+# df_best_overlaps.to_csv('df_best_overlaps.csv')
+
+# chord_label_visualiser.export_result_image(all_songs[165], chord_vocabulary, True, True, 'CHF_2017', True)
+# chord_label_visualiser.export_result_image(all_songs[187], chord_vocabulary, True, True, 'CHF_2017', True)
+# chord_label_visualiser.export_result_image(all_songs[197], chord_vocabulary, True, True, 'CHF_2017', True)
+# chord_label_visualiser.export_result_image(all_songs[88], chord_vocabulary, True, True, 'CHF_2017', True)
+# chord_label_visualiser.export_result_image(all_songs[167], chord_vocabulary, True, True, 'JLCX1_2018', True)
+
+
+# for method in all_method_names:
+#     chord_label_visualiser.export_result_image(all_songs[167], chord_vocabulary, True, True, method, True)
+#     chord_label_visualiser.export_result_image(all_songs[135], chord_vocabulary, True, True, method, True)
+#     chord_label_visualiser.export_result_image(all_songs[167], chord_vocabulary, True, True, method, True)
+#     chord_label_visualiser.export_result_image(all_songs[87], chord_vocabulary, True, True, method, True)
+#     chord_label_visualiser.export_result_image(all_songs[177], chord_vocabulary, True, True, method, True)
