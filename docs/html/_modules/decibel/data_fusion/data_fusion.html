@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,41 +11,45 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
 
   
-  <script src="../../../_static/js/modernizr.min.js"></script>
+  
+  
+  
 
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -69,6 +72,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -94,6 +98,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -132,7 +137,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -152,74 +157,99 @@
            <div itemprop="articleBody">
             
   <h1>Source code for decibel.data_fusion.data_fusion</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">ceil</span>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">decibel.utils.musicobjects</span> <span class="k">import</span> <span class="n">Chord</span><span class="p">,</span> <span class="n">PITCH_CLASSES</span><span class="p">,</span> <span class="n">Interval</span>
-<span class="kn">from</span> <span class="nn">decibel.utils</span> <span class="k">import</span> <span class="n">filehandler</span>
+
+<span class="kn">from</span> <span class="nn">decibel.import_export.chord_annotation_io</span> <span class="kn">import</span> <span class="n">import_chord_annotation</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.chord</span> <span class="kn">import</span> <span class="n">Chord</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.chord_alphabet</span> <span class="kn">import</span> <span class="n">ChordAlphabet</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.chord_vocabulary</span> <span class="kn">import</span> <span class="n">ChordVocabulary</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.song</span> <span class="kn">import</span> <span class="n">Song</span>
+<span class="kn">from</span> <span class="nn">decibel.import_export</span> <span class="kn">import</span> <span class="n">filehandler</span>
+<span class="kn">from</span> <span class="nn">decibel.import_export.midi_alignment_score_io</span> <span class="kn">import</span> <span class="n">read_chord_alignment_score</span>
 
 
-<span class="k">def</span> <span class="nf">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">lab_path</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_well_aligned_midis</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load a chord file (in Harte&#39;s chord annotation format) into a chord matrix, having the chord label per 10ms sample.</span>
+<span class="sd">    Return names of only the well-aligned MIDIs for this Song (excluding duplicates)</span>
 
-<span class="sd">    :param lab_path: Path to the .lab file with chord annotation/estimation</span>
-<span class="sd">    :param i: Index to the row in the chord_matrix to fill</span>
-<span class="sd">    :param chord_matrix: Chord matrix to which we add samples from this .lab file</span>
-<span class="sd">    :param alphabet: The chord vocabulary (used to get the index belonging to a chord string)</span>
-<span class="sd">    :param nr_of_samples: Total number of samples in the song</span>
-<span class="sd">    :return: Chord matrix to which we just added samples from this .lab file to row i</span>
+<span class="sd">    :param song: Song in our data set</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">lab_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">read_file</span><span class="p">:</span>
-        <span class="c1"># Read chord annotation from file</span>
-        <span class="n">chord_annotation</span> <span class="o">=</span> <span class="n">read_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="n">chord_annotation</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chord_annotation</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">chord_annotation</span><span class="p">:</span>
-            <span class="c1"># Parse start and end time, retrieve index of chord</span>
-            <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">chord_label_alphabet_index</span> <span class="o">=</span> <span class="n">_get_index_in_alphabet</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">alphabet</span><span class="p">)</span>
+    <span class="c1"># Find duplicate MIDIs in this song; we will exclude them</span>
+    <span class="n">duplicate_midis</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">find_duplicate_midis</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
 
-            <span class="c1"># Add chord index to each entry in the chord_matrix that is between start and end time</span>
-            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">start_time</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">end_time</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="n">nr_of_samples</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
-                <span class="n">chord_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">chord_label_alphabet_index</span>
+    <span class="n">well_aligned_midis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">full_midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
+        <span class="n">midi_name</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">midi_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">duplicate_midis</span><span class="p">:</span>
+            <span class="n">alignment_score</span> <span class="o">=</span> <span class="n">read_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">alignment_score</span><span class="o">.</span><span class="n">is_well_aligned</span><span class="p">:</span>
+                <span class="n">well_aligned_midis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">well_aligned_midis</span>
 
 
-<span class="k">def</span> <span class="nf">_chords_list_to_alphabet</span><span class="p">(</span><span class="n">chords_list</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_expected_best_midi</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Turn the chords list (a list of (key, mode-str, chroma-list) tuples) into an alphabet (a list of strings)</span>
+<span class="sd">    Find name of the expected best well-aligned MIDI and segmentation type for this Song</span>
+<span class="sd">    (based on MIDI chord probability)</span>
 
-<span class="sd">    :param chords_list: a list of (key, mode-str, chroma-list) tuples</span>
-<span class="sd">    :return: an alphabet (a list of strings)</span>
+<span class="sd">    :param song: Song in our data set</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alphabet</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">chord_template</span> <span class="ow">in</span> <span class="n">chords_list</span><span class="p">:</span>
-        <span class="n">key_nr</span><span class="p">,</span> <span class="n">mode_str</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">chord_template</span>
-        <span class="n">key_str</span> <span class="o">=</span> <span class="n">PITCH_CLASSES</span><span class="p">[</span><span class="n">key_nr</span><span class="p">]</span>
-        <span class="n">alphabet</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key_str</span> <span class="o">+</span> <span class="n">mode_str</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">alphabet</span>
+    <span class="c1"># We only consider well-aligned MIDIs</span>
+    <span class="n">well_aligned_midis</span> <span class="o">=</span> <span class="n">get_well_aligned_midis</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+
+    <span class="c1"># Return path to the best MIDI of the song</span>
+    <span class="n">best_midi_name</span><span class="p">,</span> <span class="n">best_midi_quality</span><span class="p">,</span> <span class="n">best_segmentation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999999999</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">segmentation_type</span> <span class="ow">in</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">full_midi_path</span> <span class="ow">in</span> <span class="n">well_aligned_midis</span><span class="p">:</span>
+            <span class="n">midi_name</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_midi_path</span><span class="p">)</span>
+            <span class="n">midi_chord_probability</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_type</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">midi_chord_probability</span> <span class="o">&gt;</span> <span class="n">best_midi_quality</span><span class="p">:</span>
+                <span class="c1"># This is the best MIDI &amp; segmentation type we have seen until now</span>
+                <span class="n">best_midi_name</span><span class="p">,</span> <span class="n">best_midi_quality</span><span class="p">,</span> <span class="n">best_segmentation</span> <span class="o">=</span> \
+                    <span class="n">midi_name</span><span class="p">,</span> <span class="n">midi_chord_probability</span><span class="p">,</span> <span class="n">segmentation_type</span>
+
+    <span class="k">return</span> <span class="n">best_midi_name</span><span class="p">,</span> <span class="n">best_segmentation</span>
 
 
-<span class="k">def</span> <span class="nf">_get_index_in_alphabet</span><span class="p">(</span><span class="n">chord</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_expected_best_tab_lab</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Given a Chord object, retrieve the index in the alphabet (our chord vocabulary)</span>
+<span class="sd">    Find the lab file of the expected best tab for this Song (based on log-likelihood returned by Jump Alignment)</span>
 
-<span class="sd">    :param chord: Chord object for which we want to find the index</span>
-<span class="sd">    :param alphabet: Chord vocabulary</span>
-<span class="sd">    :return: Index of this chord in the vocabulary</span>
+<span class="sd">    :param song: Song in our data set</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
-        <span class="c1"># Majmin alphabet</span>
-        <span class="k">if</span> <span class="n">chord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">chord_str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span>
-        <span class="k">elif</span> <span class="n">Interval</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">in</span> <span class="n">chord</span><span class="o">.</span><span class="n">components_degree_list</span><span class="p">:</span>
-            <span class="n">chord_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chord</span><span class="o">.</span><span class="n">root_note</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">chord_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chord</span><span class="o">.</span><span class="n">root_note</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">chord_str</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Chord string not in alphabet&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">chord_str</span><span class="p">)</span>
+    <span class="n">best_tab_lab</span><span class="p">,</span> <span class="n">best_tab_quality</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">tab_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">:</span>
+        <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">tab_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">):</span>
+            <span class="n">tab_quality</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_log_likelihood</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">tab_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tab_quality</span> <span class="o">&gt;</span> <span class="n">best_tab_quality</span><span class="p">:</span>
+                <span class="n">best_tab_lab</span><span class="p">,</span> <span class="n">best_tab_quality</span> <span class="o">=</span> <span class="n">tab_write_path</span><span class="p">,</span> <span class="n">tab_quality</span>
+
+    <span class="k">return</span> <span class="n">best_tab_lab</span>
+
+
+<span class="k">def</span> <span class="nf">get_actual_best_midi_lab</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find path to the actual best MIDI and segmentation type for this Song (based on CSR). Only use after evaluation.</span>
+
+<span class="sd">    :param song: Song in our data set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">best_beat_midi_name</span><span class="p">,</span> <span class="n">best_beat_midi_csr</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_actual_best_midi_for_song</span><span class="p">(</span><span class="s1">&#39;beat&#39;</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">best_bar_midi_name</span><span class="p">,</span> <span class="n">best_bar_midi_csr</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_actual_best_midi_for_song</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">best_beat_midi_csr</span> <span class="o">&gt;</span> <span class="n">best_bar_midi_csr</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">best_beat_midi_name</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># TODO Implement for other alphabets (e.g. seventh chords)</span>
+        <span class="k">return</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">best_bar_midi_name</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_actual_best_tab_lab</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">best_tab_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_actual_best_tab_for_song</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">best_tab_name</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_write_final_labels</span><span class="p">(</span><span class="n">final_labels</span><span class="p">,</span> <span class="n">lab_path</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">):</span>
@@ -340,34 +370,162 @@
     <span class="k">return</span> <span class="n">final_labels</span>
 
 
-<span class="k">def</span> <span class="nf">data_fuse_song</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">chords_list</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">lab_path</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a chord file (in Harte&#39;s chord annotation format) into a chord matrix, having the chord label per 10ms sample.</span>
+<span class="sd">    :param lab_path: Path to the .lab file with chord annotation/estimation</span>
+<span class="sd">    :param i: Index to the row in the chord_matrix to fill</span>
+<span class="sd">    :param chord_matrix: Chord matrix to which we add samples from this .lab file</span>
+<span class="sd">    :param alphabet: The chord vocabulary (used to get the index belonging to a chord string)</span>
+<span class="sd">    :param nr_of_samples: Total number of samples in the song</span>
+<span class="sd">    :return: Chord matrix to which we just added samples from this .lab file to row i</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">chord_annotation</span> <span class="o">=</span> <span class="n">import_chord_annotation</span><span class="p">(</span><span class="n">lab_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">chord_annotation_item</span> <span class="ow">in</span> <span class="n">chord_annotation</span><span class="o">.</span><span class="n">chord_annotation_items</span><span class="p">:</span>
+        <span class="n">chord_label_alphabet_index</span> <span class="o">=</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">get_index_of_chord_in_alphabet</span><span class="p">(</span><span class="n">chord_annotation_item</span><span class="o">.</span><span class="n">chord</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chord_annotation_item</span><span class="o">.</span><span class="n">from_time</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span>
+                       <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chord_annotation_item</span><span class="o">.</span><span class="n">to_time</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="n">nr_of_samples</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="n">chord_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">chord_label_alphabet_index</span>
+
+
+<div class="viewcode-block" id="data_fuse_song"><a class="viewcode-back" href="../../../codedescription/datafusion.html#decibel.data_fusion.data_fusion.data_fuse_song">[docs]</a><span class="k">def</span> <span class="nf">data_fuse_song</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">chord_vocabulary</span><span class="p">:</span> <span class="n">ChordVocabulary</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data fuse a song using all combinations of selection and combination methods, write the final labels to .lab files</span>
 
 <span class="sd">    :param song: The song on which we want to apply data fusion</span>
-<span class="sd">    :param chords_list: The chord vocabulary</span>
+<span class="sd">    :param chord_vocabulary: The chord vocabulary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Check if data fusion has already been calculated  TODO: make this check more robust</span>
-    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;besttab&#39;</span><span class="p">,</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">)):</span>
         <span class="k">return</span>
 
     <span class="c1"># Get list of symbolic lab files (all / expected best)</span>
-    <span class="n">well_aligned_midis</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_well_aligned_midis</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
-    <span class="n">all_symbolic_labs</span> <span class="o">=</span> \
-        <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">wam</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">wam</span> <span class="ow">in</span> <span class="n">well_aligned_midis</span><span class="p">]</span> <span class="o">+</span> \
-        <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">wam</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">wam</span> <span class="ow">in</span> <span class="n">well_aligned_midis</span><span class="p">]</span> <span class="o">+</span> \
-        <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">]</span>
-    <span class="n">expected_best_symbolic_paths</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">well_aligned_midis</span><span class="p">:</span>
-        <span class="n">expected_best_symbolic_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="o">*</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_expected_best_midi</span><span class="p">(</span><span class="n">song</span><span class="p">)))</span>
-    <span class="k">if</span> <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">]:</span>
-        <span class="n">expected_best_symbolic_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_expected_best_tab_lab</span><span class="p">(</span><span class="n">song</span><span class="p">)))</span>
+    <span class="c1"># well_aligned_midis = get_well_aligned_midis(song)</span>
+    <span class="c1"># all_symbolic_lab_paths = \</span>
+    <span class="c1">#     [filehandler.get_full_midi_chord_labs_path(wam, &#39;bar&#39;) for wam in well_aligned_midis] + \</span>
+    <span class="c1">#     [filehandler.get_full_midi_chord_labs_path(wam, &#39;beat&#39;) for wam in well_aligned_midis] + \</span>
+    <span class="c1">#     [filehandler.get_full_tab_chord_labs_path(t) for t in song.full_tab_paths]</span>
+    <span class="c1"># expected_best_symbolic_lab_paths = []</span>
+    <span class="c1"># if well_aligned_midis:</span>
+    <span class="c1">#     expected_best_symbolic_lab_paths.append(</span>
+    <span class="c1">#         filehandler.get_full_midi_chord_labs_path(*get_expected_best_midi(song)))</span>
+    <span class="c1"># if [filehandler.get_full_tab_chord_labs_path(t) for t in song.full_tab_paths]:</span>
+    <span class="c1">#     expected_best_symbolic_lab_paths.append(</span>
+    <span class="c1">#         filehandler.get_full_tab_chord_labs_path(get_expected_best_tab_lab(song)))</span>
 
-    <span class="c1"># Remove non-existing files (e.g. tab files in which too little chords were observed)</span>
-    <span class="n">all_symbolic_labs</span> <span class="o">=</span> <span class="p">[</span><span class="n">lab</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">all_symbolic_labs</span> <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">lab</span><span class="p">)]</span>
-    <span class="n">expected_best_symbolic_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">lab</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">expected_best_symbolic_paths</span> <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">lab</span><span class="p">)]</span>
+    <span class="n">well_aligned_midis</span> <span class="o">=</span> <span class="n">get_well_aligned_midis</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+    <span class="n">all_midi_bar_lab_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">wam</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">wam</span> <span class="ow">in</span> <span class="n">well_aligned_midis</span>
+                              <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">wam</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">))]</span>
+    <span class="n">all_midi_beat_lab_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">wam</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">wam</span> <span class="ow">in</span> <span class="n">well_aligned_midis</span>
+                               <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">wam</span><span class="p">,</span> <span class="s1">&#39;beat&#39;</span><span class="p">))]</span>
+    <span class="n">all_midi_lab_paths</span> <span class="o">=</span> <span class="n">all_midi_bar_lab_paths</span> <span class="o">+</span> <span class="n">all_midi_beat_lab_paths</span>
+    <span class="n">all_tab_lab_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span>
+                         <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">t</span><span class="p">))]</span>
+    <span class="n">all_audio_lab_paths</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">song</span><span class="o">.</span><span class="n">full_mirex_chord_lab_paths</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s1">&#39;CHF_2017&#39;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">full_chordify_chord_labs_path</span><span class="p">}}</span>
+
+    <span class="c1"># expected_best_symbolic_lab_paths = []</span>
+    <span class="c1"># if well_aligned_midis:</span>
+    <span class="c1">#     expected_best_symbolic_lab_paths.append(</span>
+    <span class="c1">#         filehandler.get_full_midi_chord_labs_path(*get_expected_best_midi(song)))</span>
+    <span class="c1"># if [filehandler.get_full_tab_chord_labs_path(t) for t in song.full_tab_paths]:</span>
+    <span class="c1">#     expected_best_symbolic_lab_paths.append(</span>
+    <span class="c1">#         filehandler.get_full_tab_chord_labs_path(get_expected_best_tab_lab(song)))</span>
+
+    <span class="n">expected_best_midi_lab_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">well_aligned_midis</span><span class="p">:</span>
+        <span class="n">expected_best_midi_lab_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="o">*</span><span class="n">get_expected_best_midi</span><span class="p">(</span><span class="n">song</span><span class="p">))</span>
+        <span class="p">)</span>
+    <span class="n">expected_best_tab_lab_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="p">[</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">]:</span>
+        <span class="n">expected_best_tab_lab_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">get_expected_best_tab_lab</span><span class="p">(</span><span class="n">song</span><span class="p">)))</span>
+
+    <span class="n">all_symbolic_lab_paths</span> <span class="o">=</span> <span class="n">all_midi_lab_paths</span> <span class="o">+</span> <span class="n">all_tab_lab_paths</span>
+    <span class="n">expected_best_symbolic_lab_paths</span> <span class="o">=</span> <span class="n">expected_best_midi_lab_paths</span> <span class="o">+</span> <span class="n">expected_best_tab_lab_paths</span>
+
+    <span class="c1"># # Remove non-existing files (e.g. tab files in which too little chords were observed)</span>
+    <span class="c1"># all_symbolic_lab_paths = [lab for lab in all_symbolic_lab_paths if filehandler.file_exists(lab)]</span>
+    <span class="c1"># expected_best_symbolic_lab_paths = [lab for lab in expected_best_symbolic_lab_paths if filehandler.file_exists(lab)]</span>
+
+    <span class="c1"># Get list of audio lab files</span>
+    <span class="c1"># audio_labs = song.full_mirex_chord_lab_paths</span>
+    <span class="c1"># audio_labs[&#39;CHF_2017&#39;] = song.full_chordify_chord_labs_path</span>
+
+    <span class="c1"># Sample every 10ms, so 100 samples per second</span>
+    <span class="n">song_duration</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">duration</span>
+    <span class="n">nr_of_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">song_duration</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+
+    <span class="c1"># Turn the chords list (a list of (key, mode-str, chroma-list) tuples) into an chord_vocabulary (a list of strings)</span>
+    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">ChordAlphabet</span><span class="p">(</span><span class="n">chord_vocabulary</span><span class="p">)</span>
+
+    <span class="n">selection_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="n">all_symbolic_lab_paths</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">:</span> <span class="n">expected_best_symbolic_lab_paths</span><span class="p">,</span>
+                      <span class="s1">&#39;allmidi&#39;</span><span class="p">:</span> <span class="n">all_midi_lab_paths</span><span class="p">,</span> <span class="s1">&#39;bestmidi&#39;</span><span class="p">:</span> <span class="n">expected_best_midi_lab_paths</span><span class="p">,</span>
+                      <span class="s1">&#39;alltab&#39;</span><span class="p">:</span> <span class="n">all_tab_lab_paths</span><span class="p">,</span> <span class="s1">&#39;besttab&#39;</span><span class="p">:</span> <span class="n">expected_best_tab_lab_paths</span><span class="p">}</span>
+
+    <span class="c1"># Iterate over the two types of selection (all / best)</span>
+    <span class="c1"># for lab_list_i in [0, 1]:</span>
+    <span class="c1">#     lab_list = [all_symbolic_lab_paths, expected_best_symbolic_lab_paths,</span>
+    <span class="c1">#                 all_midi_lab_paths, expected_best_midi_lab_paths,</span>
+    <span class="c1">#                 all_tab_lab_paths, expected_best_tab_lab_paths][lab_list_i]</span>
+    <span class="c1">#     lab_list = [i for i in lab_list if i != &#39;&#39;]</span>
+        <span class="c1"># selection_name = [&#39;all&#39;, &#39;best&#39;, &#39;allmidi&#39;, &#39;bestmidi&#39;, &#39;alltab&#39;, &#39;besttab&#39;][lab_list_i]</span>
+
+    <span class="k">for</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">lab_list</span> <span class="ow">in</span> <span class="n">selection_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lab_list</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Fill a numpy array with chord labels for each of the lab files</span>
+        <span class="n">chord_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">lab_nr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">)):</span>
+            <span class="n">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">lab_list</span><span class="p">[</span><span class="n">lab_nr</span><span class="p">],</span> <span class="n">lab_nr</span><span class="p">,</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
+
+        <span class="c1"># Iterate over the audio types:</span>
+        <span class="k">for</span> <span class="n">audio_name</span><span class="p">,</span> <span class="n">audio_lab</span> <span class="ow">in</span> <span class="n">all_audio_lab_paths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">audio_lab</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span>
+                        <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">df_type_str</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">df_type_str</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">]]):</span>
+                    <span class="c1"># Add the lab file to our chord matrix</span>
+                    <span class="n">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">audio_lab</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">),</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
+
+                    <span class="c1"># Iterate over the three combination types; calculate labels and write them:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span>
+                                                                                    <span class="n">audio_name</span><span class="p">)):</span>
+                        <span class="n">final_labels_random</span> <span class="o">=</span> <span class="n">_random_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
+                        <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_random</span><span class="p">,</span>
+                                            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span>
+                                                                             <span class="n">audio_name</span><span class="p">),</span>
+                                            <span class="n">alphabet</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span>
+                            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">)):</span>
+                        <span class="n">final_labels_majority</span> <span class="o">=</span> <span class="n">_majority_vote_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">,</span>
+                                                                                       <span class="n">alphabet</span><span class="p">)</span>
+                        <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_majority</span><span class="p">,</span>
+                                            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span>
+                                                                             <span class="n">audio_name</span><span class="p">),</span>
+                                            <span class="n">alphabet</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span>
+                            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">)):</span>
+                        <span class="n">final_labels_data_fusion</span> <span class="o">=</span> <span class="n">_data_fusion_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">,</span>
+                                                                                        <span class="n">alphabet</span><span class="p">)</span>
+                        <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_data_fusion</span><span class="p">,</span>
+                                            <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span>
+                                                                             <span class="n">audio_name</span><span class="p">),</span>
+                                            <span class="n">alphabet</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">data_fuse_song_with_actual_best_midi_and_tab</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">chord_vocabulary</span><span class="p">:</span> <span class="n">ChordVocabulary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data fuse a song using all combinations of selection and combination methods, write the final labels to .lab files</span>
+
+<span class="sd">    :param song: The song on which we want to apply data fusion</span>
+<span class="sd">    :param chord_vocabulary: The chord vocabulary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if data fusion has already been calculated  TODO: make this check more robust</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;actual-best&#39;</span><span class="p">,</span> <span class="s1">&#39;CHF_2017&#39;</span><span class="p">)):</span>
+        <span class="k">return</span>
 
     <span class="c1"># Get list of audio lab files</span>
     <span class="n">audio_labs</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">full_mirex_chord_lab_paths</span>
@@ -377,38 +535,26 @@
     <span class="n">song_duration</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">duration</span>
     <span class="n">nr_of_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">song_duration</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
 
-    <span class="c1"># Turn the chords list (a list of (key, mode-str, chroma-list) tuples) into an alphabet (a list of strings)</span>
-    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">_chords_list_to_alphabet</span><span class="p">(</span><span class="n">chords_list</span><span class="p">)</span>
+    <span class="c1"># Turn the chords list (a list of (key, mode-str, chroma-list) tuples) into an chord_vocabulary (a list of strings)</span>
+    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">ChordAlphabet</span><span class="p">(</span><span class="n">chord_vocabulary</span><span class="p">)</span>
 
-    <span class="c1"># Iterate over the two types of selection (all / best)</span>
-    <span class="k">for</span> <span class="n">lab_list_i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
-        <span class="n">lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_symbolic_labs</span><span class="p">,</span> <span class="n">expected_best_symbolic_paths</span><span class="p">][</span><span class="n">lab_list_i</span><span class="p">]</span>
-        <span class="n">selection_name</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">][</span><span class="n">lab_list_i</span><span class="p">]</span>
-        <span class="n">lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lab_list</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+    <span class="n">selection_name</span> <span class="o">=</span> <span class="s1">&#39;actual-best&#39;</span>
+    <span class="n">lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_actual_best_midi_lab</span><span class="p">(</span><span class="n">song</span><span class="p">),</span> <span class="n">get_actual_best_tab_lab</span><span class="p">(</span><span class="n">song</span><span class="p">)]</span>
 
-        <span class="c1"># Fill a numpy array with chord labels for each of the lab files</span>
-        <span class="n">chord_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">lab_nr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">)):</span>
-            <span class="n">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">lab_list</span><span class="p">[</span><span class="n">lab_nr</span><span class="p">],</span> <span class="n">lab_nr</span><span class="p">,</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
+    <span class="c1"># Fill a numpy array with chord labels for each of the lab files</span>
+    <span class="n">chord_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">lab_nr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">)):</span>
+        <span class="n">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">lab_list</span><span class="p">[</span><span class="n">lab_nr</span><span class="p">],</span> <span class="n">lab_nr</span><span class="p">,</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
 
-        <span class="c1"># Iterate over the audio types:</span>
-        <span class="k">for</span> <span class="n">audio_name</span><span class="p">,</span> <span class="n">audio_lab</span> <span class="ow">in</span> <span class="n">audio_labs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">audio_lab</span><span class="p">):</span>
-                <span class="c1"># Add the lab file to our chord matrix</span>
-                <span class="n">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">audio_lab</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">),</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
-                <span class="c1"># Iterate over the three combination types; calculate labels and write them:</span>
-                <span class="n">final_labels_random</span> <span class="o">=</span> <span class="n">_random_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
-                <span class="n">final_labels_majority</span> <span class="o">=</span> <span class="n">_majority_vote_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">)</span>
-                <span class="n">final_labels_data_fusion</span> <span class="o">=</span> <span class="n">_data_fusion_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">)</span>
-                <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_random</span><span class="p">,</span>
-                                    <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">),</span>
-                                    <span class="n">alphabet</span><span class="p">)</span>
-                <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_majority</span><span class="p">,</span>
-                                    <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">),</span>
-                                    <span class="n">alphabet</span><span class="p">)</span>
-                <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_data_fusion</span><span class="p">,</span>
-                                    <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">),</span>
-                                    <span class="n">alphabet</span><span class="p">)</span>
+    <span class="c1"># Iterate over the audio types:</span>
+    <span class="k">for</span> <span class="n">audio_name</span><span class="p">,</span> <span class="n">audio_lab</span> <span class="ow">in</span> <span class="n">audio_labs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">audio_lab</span><span class="p">):</span>
+            <span class="c1"># Add the lab file to our chord matrix</span>
+            <span class="n">load_lab_file_into_chord_matrix</span><span class="p">(</span><span class="n">audio_lab</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lab_list</span><span class="p">),</span> <span class="n">chord_matrix</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">)</span>
+            <span class="n">final_labels_data_fusion</span> <span class="o">=</span> <span class="n">_data_fusion_chord_label_combination</span><span class="p">(</span><span class="n">chord_matrix</span><span class="p">,</span> <span class="n">nr_of_samples</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">)</span>
+            <span class="n">_write_final_labels</span><span class="p">(</span><span class="n">final_labels_data_fusion</span><span class="p">,</span>
+                                <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_name</span><span class="p">),</span>
+                                <span class="n">alphabet</span><span class="p">)</span>
 </pre></div>
 
            </div>
@@ -421,11 +567,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -437,27 +591,16 @@
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

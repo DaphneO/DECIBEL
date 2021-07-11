@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,41 +11,45 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
 
   
-  <script src="../../../_static/js/modernizr.min.js"></script>
+  
+  
+  
 
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -69,6 +72,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -94,6 +98,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -132,7 +137,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -155,8 +160,10 @@
 <span></span><span class="kn">import</span> <span class="nn">mir_eval</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">decibel.utils</span> <span class="k">import</span> <span class="n">filehandler</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+
+<span class="kn">import</span> <span class="nn">decibel.import_export.midi_alignment_score_io</span>
+<span class="kn">from</span> <span class="nn">decibel.import_export</span> <span class="kn">import</span> <span class="n">filehandler</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
 
 
@@ -245,13 +252,12 @@
         <span class="n">evaluation_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">evaluation_path</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">_evaluate_audio_type</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">df_types</span><span class="p">,</span> <span class="n">selection_names</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_evaluate_audio_type</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">df_combination_and_selection_types</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evaluate all songs and selected df_types and selection_names for the selected audio_type</span>
 
 <span class="sd">    :param all_songs: All songs in our data set</span>
-<span class="sd">    :param df_types: Data combination types to test (rnd/mv/df)</span>
-<span class="sd">    :param selection_names: Data selection types to test (all/best)</span>
+<span class="sd">    :param df_combination_and_selection_types: Data combination/selection types (rnd/mv/df)-(all/best/actual-best)</span>
 <span class="sd">    :param audio_type: Audio method to test (CHF_2017 or one of the MIREX methods)</span>
 <span class="sd">    :return: String indicating if the evaluation succeeded</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -263,13 +269,12 @@
 
     <span class="n">write_method_evaluations</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">,</span> <span class="n">get_lab_function</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">df_type</span> <span class="ow">in</span> <span class="n">df_types</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">selection_name</span> <span class="ow">in</span> <span class="n">selection_names</span><span class="p">:</span>
-            <span class="c1"># Evaluate this method of combining audio, MIDI and tabs</span>
-            <span class="n">method_name</span> <span class="o">=</span> <span class="n">audio_type</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">selection_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-            <span class="n">write_method_evaluations</span><span class="p">(</span>
-                <span class="n">all_songs</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span>
-                <span class="k">lambda</span> <span class="n">song</span><span class="p">:</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">df_type</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">df_type</span><span class="p">,</span> <span class="n">selection_name</span> <span class="ow">in</span> <span class="n">df_combination_and_selection_types</span><span class="p">:</span>
+        <span class="c1"># Evaluate this method of combining audio, MIDI and tabs</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="n">audio_type</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">df_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">selection_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">write_method_evaluations</span><span class="p">(</span>
+            <span class="n">all_songs</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">song</span><span class="p">:</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_data_fusion_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">df_type</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">audio_type</span> <span class="o">+</span> <span class="s1">&#39; was evaluated.&#39;</span>
 
@@ -282,12 +287,23 @@
 <span class="sd">    :return: Print statement indicating that the evaluation was finished</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">audio_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CHF_2017&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">MIREX_SUBMISSION_NAMES</span>
-    <span class="n">selection_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">]</span>
-    <span class="n">df_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;df&#39;</span><span class="p">]</span>
+    <span class="n">df_combination_and_selection_types</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;best&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;actual-best&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;alltab&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;besttab&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;allmidi&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;rnd&#39;</span><span class="p">,</span> <span class="s1">&#39;bestmidi&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;alltab&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;besttab&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;allmidi&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;mv&#39;</span><span class="p">,</span> <span class="s1">&#39;bestmidi&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;alltab&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;besttab&#39;</span><span class="p">),</span>
+                                          <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;allmidi&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;df&#39;</span><span class="p">,</span> <span class="s1">&#39;bestmidi&#39;</span><span class="p">)]</span>
+
+    <span class="c1"># for audio_type in audio_types:</span>
+    <span class="c1">#     _evaluate_audio_type(all_songs, df_combination_and_selection_types, audio_type)</span>
 
     <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># use all available cores except one</span>
     <span class="k">for</span> <span class="n">audio_type</span> <span class="ow">in</span> <span class="n">audio_types</span><span class="p">:</span>
-        <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_evaluate_audio_type</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">df_types</span><span class="p">,</span> <span class="n">selection_names</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">),</span> <span class="n">callback</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_evaluate_audio_type</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">all_songs</span><span class="p">,</span> <span class="n">df_combination_and_selection_types</span><span class="p">,</span> <span class="n">audio_type</span><span class="p">),</span>
+                         <span class="n">callback</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span>
     <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Evaluation finished!&#39;</span><span class="p">)</span></div>
@@ -308,7 +324,8 @@
                     <span class="n">song</span> <span class="o">=</span> <span class="n">all_songs</span><span class="p">[</span><span class="n">song_key</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">midi_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_midi_paths</span><span class="p">:</span>
                         <span class="n">midi_name</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">midi_path</span><span class="p">)</span>
-                        <span class="n">alignment_score</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
+                        <span class="n">alignment_score</span> <span class="o">=</span> \
+                            <span class="n">decibel</span><span class="o">.</span><span class="n">import_export</span><span class="o">.</span><span class="n">midi_alignment_score_io</span><span class="o">.</span><span class="n">read_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
                         <span class="n">chord_probability</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">read_midi_chord_probability</span><span class="p">(</span><span class="n">segmentation_type</span><span class="p">,</span> <span class="n">midi_name</span><span class="p">)</span>
                         <span class="n">midi_lab_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_midi_chord_labs_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">segmentation_type</span><span class="p">)</span>
 
@@ -356,11 +373,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -372,27 +397,16 @@
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

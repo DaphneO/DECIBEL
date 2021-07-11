@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,41 +11,45 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
 
   
-  <script src="../../../_static/js/modernizr.min.js"></script>
+  
+  
+  
 
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -69,6 +72,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -94,6 +98,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -132,7 +137,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -161,25 +166,23 @@
 <span class="sd">Since this can take a long time, it is possible to interrupt and resume this process: all MIDI files that are aligned,</span>
 <span class="sd">are stored and can be reloaded quickly when they are needed in a new program run.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">librosa</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numba</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span>
 <span class="kn">import</span> <span class="nn">scipy.spatial</span>
-<span class="kn">import</span> <span class="nn">decibel.utils.filehandler</span> <span class="k">as</span> <span class="nn">fh</span>
-<span class="kn">from</span> <span class="nn">decibel.audio_midi_aligner</span> <span class="k">import</span> <span class="n">synthesizer</span>
-
-<span class="c1"># CQT parameters</span>
-<span class="n">FS</span> <span class="o">=</span> <span class="mi">22050</span>
-<span class="n">NOTE_START</span> <span class="o">=</span> <span class="mi">36</span>
-<span class="n">N_NOTES</span> <span class="o">=</span> <span class="mi">48</span>
-<span class="n">HOP_LENGTH</span> <span class="o">=</span> <span class="mi">1024</span>
-<span class="c1"># DTW parameters</span>
-<span class="n">GULLY</span> <span class="o">=</span> <span class="o">.</span><span class="mi">96</span>
+<span class="kn">import</span> <span class="nn">decibel.import_export.filehandler</span> <span class="k">as</span> <span class="nn">fh</span>
+<span class="kn">import</span> <span class="nn">decibel.import_export.midi_alignment_score_io</span>
+<span class="kn">import</span> <span class="nn">decibel.import_export.midi_alignment_io</span>
+<span class="kn">from</span> <span class="nn">decibel.audio_midi_aligner</span> <span class="kn">import</span> <span class="n">synthesizer</span>
+<span class="kn">from</span> <span class="nn">decibel.audio_midi_aligner.alignment_parameters</span> <span class="kn">import</span> <span class="n">AlignmentParameters</span>
+<span class="kn">from</span> <span class="nn">decibel.audio_midi_aligner.midi_alignment</span> <span class="kn">import</span> <span class="n">MIDIAlignment</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.song</span> <span class="kn">import</span> <span class="n">Song</span>
 
 
 <span class="k">def</span> <span class="nf">_dtw</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">gully</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">additive_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
-         <span class="n">multiplicative_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+         <span class="n">multiplicative_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the dynamic time warping distance between two sequences given a distance matrix.</span>
 <span class="sd">    DTW score of lowest cost path through the distance matrix, including penalties.</span>
@@ -253,7 +256,7 @@
     <span class="k">return</span> <span class="n">x_indices</span><span class="p">,</span> <span class="n">y_indices</span><span class="p">,</span> <span class="n">score</span>
 
 
-<span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">_dtw_core</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">add_pen</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">mul_pen</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">traceback</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Core dynamic programming routine for DTW.</span>
@@ -284,8 +287,7 @@
                 <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mul_pen</span> <span class="o">*</span> <span class="n">dist_mat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_pen</span>
 
 
-<span class="k">def</span> <span class="nf">_compute_cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">):</span>
-    <span class="c1"># type: (np.ndarray) -&gt; (np.ndarray, np.ndarray)</span>
+<span class="k">def</span> <span class="nf">_compute_cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="p">:</span> <span class="n">AlignmentParameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute the normalized log-amplitude CQT (Constant-Q transform) and frame times for the audio data</span>
 
@@ -293,11 +295,15 @@
 <span class="sd">    :return: The CQT for the audio data and the time of each frame</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Compute CQT</span>
-    <span class="n">cqt</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">,</span> <span class="n">fmin</span><span class="o">=</span><span class="n">librosa</span><span class="o">.</span><span class="n">midi_to_hz</span><span class="p">(</span><span class="n">NOTE_START</span><span class="p">),</span>
-                      <span class="n">n_bins</span><span class="o">=</span><span class="n">N_NOTES</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">HOP_LENGTH</span><span class="p">,</span> <span class="n">tuning</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+    <span class="n">cqt</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">,</span>
+                      <span class="n">sr</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">,</span>
+                      <span class="n">fmin</span><span class="o">=</span><span class="n">librosa</span><span class="o">.</span><span class="n">midi_to_hz</span><span class="p">(</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">lowest_midi_note</span><span class="p">),</span>
+                      <span class="n">n_bins</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">nr_of_midi_notes</span><span class="p">,</span>
+                      <span class="n">hop_length</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">hop_length</span><span class="p">,</span>
+                      <span class="n">tuning</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
     <span class="c1"># Compute the time of each frame</span>
     <span class="n">times</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">frames_to_time</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cqt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">HOP_LENGTH</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cqt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">sr</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">,</span> <span class="n">hop_length</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">hop_length</span><span class="p">)</span>
     <span class="c1"># Compute log-amplitude</span>
     <span class="n">cqt</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">amplitude_to_db</span><span class="p">(</span><span class="n">cqt</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">cqt</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
     <span class="c1"># Normalize and return</span>
@@ -305,45 +311,60 @@
 
 
 <div class="viewcode-block" id="align_midi"><a class="viewcode-back" href="../../../codedescription/audiomidialigner.html#decibel.audio_midi_aligner.aligner.align_midi">[docs]</a><span class="k">def</span> <span class="nf">align_midi</span><span class="p">(</span><span class="n">audio_cqt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">audio_times</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">full_synthesized_midi_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-               <span class="n">full_alignment_write_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+               <span class="n">full_alignment_write_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AlignmentParameters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Align audio (specified by CQT) to synthesized MIDI (specified by path), return path and score of the alignment</span>
 
+<span class="sd">    :param alignment_parameters: Parameters for alignment</span>
 <span class="sd">    :param audio_cqt: The CQT of the audio of the alignment</span>
 <span class="sd">    :param audio_times: Array of times of the audio (from compute_cqt function)</span>
 <span class="sd">    :param full_synthesized_midi_path: The path to the synthesized MIDI file</span>
 <span class="sd">    :param full_alignment_write_path: The path to write the alignment to</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make sure to have alignment parameters</span>
+    <span class="k">if</span> <span class="n">alignment_parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alignment_parameters</span> <span class="o">=</span> <span class="n">AlignmentParameters</span><span class="p">()</span>
     <span class="c1"># Open the synthesized midi file</span>
-    <span class="n">midi_audio</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_synthesized_midi_path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">)</span>
+    <span class="n">midi_audio</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">full_synthesized_midi_path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">)</span>
     <span class="c1"># Compute log-magnitude CQT of the synthesized midi file</span>
-    <span class="n">midi_cqt</span><span class="p">,</span> <span class="n">midi_times</span> <span class="o">=</span> <span class="n">_compute_cqt</span><span class="p">(</span><span class="n">midi_audio</span><span class="p">)</span>
+    <span class="n">midi_cqt</span><span class="p">,</span> <span class="n">midi_times</span> <span class="o">=</span> <span class="n">_compute_cqt</span><span class="p">(</span><span class="n">midi_audio</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="p">)</span>
     <span class="c1"># Compute the distance matrix of the midi and audio CQTs, using cosine distance</span>
     <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">midi_cqt</span><span class="p">,</span> <span class="n">audio_cqt</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">)</span>
-    <span class="n">penalty</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)))</span>
+    <span class="n">additive_penalty</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)))</span>
+    <span class="n">multiplicative_penalty</span> <span class="o">=</span> <span class="mf">1.</span>
     <span class="c1"># Get lowest cost path in the distance matrix</span>
-    <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">score</span> <span class="o">=</span> <span class="n">_dtw</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">GULLY</span><span class="p">,</span> <span class="n">penalty</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">score</span> <span class="o">=</span> <span class="n">_dtw</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="o">.</span><span class="n">gully</span><span class="p">,</span> <span class="n">additive_penalty</span><span class="p">,</span> <span class="n">multiplicative_penalty</span><span class="p">)</span>
+
+    <span class="c1"># Compute MIDIAlignment</span>
+    <span class="n">midi_alignment</span> <span class="o">=</span> <span class="n">MIDIAlignment</span><span class="p">(</span><span class="n">midi_times</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">audio_times</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+
     <span class="c1"># Normalize by path length and the distance matrix sub-matrix within the path</span>
     <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
     <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">/</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">min</span><span class="p">():</span><span class="n">p</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">q</span><span class="o">.</span><span class="n">min</span><span class="p">():</span><span class="n">q</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
     <span class="c1"># Write score</span>
     <span class="n">midi_name</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">get_file_name_from_full_path</span><span class="p">(</span><span class="n">full_synthesized_midi_path</span><span class="p">)</span>
-    <span class="n">fh</span><span class="o">.</span><span class="n">write_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+    <span class="n">decibel</span><span class="o">.</span><span class="n">import_export</span><span class="o">.</span><span class="n">midi_alignment_score_io</span><span class="o">.</span><span class="n">write_chord_alignment_score</span><span class="p">(</span><span class="n">midi_name</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
 
     <span class="c1"># Write alignment</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">full_alignment_write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
-            <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> </span><span class="si">{1}</span><span class="s1"> </span><span class="si">{2}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">midi_times</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">audio_times</span><span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]])))</span></div>
+    <span class="n">decibel</span><span class="o">.</span><span class="n">import_export</span><span class="o">.</span><span class="n">midi_alignment_io</span><span class="o">.</span><span class="n">write_alignment_file</span><span class="p">(</span><span class="n">midi_alignment</span><span class="p">,</span> <span class="n">full_alignment_write_path</span><span class="p">)</span></div>
+    <span class="c1"># with open(full_alignment_write_path, &#39;w&#39;) as write_file:</span>
+    <span class="c1">#     for i in range(len(p)):</span>
+    <span class="c1">#         write_file.write(&#39;{0} {1} {2}\n&#39;.format(str(i), str(midi_times[p[i]]), str(audio_times[q[i]])))</span>
 
 
-<div class="viewcode-block" id="align_single_song"><a class="viewcode-back" href="../../../codedescription/audiomidialigner.html#decibel.audio_midi_aligner.aligner.align_single_song">[docs]</a><span class="k">def</span> <span class="nf">align_single_song</span><span class="p">(</span><span class="n">song</span><span class="p">):</span>
+<div class="viewcode-block" id="align_single_song"><a class="viewcode-back" href="../../../codedescription/audiomidialigner.html#decibel.audio_midi_aligner.aligner.align_single_song">[docs]</a><span class="k">def</span> <span class="nf">align_single_song</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AlignmentParameters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Align each MIDI file that is matched to this song to the song. As part of the procedure, each MIDI will be</span>
 <span class="sd">    synthesized and the alignment of each MIDI will be written to a file.</span>
 
+<span class="sd">    :param alignment_parameters: Parameters for alignment</span>
 <span class="sd">    :param song: The Song object for which we align each MIDI file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make sure to have alignment parameters</span>
+    <span class="k">if</span> <span class="n">alignment_parameters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">alignment_parameters</span> <span class="o">=</span> <span class="n">AlignmentParameters</span><span class="p">()</span>
+
     <span class="n">audio_loaded</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">audio_cqt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">([])</span>
     <span class="n">audio_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">([])</span>
@@ -357,14 +378,14 @@
                 <span class="n">synthesized_midi_path</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">get_full_synthesized_midi_path</span><span class="p">(</span><span class="n">midi_name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">fh</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">synthesized_midi_path</span><span class="p">):</span>
                     <span class="c1"># The MIDI has not been synthesized yet</span>
-                    <span class="n">synthesizer</span><span class="o">.</span><span class="n">synthesize_midi_to_wav</span><span class="p">(</span><span class="n">midi_path</span><span class="p">,</span> <span class="mi">22050</span><span class="p">)</span>
+                    <span class="n">synthesizer</span><span class="o">.</span><span class="n">synthesize_midi_to_wav</span><span class="p">(</span><span class="n">midi_path</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">audio_loaded</span><span class="p">:</span>
                     <span class="c1"># Load audio if it is not loaded yet</span>
-                    <span class="n">audio_data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_audio_path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">FS</span><span class="p">)</span>
-                    <span class="n">audio_cqt</span><span class="p">,</span> <span class="n">audio_times</span> <span class="o">=</span> <span class="n">_compute_cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">)</span>
+                    <span class="n">audio_data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">full_audio_path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">alignment_parameters</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">)</span>
+                    <span class="n">audio_cqt</span><span class="p">,</span> <span class="n">audio_times</span> <span class="o">=</span> <span class="n">_compute_cqt</span><span class="p">(</span><span class="n">audio_data</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="p">)</span>
                     <span class="n">audio_loaded</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">align_midi</span><span class="p">(</span><span class="n">audio_cqt</span><span class="p">,</span> <span class="n">audio_times</span><span class="p">,</span> <span class="n">synthesized_midi_path</span><span class="p">,</span> <span class="n">write_path</span><span class="p">)</span>
+                <span class="n">align_midi</span><span class="p">(</span><span class="n">audio_cqt</span><span class="p">,</span> <span class="n">audio_times</span><span class="p">,</span> <span class="n">synthesized_midi_path</span><span class="p">,</span> <span class="n">write_path</span><span class="p">,</span> <span class="n">alignment_parameters</span><span class="p">)</span>
                 <span class="n">fh</span><span class="o">.</span><span class="n">remove_file</span><span class="p">(</span><span class="n">synthesized_midi_path</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">write_path</span> <span class="o">+</span> <span class="s2">&quot; failed.&quot;</span><span class="p">)</span></div>
@@ -380,11 +401,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -396,27 +425,16 @@
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

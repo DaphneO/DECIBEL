@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,43 +11,47 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Aligning MIDI to audio" href="audiomidialigner.html" />
     <link rel="prev" title="Installation instructions" href="../installation.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> DECIBEL
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -71,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -100,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,7 +143,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Scraping MIDI and tab files</li>
     
@@ -162,7 +167,7 @@
   <div class="section" id="scraping-midi-and-tab-files">
 <h1>Scraping MIDI and tab files<a class="headerlink" href="#scraping-midi-and-tab-files" title="Permalink to this headline">¶</a></h1>
 <p>DECIBEL uses a data set of audio, MIDI files and tabs. This data set is based on a subset of the Isophonics Reference
-Annotations <a class="reference internal" href="#mauch2009omras2" id="id1">[mauch2009omras2]</a>. The Isophonics data set contains chord annotations for 180 Beatles songs, 20 songs by
+Annotations <a class="reference internal" href="#mauch2009omras2" id="id1"><span>[mauch2009omras2]</span></a>. The Isophonics data set contains chord annotations for 180 Beatles songs, 20 songs by
 Queen, 7 songs by Carole King and 18 songs by Zweieck. In my experiments, I only used the songs by the Beatles and
 Queen, as there were no MIDI or tabs for Zweieck available and there were some inconsistencies in the Carole King
 annotations.</p>
@@ -173,49 +178,41 @@ can either reproduce my experiments on the Isophonics dataset or create your own
 <span id="scraping-midi-files"></span><h2>Scraping MIDI files<a class="headerlink" href="#module-decibel.file_scraper.midi_scraper" title="Permalink to this headline">¶</a></h2>
 <p>This module contains all the methods you need for scraping either a single MIDI file or a predefined set of MIDI files
 from the Internet.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.file_scraper.midi_scraper.download_data_set_from_csv">
-<code class="descclassname">decibel.file_scraper.midi_scraper.</code><code class="descname">download_data_set_from_csv</code><span class="sig-paren">(</span><em>csv_path: str</em>, <em>midi_directory: str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/midi_scraper.html#download_data_set_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.midi_scraper.download_data_set_from_csv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.file_scraper.midi_scraper.</code><code class="sig-name descname">download_data_set_from_csv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">csv_path</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">midi_directory</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/midi_scraper.html#download_data_set_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.midi_scraper.download_data_set_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download a data set of MIDI files, as specified by the csv file in csv_path, and put them into midi_directory.
 If a MIDI file cannot be downloaded successfully, for example because the file already existed or because the
 Internet connection broke down, then the function continues with downloading the other MIDI files. After trying to
 download all prescribed MIDI files, this function returns a message indicating the number of MIDI files that were
 downloaded successfully and the number of MIDI files for which the download failed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>csv_path</strong> – Path to the csv file with lines in format [midi_name];[midi_url] (for example IndexMIDI.csv)</li>
-<li><strong>midi_directory</strong> – Local location for the downloaded files</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_path</strong> – Path to the csv file with lines in format [midi_name];[midi_url] (for example IndexMIDI.csv)</p></li>
+<li><p><strong>midi_directory</strong> – Local location for the downloaded files</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.file_scraper.midi_scraper.download_midi">
-<code class="descclassname">decibel.file_scraper.midi_scraper.</code><code class="descname">download_midi</code><span class="sig-paren">(</span><em>midi_url: str</em>, <em>midi_directory: str</em>, <em>midi_name: str) -&gt; (&lt;class 'bool'&gt;</em>, <em>&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/midi_scraper.html#download_midi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.midi_scraper.download_midi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.file_scraper.midi_scraper.</code><code class="sig-name descname">download_midi</code><span class="sig-paren">(</span><em class="sig-param">midi_url: str</em>, <em class="sig-param">midi_directory: str</em>, <em class="sig-param">midi_name: str) -&gt; (&lt;class 'bool'&gt;</em>, <em class="sig-param">&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/midi_scraper.html#download_midi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.midi_scraper.download_midi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download a MIDI file from the Internet, using the midi_url and place it in the midi_directory, called midi_name.
 Return a message indicating success or failure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>midi_url</strong> – Location of the MIDI file on the Internet</li>
-<li><strong>midi_directory</strong> – Local directory where the MIDI file should be placed on your machine</li>
-<li><strong>midi_name</strong> – File name of your MIDI file</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>midi_url</strong> – Location of the MIDI file on the Internet</p></li>
+<li><p><strong>midi_directory</strong> – Local directory where the MIDI file should be placed on your machine</p></li>
+<li><p><strong>midi_name</strong> – File name of your MIDI file</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean and str message, indicating success or failure</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean and str message, indicating success or failure</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -223,58 +220,49 @@ Return a message indicating success or failure.</p>
 <span id="scraping-tab-files"></span><h2>Scraping Tab files<a class="headerlink" href="#module-decibel.file_scraper.tab_scraper" title="Permalink to this headline">¶</a></h2>
 <p>This module contains all the methods you need for scraping either a single tab file or a predefined set of tab files
 from the Internet.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.file_scraper.tab_scraper.download_data_set_from_csv">
-<code class="descclassname">decibel.file_scraper.tab_scraper.</code><code class="descname">download_data_set_from_csv</code><span class="sig-paren">(</span><em>csv_path: str</em>, <em>tab_directory: str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/tab_scraper.html#download_data_set_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.tab_scraper.download_data_set_from_csv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.file_scraper.tab_scraper.</code><code class="sig-name descname">download_data_set_from_csv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">csv_path</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">tab_directory</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/tab_scraper.html#download_data_set_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.tab_scraper.download_data_set_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download a data set of tab files, as specified by the csv file in csv_path, and put them into tab_directory.
 If a tab file cannot be downloaded successfully, for example because the file already existed or because the
 Internet connection broke down, then the function continues with downloading the other tab files. After trying to
 download all prescribed tab files, this function returns a message indicating the number of tab files that were
 downloaded successfully and the number of tab files for which the download failed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>csv_path</strong> – Path to the csv file with lines in format [url];[name];[key];[filename] (for example IndexTabs.csv)</li>
-<li><strong>tab_directory</strong> – Local location for the downloaded files</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_path</strong> – Path to the csv file with lines in format [url];[name];[key];[filename] (for example IndexTabs.csv)</p></li>
+<li><p><strong>tab_directory</strong> – Local location for the downloaded files</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.file_scraper.tab_scraper.download_tab">
-<code class="descclassname">decibel.file_scraper.tab_scraper.</code><code class="descname">download_tab</code><span class="sig-paren">(</span><em>tab_url: str</em>, <em>tab_directory: str</em>, <em>tab_name: str) -&gt; (&lt;class 'bool'&gt;</em>, <em>&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/tab_scraper.html#download_tab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.tab_scraper.download_tab" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.file_scraper.tab_scraper.</code><code class="sig-name descname">download_tab</code><span class="sig-paren">(</span><em class="sig-param">tab_url: str</em>, <em class="sig-param">tab_directory: str</em>, <em class="sig-param">tab_name: str) -&gt; (&lt;class 'bool'&gt;</em>, <em class="sig-param">&lt;class 'str'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/file_scraper/tab_scraper.html#download_tab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.file_scraper.tab_scraper.download_tab" title="Permalink to this definition">¶</a></dt>
 <dd><p>Download a tab file from the Internet, using the tab_url and place it in the tab_directory, called tab_name.
 Return a message indicating success or failure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tab_url</strong> – Location of the tab file on the Internet</li>
-<li><strong>tab_directory</strong> – Local directory where the tab file should be placed on your machine</li>
-<li><strong>tab_name</strong> – File name of your tab file</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tab_url</strong> – Location of the tab file on the Internet</p></li>
+<li><p><strong>tab_directory</strong> – Local directory where the tab file should be placed on your machine</p></li>
+<li><p><strong>tab_name</strong> – File name of your tab file</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Boolean and str message, indicating success or failure</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Boolean and str message, indicating success or failure</p>
+</dd>
+</dl>
 </dd></dl>
 
-<table class="docutils citation" frame="void" id="mauch2009omras2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[mauch2009omras2]</a></td><td>Mauch, Matthias, et al. “OMRAS2 metadata project 2009.” Proc. of 10th International Conference on
-Music Information Retrieval. 2009.</td></tr>
-</tbody>
-</table>
+<dl class="citation">
+<dt class="label" id="mauch2009omras2"><span class="brackets"><a class="fn-backref" href="#id1">mauch2009omras2</a></span></dt>
+<dd><p>Mauch, Matthias, et al. “OMRAS2 metadata project 2009.” Proc. of 10th International Conference on
+Music Information Retrieval. 2009.</p>
+</dd>
+</dl>
 </div>
 </div>
 
@@ -289,7 +277,7 @@ Music Information Retrieval. 2009.</td></tr>
         <a href="audiomidialigner.html" class="btn btn-neutral float-right" title="Aligning MIDI to audio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../installation.html" class="btn btn-neutral" title="Installation instructions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../installation.html" class="btn btn-neutral float-left" title="Installation instructions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -298,11 +286,19 @@ Music Information Retrieval. 2009.</td></tr>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -314,27 +310,16 @@ Music Information Retrieval. 2009.</td></tr>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

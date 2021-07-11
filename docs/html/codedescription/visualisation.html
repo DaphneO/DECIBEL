@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,43 +11,47 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Utility Functions" href="utils.html" />
     <link rel="prev" title="Evaluation" href="evaluator.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> DECIBEL
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -71,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +100,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Visualisation</li>
     
@@ -196,26 +201,22 @@ chord starting after 62 seconds.</p>
 transcriptions made by music enthusiasts. Therefore, the comparison of analysis results from different music
 representations reveals passages in the music for which there are multiple possible perspectives. Studying these
 passages can give us a deeper understanding of subjectivity issues in the musical material.</p>
-<span class="target" id="module-decibel.evaluator.chord_label_visualiser"></span><dl class="function">
+<span class="target" id="module-decibel.evaluator.chord_label_visualiser"></span><dl class="py function">
 <dt id="decibel.evaluator.chord_label_visualiser.export_result_image">
-<code class="descclassname">decibel.evaluator.chord_label_visualiser.</code><code class="descname">export_result_image</code><span class="sig-paren">(</span><em>song</em>, <em>chords_list</em>, <em>midi=True</em>, <em>tab=True</em>, <em>audio='CHF_2017'</em>, <em>df=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/chord_label_visualiser.html#export_result_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.chord_label_visualiser.export_result_image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.chord_label_visualiser.</code><code class="sig-name descname">export_result_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">song</span><span class="p">:</span> <span class="n">decibel.music_objects.song.Song</span></em>, <em class="sig-param"><span class="n">chords_vocabulary</span><span class="p">:</span> <span class="n">decibel.music_objects.chord_vocabulary.ChordVocabulary</span></em>, <em class="sig-param"><span class="n">midi</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">tab</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">audio</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">'CHF_2017'</span></em>, <em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/chord_label_visualiser.html#export_result_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.chord_label_visualiser.export_result_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export visualisation to a png file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>song</strong> – Song for which we want to export the visualisation</li>
-<li><strong>chords_list</strong> – Chord vocabulary</li>
-<li><strong>midi</strong> – Show MIDI files?</li>
-<li><strong>tab</strong> – Show Tab files?</li>
-<li><strong>audio</strong> – Audio ACE method</li>
-<li><strong>df</strong> – Show all DF results?</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>song</strong> – Song for which we want to export the visualisation</p></li>
+<li><p><strong>chords_vocabulary</strong> – Chord vocabulary</p></li>
+<li><p><strong>midi</strong> – Show MIDI files?</p></li>
+<li><p><strong>tab</strong> – Show Tab files?</p></li>
+<li><p><strong>audio</strong> – Audio ACE method</p></li>
+<li><p><strong>df</strong> – Show all DF results?</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -231,7 +232,7 @@ passages can give us a deeper understanding of subjectivity issues in the musica
         <a href="utils.html" class="btn btn-neutral float-right" title="Utility Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="evaluator.html" class="btn btn-neutral" title="Evaluation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="evaluator.html" class="btn btn-neutral float-left" title="Evaluation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -240,11 +241,19 @@ passages can give us a deeper understanding of subjectivity issues in the musica
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -256,27 +265,16 @@ passages can give us a deeper understanding of subjectivity issues in the musica
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

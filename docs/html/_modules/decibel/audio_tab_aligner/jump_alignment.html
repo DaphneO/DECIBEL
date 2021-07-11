@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,41 +11,45 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
 
   
-  <script src="../../../_static/js/modernizr.min.js"></script>
+  
+  
+  
 
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> DECIBEL
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -69,6 +72,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -94,6 +98,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -132,7 +137,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -152,343 +157,321 @@
            <div itemprop="articleBody">
             
   <h1>Source code for decibel.audio_tab_aligner.jump_alignment</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">decibel.utils</span> <span class="k">import</span> <span class="n">filehandler</span>
-<span class="kn">from</span> <span class="nn">decibel.utils.musicobjects</span> <span class="k">import</span> <span class="n">Chord</span><span class="p">,</span> <span class="n">Interval</span><span class="p">,</span> <span class="n">PITCH_CLASSES</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">decibel.audio_tab_aligner.hmm_parameters</span> <span class="kn">import</span> <span class="n">HMMParameters</span>
+<span class="kn">from</span> <span class="nn">decibel.import_export</span> <span class="kn">import</span> <span class="n">filehandler</span>
+<span class="kn">from</span> <span class="nn">decibel.import_export.untimed_chord_sequence_io</span> <span class="kn">import</span> <span class="n">read_untimed_chord_sequence</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.chord</span> <span class="kn">import</span> <span class="n">Chord</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.chord_alphabet</span> <span class="kn">import</span> <span class="n">ChordAlphabet</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.chord_vocabulary</span> <span class="kn">import</span> <span class="n">ChordVocabulary</span>
+<span class="kn">from</span> <span class="nn">decibel.music_objects.song</span> <span class="kn">import</span> <span class="n">Song</span>
 
 
-<div class="viewcode-block" id="HMMParameters"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.HMMParameters">[docs]</a><span class="k">class</span> <span class="nc">HMMParameters</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_songs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">chords_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the parameters of the HMM on the training songs</span>
+<span class="k">def</span> <span class="nf">_calculate_altered_transition_matrix</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">chord_ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                                         <span class="n">is_first_in_line</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">is_last_in_line</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
+                                         <span class="n">hmm_parameters</span><span class="p">:</span> <span class="n">HMMParameters</span><span class="p">,</span>
+                                         <span class="n">p_f</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p_b</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate an altered transition matrix for the jump alignment algorithm</span>
 
-<span class="sd">        :param train_songs: Songs on which we train our HMM</span>
-<span class="sd">        :param chords_list: All possible chords on which we could classify</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Find alphabet</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chords_list_to_alphabet</span><span class="p">(</span><span class="n">chords_list</span><span class="p">)</span>
+<span class="sd">    :param nr_of_chords_in_tab: Number of chords in the tab file</span>
+<span class="sd">    :param chord_ids: Numbers of the chords (indexes in the chord_vocabulary)</span>
+<span class="sd">    :param is_first_in_line: Boolean array: is this chord first in its line?</span>
+<span class="sd">    :param is_last_in_line: Boolean array: is this chord last in its line?</span>
+<span class="sd">    :param hmm_parameters: HMMParameters obtained in the training phase</span>
+<span class="sd">    :param p_f: Forward probability</span>
+<span class="sd">    :param p_b: Backward probability</span>
+<span class="sd">    :return: New transition matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">altered_transition_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="n">is_last_in_line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">is_first_in_line</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_f</span> <span class="o">*</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_b</span> <span class="o">*</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+    <span class="c1"># Normalize altered transition matrix</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+        <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-        <span class="c1"># Initialize chord_beat_matrix_per_chord: a list with |alphabet| x |beats| list for each chord</span>
-        <span class="n">chroma_beat_matrix_per_chord</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">altered_transition_matrix</span>
 
-        <span class="c1"># Initialize transition_matrix and init_matrix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">))</span>
 
-        <span class="c1"># Iterate over the songs; fill chroma_beat_matrix_per_chord, init_matrix and transition_matrix</span>
-        <span class="k">for</span> <span class="n">train_song_key</span> <span class="ow">in</span> <span class="n">train_songs</span><span class="p">:</span>
-            <span class="n">train_song</span> <span class="o">=</span> <span class="n">train_songs</span><span class="p">[</span><span class="n">train_song_key</span><span class="p">]</span>
-            <span class="n">train_song</span><span class="o">.</span><span class="n">audio_features_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_audio_features_path</span><span class="p">(</span><span class="n">train_song_key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">train_song</span><span class="o">.</span><span class="n">audio_features_path</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-                <span class="c1"># We have audio features and labels for this song; load them (otherwise ignore the song)</span>
-                <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">train_song</span><span class="o">.</span><span class="n">audio_features_path</span><span class="p">)</span>
-                <span class="n">chord_index_list</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="c1"># Iterate over the beats, fill chroma_beat_matrix_per_chord and chord_index_list</span>
-                <span class="k">for</span> <span class="n">frame_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                    <span class="n">chroma</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">frame_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-                    <span class="n">chord_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_index_in_alphabet</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span>
-                        <span class="n">features</span><span class="p">[</span><span class="n">frame_index</span><span class="p">,</span> <span class="mi">13</span><span class="p">]))</span>
-                    <span class="n">chord_index_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chord_index</span><span class="p">)</span>
-                    <span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">chord_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chroma</span><span class="p">)</span>
-                <span class="c1"># Add first chord to init_matrix</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">[</span><span class="n">chord_index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="c1"># Add each chord transition to transition_matrix</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chord_index_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_index_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_index_list</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="k">def</span> <span class="nf">_chord_label_to_chord_str</span><span class="p">(</span><span class="n">chord_label</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">:</span> <span class="n">ChordAlphabet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Translate the integer chord label to a chord string</span>
 
-        <span class="c1"># Normalize transition and init matrices</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">))])</span>
+<span class="sd">    :param chord_label: Chord index in the chord_vocabulary (integer)</span>
+<span class="sd">    :return: Chord string (str)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">chord_label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;N&#39;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_common_tab_notation_string</span><span class="p">(</span><span class="n">alphabet</span><span class="o">.</span><span class="n">alphabet_list</span><span class="p">[</span><span class="n">chord_label</span><span class="p">]))</span>
 
-        <span class="c1"># Calculate mean and covariance matrices</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">obs_mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">),</span> <span class="mi">12</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">obs_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">),</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)):</span>
-            <span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">obs_mu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">obs_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="c1"># Calculate additional values so we can calculate the emission probability more easily</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">twelve_log_two_pi</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_det_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs_sigma</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log_det_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_inverse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obs_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+<span class="k">def</span> <span class="nf">_transpose_chord_label</span><span class="p">(</span><span class="n">chord_label</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nr_semitones_higher</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">:</span> <span class="n">ChordAlphabet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transpose a chord label up with the specified number of semitones</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_chords_list_to_alphabet</span><span class="p">(</span><span class="n">chords_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convert a chords list (key-mode-chroma tuples) to an alphabet (strings that represent the chord)</span>
-
-<span class="sd">        :param chords_list: Chord list: [(key-mode-chroma)]</span>
-<span class="sd">        :return: Alphabet: [chord_str]</span>
-
-<span class="sd">        &gt;&gt;&gt; HMMParameters._chords_list_to_alphabet([[1, &#39;&#39;, [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0]]])</span>
-<span class="sd">        [&#39;N&#39;, &#39;C#&#39;]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">alphabet</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">chord_template</span> <span class="ow">in</span> <span class="n">chords_list</span><span class="p">:</span>
-            <span class="n">key_nr</span><span class="p">,</span> <span class="n">mode_str</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">chord_template</span>
-            <span class="n">key_str</span> <span class="o">=</span> <span class="n">PITCH_CLASSES</span><span class="p">[</span><span class="n">key_nr</span><span class="p">]</span>
-            <span class="n">alphabet</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key_str</span> <span class="o">+</span> <span class="n">mode_str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">alphabet</span>
-
-    <span class="k">def</span> <span class="nf">_get_index_in_alphabet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chord</span><span class="p">:</span> <span class="n">Chord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the index of the most similar chord to this chord in the alphabet</span>
-
-<span class="sd">        :param chord: Chord for which we want to find the index</span>
-<span class="sd">        :return: Index of most similar chord in the alphabet</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
-            <span class="c1"># Majmin alphabet</span>
-            <span class="k">if</span> <span class="n">chord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">chord_str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span>
-            <span class="k">elif</span> <span class="n">Interval</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">in</span> <span class="n">chord</span><span class="o">.</span><span class="n">components_degree_list</span><span class="p">:</span>
-                <span class="n">chord_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chord</span><span class="o">.</span><span class="n">root_note</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;m&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">chord_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chord</span><span class="o">.</span><span class="n">root_note</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">chord_str</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># TODO: Implement for other alphabets</span>
-
-    <span class="k">def</span> <span class="nf">_read_tab_file_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chords_from_tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load chord information from chords_from_tab_file_path</span>
-
-<span class="sd">        :param chords_from_tab_file_path: File that contains chord information</span>
-<span class="sd">        :return: (nr_of_chords_in_tab, chord_ids, is_first_in_line, is_last_in_line)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Load .npy file consisting of: [line_nr, segment_nr, system_nr, chord_x, chord_str]</span>
-        <span class="n">chords_from_tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">chords_from_tab_file_path</span><span class="p">)</span>
-        <span class="n">nr_of_chords_in_tab</span> <span class="o">=</span> <span class="n">chords_from_tab</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c1"># If we found less than 5 chords, we will not use this tab</span>
-        <span class="k">if</span> <span class="n">nr_of_chords_in_tab</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-
-        <span class="c1"># Chord id&#39;s</span>
-        <span class="n">line_nrs</span> <span class="o">=</span> <span class="n">chords_from_tab</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">chord_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-            <span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_index_in_alphabet</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="n">chords_from_tab</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
-
-        <span class="c1"># Array: is this chord first and/or last in its line?</span>
-        <span class="n">is_first_in_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">is_first_in_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
-                <span class="n">is_first_in_line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">is_last_in_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">is_last_in_line</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
-                <span class="n">is_last_in_line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="k">return</span> <span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="n">chord_ids</span><span class="p">,</span> <span class="n">is_first_in_line</span><span class="p">,</span> <span class="n">is_last_in_line</span>
-
-    <span class="k">def</span> <span class="nf">_calculate_altered_transition_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">chord_ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
-                                             <span class="n">is_first_in_line</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">is_last_in_line</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
-                                             <span class="n">p_f</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p_b</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate an altered transition matrix for the jump alignment algorithm</span>
-
-<span class="sd">        :param nr_of_chords_in_tab: Number of chords in the tab file</span>
-<span class="sd">        :param chord_ids: Numbers of the chords (indexes in the alphabet)</span>
-<span class="sd">        :param is_first_in_line: Boolean array: is this chord first in its line?</span>
-<span class="sd">        :param is_last_in_line: Boolean array: is this chord last in its line?</span>
-<span class="sd">        :param p_f: Forward probability</span>
-<span class="sd">        :param p_b: Backward probability</span>
-<span class="sd">        :return: New transition matrix</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">altered_transition_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
-                    <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
-                <span class="k">elif</span> <span class="n">is_last_in_line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">is_first_in_line</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>
-                        <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_f</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_b</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">[</span><span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
-        <span class="c1"># Normalize altered transition matrix</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-            <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">altered_transition_matrix</span>
-
-    <span class="k">def</span> <span class="nf">_chord_label_to_chord_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chord_label</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Translate the integer chord label to a chord string</span>
-
-<span class="sd">        :param chord_label: Chord index in the alphabet (integer)</span>
-<span class="sd">        :return: Chord string (str)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">chord_label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;N&#39;</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Chord</span><span class="o">.</span><span class="n">from_common_tab_notation_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">[</span><span class="n">chord_label</span><span class="p">]))</span>
-
-    <span class="k">def</span> <span class="nf">_transpose_chord_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chord_label</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nr_semitones_higher</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Transpose a chord label up with the specified number of semitones</span>
-
-<span class="sd">        :param chord_label: The index of the chord label that needs to be higher</span>
-<span class="sd">        :param nr_semitones_higher: The number of semitones the chord label needs to be higher</span>
-<span class="sd">        :return: Index of the transposed chord label</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">chord_label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">0</span>
-        <span class="n">nr_semitones_higher</span> <span class="o">=</span> <span class="n">nr_semitones_higher</span> <span class="o">%</span> <span class="mi">12</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">chord_label</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">chord_label</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span>
-            <span class="n">key</span> <span class="o">+=</span> <span class="n">nr_semitones_higher</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">&gt;=</span> <span class="mi">12</span><span class="p">:</span>
-                <span class="n">key</span> <span class="o">-=</span> <span class="mi">12</span>
-            <span class="k">return</span> <span class="mi">12</span> <span class="o">*</span> <span class="n">mode</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="mi">1</span>
-
-        <span class="c1"># TODO: implement for other alphabets</span>
+<span class="sd">    :param chord_label: The index of the chord label that needs to be higher</span>
+<span class="sd">    :param nr_semitones_higher: The number of semitones the chord label needs to be higher</span>
+<span class="sd">    :return: Index of the transposed chord label</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">chord_label</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">nr_semitones_higher</span> <span class="o">=</span> <span class="n">nr_semitones_higher</span> <span class="o">%</span> <span class="mi">12</span>
+    <span class="k">if</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">chord_vocabulary_name</span> <span class="o">==</span> <span class="s1">&#39;MajMin&#39;</span><span class="p">:</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">chord_label</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">chord_label</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span>
+        <span class="n">key</span> <span class="o">+=</span> <span class="n">nr_semitones_higher</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">&gt;=</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">-=</span> <span class="mi">12</span>
+        <span class="k">return</span> <span class="mi">12</span> <span class="o">*</span> <span class="n">mode</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="HMMParameters.jump_alignment"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.HMMParameters.jump_alignment">[docs]</a>    <span class="k">def</span> <span class="nf">jump_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chords_from_tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">audio_features_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lab_write_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                       <span class="n">p_f</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">p_b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the optimal alignment between tab file and audio</span>
-
-<span class="sd">        :param chords_from_tab_file_path: Path to chords from tab file</span>
-<span class="sd">        :param audio_features_path: Path to audio features</span>
-<span class="sd">        :param lab_write_path: Path to the file to write the chord labels to</span>
-<span class="sd">        :param p_f: Forward probability</span>
-<span class="sd">        :param p_b: Backward probability</span>
-<span class="sd">        :return: best likelihood and best transposition</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Load chord information from chords_from_tab_file_path</span>
-        <span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="n">chord_ids</span><span class="p">,</span> <span class="n">is_first_in_line</span><span class="p">,</span> <span class="n">is_last_in_line</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">_read_tab_file_path</span><span class="p">(</span><span class="n">chords_from_tab_file_path</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">nr_of_chords_in_tab</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
-
-        <span class="c1"># Calculate the emission probability matrix for this song</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">audio_features_path</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-        <span class="n">nr_beats</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">log_emission_probability_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">),</span> <span class="n">nr_beats</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)):</span>
-            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_beats</span><span class="p">):</span>
-                <span class="n">om</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mat</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs_mu</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                <span class="n">log_emission_probability_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span> <span class="o">=</span> \
-                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_det_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">om</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_inverse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">om</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">twelve_log_two_pi</span><span class="p">)</span> <span class="o">/</span> <span class="o">-</span><span class="mi">2</span>
-
-        <span class="n">best_transposition</span><span class="p">,</span> <span class="n">best_g</span><span class="p">,</span> <span class="n">best_tr</span><span class="p">,</span> <span class="n">best_last_chord</span><span class="p">,</span> <span class="n">best_likelihood</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">semitone_transposition</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
-            <span class="c1"># Transpose</span>
-            <span class="n">transposed_chord_ids</span> <span class="o">=</span> \
-                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_transpose_chord_label</span><span class="p">(</span><span class="n">c_i</span><span class="p">,</span> <span class="n">semitone_transposition</span><span class="p">)</span> <span class="k">for</span> <span class="n">c_i</span> <span class="ow">in</span> <span class="n">chord_ids</span><span class="p">])</span>
-
-            <span class="c1"># Fill altered transition matrix</span>
-            <span class="n">altered_transition_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_altered_transition_matrix</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">,</span>
-                                                                                  <span class="n">transposed_chord_ids</span><span class="p">,</span>
-                                                                                  <span class="n">is_first_in_line</span><span class="p">,</span> <span class="n">is_last_in_line</span><span class="p">,</span>
-                                                                                  <span class="n">p_f</span><span class="p">,</span> <span class="n">p_b</span><span class="p">)</span>
-
-            <span class="c1"># Initialize travel grid</span>
-            <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nr_beats</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">))</span>
-            <span class="n">tr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nr_beats</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-                <span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_emission_probability_matrix</span><span class="p">[</span><span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> \
-                          <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">[</span><span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nr_beats</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-                    <span class="n">maximum</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
-                    <span class="n">max_chord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-                    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">+</span> \
-                                <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">maximum</span><span class="p">:</span>
-                            <span class="n">maximum</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
-                            <span class="n">max_chord</span> <span class="o">=</span> <span class="n">c</span>
-                    <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_emission_probability_matrix</span><span class="p">[</span><span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">maximum</span>
-                    <span class="n">tr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_chord</span>
-
-            <span class="c1"># Find log likelihood and best last chord</span>
-            <span class="n">log_likelihood</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
-            <span class="n">last_chord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">g</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">log_likelihood</span><span class="p">:</span>
-                    <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span>
-                    <span class="n">last_chord</span> <span class="o">=</span> <span class="n">c</span>
-
-            <span class="c1"># Save these travel grids only if the transposition had the best likelihood until now</span>
-            <span class="k">if</span> <span class="n">log_likelihood</span> <span class="o">&gt;</span> <span class="n">best_likelihood</span><span class="p">:</span>
-                <span class="n">best_transposition</span><span class="p">,</span> <span class="n">best_g</span><span class="p">,</span> <span class="n">best_tr</span><span class="p">,</span> <span class="n">best_last_chord</span><span class="p">,</span> <span class="n">best_likelihood</span> <span class="o">=</span> \
-                    <span class="n">semitone_transposition</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">last_chord</span><span class="p">,</span> <span class="n">log_likelihood</span>
-
-        <span class="c1"># Transpose to the best transposition</span>
-        <span class="n">transposed_chord_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_transpose_chord_label</span><span class="p">(</span><span class="n">c_i</span><span class="p">,</span> <span class="n">best_transposition</span><span class="p">)</span> <span class="k">for</span> <span class="n">c_i</span> <span class="ow">in</span> <span class="n">chord_ids</span><span class="p">])</span>
-
-        <span class="c1"># Derive the Viterbi path</span>
-        <span class="n">viterbi_path_reversed</span> <span class="o">=</span> <span class="p">[</span><span class="n">best_last_chord</span><span class="p">]</span>
-        <span class="n">last_added</span> <span class="o">=</span> <span class="n">best_last_chord</span>
-        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_beats</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">viterbi_path_reversed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_tr</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">last_added</span><span class="p">])</span>
-            <span class="n">last_added</span> <span class="o">=</span> <span class="n">best_tr</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">last_added</span><span class="p">]</span>
-        <span class="n">viterbi_path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">viterbi_path_reversed</span><span class="p">))</span>
-        <span class="n">viterbi_path</span> <span class="o">=</span> <span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">viterbi_path</span><span class="p">]</span>
-
-        <span class="c1"># Export the Viterbi path</span>
-        <span class="n">beat_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">audio_features_path</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">beat_start</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
-        <span class="n">last_chord</span> <span class="o">=</span> <span class="n">viterbi_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">lab_write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">viterbi_path</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">!=</span> <span class="n">last_chord</span><span class="p">:</span>
-                    <span class="n">chord_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chord_label_to_chord_str</span><span class="p">(</span><span class="n">viterbi_path</span><span class="p">[</span><span class="n">b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-                    <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">beat_start</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">beat_times</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">chord_str</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="n">beat_start</span> <span class="o">=</span> <span class="n">beat_times</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
-                    <span class="n">last_chord</span> <span class="o">=</span> <span class="n">viterbi_path</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">beat_times</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">beat_start</span><span class="p">:</span>
-                <span class="n">chord_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chord_label_to_chord_str</span><span class="p">(</span><span class="n">viterbi_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
-                <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">beat_start</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">beat_times</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">chord_str</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">best_likelihood</span><span class="p">,</span> <span class="n">best_transposition</span></div></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;This is not (yet?) supported for chord vocabularies other than &quot;MajMin&quot;.&#39;</span><span class="p">)</span>
+    <span class="c1"># TODO Implement for other chord vocabularies (e.g. seventh chords)</span>
 
 
-<div class="viewcode-block" id="train"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">chords_list</span><span class="p">,</span> <span class="n">training_set</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HMMParameters</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_read_tab_file_path</span><span class="p">(</span><span class="n">chords_from_tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">alphabet</span><span class="p">:</span> <span class="n">ChordAlphabet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load chord information from chords_from_tab_file_path</span>
+
+<span class="sd">    :param chords_from_tab_file_path: File that contains chord information</span>
+<span class="sd">    :return: (nr_of_chords_in_tab, chord_ids, is_first_in_line, is_last_in_line)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load .txt file consisting of: [line_nr, segment_nr, system_nr, chord_x, chord_str] (UntimedChordSequence)</span>
+    <span class="n">untimed_chord_sequence</span> <span class="o">=</span> <span class="n">read_untimed_chord_sequence</span><span class="p">(</span><span class="n">chords_from_tab_file_path</span><span class="p">)</span>
+    <span class="n">nr_of_chords_in_tab</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">untimed_chord_sequence</span><span class="o">.</span><span class="n">untimed_chord_sequence_item_items</span><span class="p">)</span>
+    <span class="c1"># If we found less than 5 chords, we will not use this tab</span>
+    <span class="k">if</span> <span class="n">nr_of_chords_in_tab</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="c1"># Chord id&#39;s</span>
+    <span class="n">line_nrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ucs_item</span><span class="o">.</span><span class="n">line_nr</span> <span class="k">for</span> <span class="n">ucs_item</span> <span class="ow">in</span> <span class="n">untimed_chord_sequence</span><span class="o">.</span><span class="n">untimed_chord_sequence_item_items</span><span class="p">]</span>
+    <span class="n">chord_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+        <span class="n">chord_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">get_index_of_chord_in_alphabet</span><span class="p">(</span>
+            <span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="n">untimed_chord_sequence</span><span class="o">.</span><span class="n">untimed_chord_sequence_item_items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">chord_str</span><span class="p">))</span>
+
+    <span class="c1"># Array: is this chord first and/or last in its line?</span>
+    <span class="n">is_first_in_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">is_first_in_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="n">is_first_in_line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">is_last_in_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">is_last_in_line</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">line_nrs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="n">is_last_in_line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="n">chord_ids</span><span class="p">,</span> <span class="n">is_first_in_line</span><span class="p">,</span> <span class="n">is_last_in_line</span>
+
+
+<div class="viewcode-block" id="train"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">chord_vocabulary</span><span class="p">:</span> <span class="n">ChordVocabulary</span><span class="p">,</span> <span class="n">train_songs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Song</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">HMMParameters</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Train the HMM parameters on training_set for the given chords_list vocabulary</span>
 
-<span class="sd">    :param chords_list: List of chords in our vocabulary</span>
-<span class="sd">    :param training_set: Set of songs for training</span>
+<span class="sd">    :param chord_vocabulary: List of chords in our vocabulary</span>
+<span class="sd">    :param train_songs: Set of songs for training</span>
 <span class="sd">    :return: HMM Parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">HMMParameters</span><span class="p">(</span><span class="n">training_set</span><span class="p">,</span> <span class="n">chords_list</span><span class="p">)</span></div>
+    <span class="c1"># Convert the vocabulary to a ChordAlphabet</span>
+    <span class="n">alphabet</span> <span class="o">=</span> <span class="n">ChordAlphabet</span><span class="p">(</span><span class="n">chord_vocabulary</span><span class="p">)</span>
+    <span class="n">alphabet_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphabet</span><span class="o">.</span><span class="n">alphabet_list</span><span class="p">)</span>
+
+    <span class="c1"># Initialize chord_beat_matrix_per_chord: a list with |chord_vocabulary| x |beats| list for each chord</span>
+    <span class="n">chroma_beat_matrix_per_chord</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">alphabet_list</span><span class="p">]</span>
+
+    <span class="c1"># Initialize transition_matrix and init_matrix</span>
+    <span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">alphabet_size</span><span class="p">,</span> <span class="n">alphabet_size</span><span class="p">))</span>
+    <span class="n">init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">alphabet_size</span><span class="p">)</span>
+
+    <span class="c1"># Iterate over the songs; fill chroma_beat_matrix_per_chord, init_matrix and transition_matrix</span>
+    <span class="k">for</span> <span class="n">train_song_key</span><span class="p">,</span> <span class="n">train_song</span> <span class="ow">in</span> <span class="n">train_songs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">train_song</span><span class="o">.</span><span class="n">audio_features_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_audio_features_path</span><span class="p">(</span><span class="n">train_song_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">train_song</span><span class="o">.</span><span class="n">audio_features_path</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="c1"># We have audio features and labels for this song; load them (otherwise ignore the song)</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">train_song</span><span class="o">.</span><span class="n">audio_features_path</span><span class="p">)</span>
+            <span class="n">chord_index_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Iterate over the beats, fill chroma_beat_matrix_per_chord and chord_index_list</span>
+            <span class="k">for</span> <span class="n">frame_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">chroma</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">frame_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">chord_index</span> <span class="o">=</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">get_index_of_chord_in_alphabet</span><span class="p">(</span>
+                    <span class="n">Chord</span><span class="o">.</span><span class="n">from_harte_chord_string</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">frame_index</span><span class="p">,</span> <span class="mi">13</span><span class="p">]))</span>
+                <span class="n">chord_index_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chord_index</span><span class="p">)</span>
+                <span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">chord_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chroma</span><span class="p">)</span>
+            <span class="c1"># Add first chord to init_matrix</span>
+            <span class="n">init</span><span class="p">[</span><span class="n">chord_index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Add each chord transition to transition_matrix</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">chord_index_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">trans</span><span class="p">[</span><span class="n">chord_index_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">chord_index_list</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Normalize transition and init matrices</span>
+    <span class="n">init</span> <span class="o">=</span> <span class="n">init</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+    <span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">trans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">alphabet_size</span><span class="p">)])</span>
+
+    <span class="c1"># Calculate mean and covariance matrices</span>
+    <span class="n">obs_mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">alphabet_size</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+    <span class="n">obs_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">alphabet_size</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">alphabet_size</span><span class="p">):</span>
+        <span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">obs_mu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">obs_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">chroma_beat_matrix_per_chord</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Calculate additional values so we can calculate the emission probability more easily</span>
+    <span class="n">twelve_log_two_pi</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">log_det_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">alphabet_size</span><span class="p">)</span>
+    <span class="n">sigma_inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">obs_sigma</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">alphabet_size</span><span class="p">):</span>
+        <span class="n">log_det_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">obs_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">sigma_inverse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">obs_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">HMMParameters</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="n">alphabet</span><span class="p">,</span> <span class="n">trans</span><span class="o">=</span><span class="n">trans</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span> <span class="n">obs_mu</span><span class="o">=</span><span class="n">obs_mu</span><span class="p">,</span> <span class="n">obs_sigma</span><span class="o">=</span><span class="n">obs_sigma</span><span class="p">,</span>
+                         <span class="n">log_det_sigma</span><span class="o">=</span><span class="n">log_det_sigma</span><span class="p">,</span> <span class="n">sigma_inverse</span><span class="o">=</span><span class="n">sigma_inverse</span><span class="p">,</span> <span class="n">twelve_log_two_pi</span><span class="o">=</span><span class="n">twelve_log_two_pi</span><span class="p">,</span>
+                         <span class="n">trained_on_keys</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">train_songs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
 
 
-<div class="viewcode-block" id="test_single_song"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.test_single_song">[docs]</a><span class="k">def</span> <span class="nf">test_single_song</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">hmm_parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="jump_alignment"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.jump_alignment">[docs]</a><span class="k">def</span> <span class="nf">jump_alignment</span><span class="p">(</span><span class="n">chords_from_tab_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">audio_features_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lab_write_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                   <span class="n">hmm_parameters</span><span class="p">:</span> <span class="n">HMMParameters</span><span class="p">,</span>
+                   <span class="n">p_f</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">p_b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the optimal alignment between tab file and audio</span>
+
+<span class="sd">    :param chords_from_tab_file_path: Path to chords from tab file</span>
+<span class="sd">    :param audio_features_path: Path to audio features</span>
+<span class="sd">    :param lab_write_path: Path to the file to write the chord labels to</span>
+<span class="sd">    :param hmm_parameters: HMMParameters obtained in the training phase</span>
+<span class="sd">    :param p_f: Forward probability</span>
+<span class="sd">    :param p_b: Backward probability</span>
+<span class="sd">    :return: best likelihood and best transposition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load chord information from chords_from_tab_file_path</span>
+    <span class="n">nr_of_chords_in_tab</span><span class="p">,</span> <span class="n">chord_ids</span><span class="p">,</span> <span class="n">is_first_in_line</span><span class="p">,</span> <span class="n">is_last_in_line</span> <span class="o">=</span> \
+        <span class="n">_read_tab_file_path</span><span class="p">(</span><span class="n">chords_from_tab_file_path</span><span class="p">,</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nr_of_chords_in_tab</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="c1"># Calculate the emission probability matrix for this song</span>
+    <span class="n">alphabet_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hmm_parameters</span><span class="o">.</span><span class="n">alphabet</span><span class="o">.</span><span class="n">alphabet_list</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">audio_features_path</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">13</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">nr_beats</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">log_emission_probability_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">alphabet_size</span><span class="p">,</span> <span class="n">nr_beats</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">alphabet_size</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_beats</span><span class="p">):</span>
+            <span class="n">om</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mat</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">-</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">obs_mu</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">log_emission_probability_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="p">(</span><span class="n">hmm_parameters</span><span class="o">.</span><span class="n">log_det_sigma</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span>
+                 <span class="n">om</span> <span class="o">*</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">sigma_inverse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">om</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">twelve_log_two_pi</span><span class="p">)</span> <span class="o">/</span> <span class="o">-</span><span class="mi">2</span>
+
+    <span class="n">best_transposition</span><span class="p">,</span> <span class="n">best_g</span><span class="p">,</span> <span class="n">best_tr</span><span class="p">,</span> <span class="n">best_last_chord</span><span class="p">,</span> <span class="n">best_likelihood</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">semitone_transposition</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
+        <span class="c1"># Transpose</span>
+        <span class="n">transposed_chord_ids</span> <span class="o">=</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_transpose_chord_label</span><span class="p">(</span><span class="n">c_i</span><span class="p">,</span> <span class="n">semitone_transposition</span><span class="p">,</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">c_i</span> <span class="ow">in</span> <span class="n">chord_ids</span><span class="p">])</span>
+
+        <span class="c1"># Fill altered transition matrix</span>
+        <span class="n">altered_transition_matrix</span> <span class="o">=</span> <span class="n">_calculate_altered_transition_matrix</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">,</span>
+                                                                         <span class="n">transposed_chord_ids</span><span class="p">,</span>
+                                                                         <span class="n">is_first_in_line</span><span class="p">,</span> <span class="n">is_last_in_line</span><span class="p">,</span>
+                                                                         <span class="n">hmm_parameters</span><span class="p">,</span>
+                                                                         <span class="n">p_f</span><span class="p">,</span> <span class="n">p_b</span><span class="p">)</span>
+
+        <span class="c1"># Initialize travel grid</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nr_beats</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">))</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nr_beats</span><span class="p">,</span> <span class="n">nr_of_chords_in_tab</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+            <span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_emission_probability_matrix</span><span class="p">[</span><span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> \
+                      <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">hmm_parameters</span><span class="o">.</span><span class="n">init</span><span class="p">[</span><span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nr_beats</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+                <span class="n">maximum</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+                <span class="n">max_chord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">+</span> \
+                            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">maximum</span><span class="p">:</span>
+                        <span class="n">maximum</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">altered_transition_matrix</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+                        <span class="n">max_chord</span> <span class="o">=</span> <span class="n">c</span>
+                <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_emission_probability_matrix</span><span class="p">[</span><span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">maximum</span>
+                <span class="n">tr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_chord</span>
+
+        <span class="c1"># Find log likelihood and best last chord</span>
+        <span class="n">log_likelihood</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="n">last_chord</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_chords_in_tab</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">g</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">log_likelihood</span><span class="p">:</span>
+                <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span>
+                <span class="n">last_chord</span> <span class="o">=</span> <span class="n">c</span>
+
+        <span class="c1"># Save these travel grids only if the transposition had the best likelihood until now</span>
+        <span class="k">if</span> <span class="n">log_likelihood</span> <span class="o">&gt;</span> <span class="n">best_likelihood</span><span class="p">:</span>
+            <span class="n">best_transposition</span><span class="p">,</span> <span class="n">best_g</span><span class="p">,</span> <span class="n">best_tr</span><span class="p">,</span> <span class="n">best_last_chord</span><span class="p">,</span> <span class="n">best_likelihood</span> <span class="o">=</span> \
+                <span class="n">semitone_transposition</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">tr</span><span class="p">,</span> <span class="n">last_chord</span><span class="p">,</span> <span class="n">log_likelihood</span>
+
+    <span class="c1"># Transpose to the best transposition</span>
+    <span class="n">transposed_chord_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_transpose_chord_label</span><span class="p">(</span><span class="n">c_i</span><span class="p">,</span> <span class="n">best_transposition</span><span class="p">,</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">c_i</span> <span class="ow">in</span> <span class="n">chord_ids</span><span class="p">])</span>
+
+    <span class="c1"># Derive the Viterbi path</span>
+    <span class="n">viterbi_path_reversed</span> <span class="o">=</span> <span class="p">[</span><span class="n">best_last_chord</span><span class="p">]</span>
+    <span class="n">last_added</span> <span class="o">=</span> <span class="n">best_last_chord</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_beats</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">viterbi_path_reversed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_tr</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">last_added</span><span class="p">])</span>
+        <span class="n">last_added</span> <span class="o">=</span> <span class="n">best_tr</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">last_added</span><span class="p">]</span>
+    <span class="n">viterbi_path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">viterbi_path_reversed</span><span class="p">))</span>
+    <span class="n">viterbi_path</span> <span class="o">=</span> <span class="n">transposed_chord_ids</span><span class="p">[</span><span class="n">viterbi_path</span><span class="p">]</span>
+
+    <span class="c1"># Export the Viterbi path</span>
+    <span class="n">beat_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">audio_features_path</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">beat_start</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+    <span class="n">last_chord</span> <span class="o">=</span> <span class="n">viterbi_path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">lab_write_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">write_file</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">viterbi_path</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">!=</span> <span class="n">last_chord</span><span class="p">:</span>
+                <span class="n">chord_str</span> <span class="o">=</span> <span class="n">_chord_label_to_chord_str</span><span class="p">(</span><span class="n">viterbi_path</span><span class="p">[</span><span class="n">b</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span>
+                <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">beat_start</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">beat_times</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">chord_str</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">beat_start</span> <span class="o">=</span> <span class="n">beat_times</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+                <span class="n">last_chord</span> <span class="o">=</span> <span class="n">viterbi_path</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">beat_times</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">beat_start</span><span class="p">:</span>
+            <span class="n">chord_str</span> <span class="o">=</span> <span class="n">_chord_label_to_chord_str</span><span class="p">(</span><span class="n">viterbi_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">],</span> <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">alphabet</span><span class="p">)</span>
+            <span class="n">write_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">beat_start</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">beat_times</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">beat_times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">chord_str</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">best_likelihood</span><span class="p">,</span> <span class="n">best_transposition</span></div>
+
+
+<div class="viewcode-block" id="test_single_song"><a class="viewcode-back" href="../../../codedescription/audiotabaligner.html#decibel.audio_tab_aligner.jump_alignment.test_single_song">[docs]</a><span class="k">def</span> <span class="nf">test_single_song</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">hmm_parameters</span><span class="p">:</span> <span class="n">HMMParameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate chords for each tab matched to the song and export them to a lab file.</span>
 
 <span class="sd">    :param song: Song for which we estimate tab-based chords</span>
 <span class="sd">    :param hmm_parameters: Parameters of the trained HMM</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">audio_features_path</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="c1"># There are audio features for this path</span>
-        <span class="k">for</span> <span class="n">full_tab_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">:</span>
-            <span class="n">tab_chord_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_chords_from_tab_filename</span><span class="p">(</span><span class="n">full_tab_path</span><span class="p">)</span>
-            <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">full_tab_path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">):</span>
-                <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">transposition_semitone</span> <span class="o">=</span> \
-                    <span class="n">hmm_parameters</span><span class="o">.</span><span class="n">jump_alignment</span><span class="p">(</span><span class="n">tab_chord_path</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">audio_features_path</span><span class="p">,</span>
-                                                  <span class="n">tab_write_path</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">log_likelihood</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1"># We found an alignment, write this to our log-likelihoods file</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">tab_write_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">):</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WRITING ERROR&#39;</span><span class="p">)</span>
-                    <span class="c1"># Remove start of path</span>
-                    <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">tab_write_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
-                    <span class="n">filehandler</span><span class="o">.</span><span class="n">write_log_likelihood</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">tab_write_path</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">transposition_semitone</span><span class="p">)</span></div>
+    <span class="n">audio_features_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_audio_features_path</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">full_tab_path</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">full_tab_paths</span><span class="p">:</span>
+        <span class="n">tab_chord_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_chords_from_tab_filename</span><span class="p">(</span><span class="n">full_tab_path</span><span class="p">)</span>
+        <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">get_full_tab_chord_labs_path</span><span class="p">(</span><span class="n">full_tab_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filehandler</span><span class="o">.</span><span class="n">file_exists</span><span class="p">(</span><span class="n">tab_write_path</span><span class="p">):</span>
+            <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">transposition_semitone</span> <span class="o">=</span> \
+                <span class="n">jump_alignment</span><span class="p">(</span><span class="n">tab_chord_path</span><span class="p">,</span> <span class="n">audio_features_path</span><span class="p">,</span> <span class="n">tab_write_path</span><span class="p">,</span> <span class="n">hmm_parameters</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log_likelihood</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># We found an alignment, write this to our log-likelihoods file</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">tab_write_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WRITING ERROR&#39;</span><span class="p">)</span>
+                <span class="c1"># Remove start of path</span>
+                <span class="n">tab_write_path</span> <span class="o">=</span> <span class="n">tab_write_path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">filehandler</span><span class="o">.</span><span class="n">DATA_PATH</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                <span class="n">filehandler</span><span class="o">.</span><span class="n">write_log_likelihood</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">tab_write_path</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">transposition_semitone</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -501,11 +484,19 @@
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -517,27 +508,16 @@
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

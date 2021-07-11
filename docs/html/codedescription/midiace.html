@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,43 +11,47 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Extracting chords from tabs" href="tabparser.html" />
     <link rel="prev" title="Aligning MIDI to audio" href="audiomidialigner.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> DECIBEL
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -71,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +100,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Extracting chords from MIDI</li>
     
@@ -158,35 +163,31 @@
   <div class="section" id="module-decibel.midi_chord_recognizer.cassette">
 <span id="extracting-chords-from-midi"></span><h1>Extracting chords from MIDI<a class="headerlink" href="#module-decibel.midi_chord_recognizer.cassette" title="Permalink to this headline">¶</a></h1>
 <p>CASSETTE (Chord estimation Applied to Symbolic music by Segmentation, Extraction and Tie-breaking TEmplate matching) is
-a template-matching based algorithm for MIDI chord recognition that is easy to implement and understand. Similar to the
-good old cassette tapes, this algorithm is certainly not state of the art. However, it is simple to implement and does
-not require any training.</p>
+a chord_template-matching based algorithm for MIDI chord recognition that is easy to implement and understand. Similar
+to the good old cassette tapes, this algorithm is certainly not state of the art. However, it is simple to implement
+and does not require any training.</p>
 <p>CASSETTE recognizes chords in a three-step procedure:</p>
 <ol class="arabic simple">
-<li>It segments each audio-aligned midi file (on bar/beat/note level);</li>
-<li>It calculates a weighted chroma feature for each of the segments, based on the notes within that segment;</li>
-<li>It matches the features of each segment to the features of a predefined chord vocabulary and assigns each segment to
-the most similar chord.</li>
+<li><p>It segments each audio-aligned midi file (on bar/beat/note level);</p></li>
+<li><p>It calculates a weighted chroma feature for each of the segments, based on the notes within that segment;</p></li>
+<li><p>It matches the features of each segment to the features of a predefined chord vocabulary and assigns each segment to
+the most similar chord.</p></li>
 </ol>
 <p>The main function to use is <a class="reference internal" href="#decibel.midi_chord_recognizer.cassette.classify_aligned_midis_for_song" title="decibel.midi_chord_recognizer.cassette.classify_aligned_midis_for_song"><code class="xref py py-func docutils literal notranslate"><span class="pre">classify_aligned_midis_for_song()</span></code></a>, which calls CASSETTE on all MIDIs matched to
 the given Song.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="decibel.midi_chord_recognizer.cassette.classify_aligned_midis_for_song">
-<code class="descclassname">cassette.</code><code class="descname">classify_aligned_midis_for_song</code><span class="sig-paren">(</span><em>all_chords_list</em>, <em>segmentation_type</em><span class="sig-paren">)</span><a class="headerlink" href="#decibel.midi_chord_recognizer.cassette.classify_aligned_midis_for_song" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.midi_chord_recognizer.cassette.</code><code class="sig-name descname">classify_aligned_midis_for_song</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chord_vocabulary</span><span class="p">:</span> <span class="n">decibel.music_objects.chord_vocabulary.ChordVocabulary</span></em>, <em class="sig-param"><span class="n">segmenter</span><span class="p">:</span> <span class="n">decibel.midi_chord_recognizer.midi_segmenter_interface.MIDISegmenterInterface</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/midi_chord_recognizer/cassette.html#classify_aligned_midis_for_song"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.midi_chord_recognizer.cassette.classify_aligned_midis_for_song" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find chord labels for all re-aligned MIDIs of this song</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>song</strong> – Song object for which we want to find the chord labels</li>
-<li><strong>all_chords_list</strong> – List of all chords</li>
-<li><strong>segmentation_type</strong> – Bar or beat segmentation</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>song</strong> – Song object for which we want to find the chord labels</p></li>
+<li><p><strong>chord_vocabulary</strong> – List of all chords</p></li>
+<li><p><strong>segmenter</strong> – Bar or beat segmenter</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -202,7 +203,7 @@ the given Song.</p>
         <a href="tabparser.html" class="btn btn-neutral float-right" title="Extracting chords from tabs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="audiomidialigner.html" class="btn btn-neutral" title="Aligning MIDI to audio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="audiomidialigner.html" class="btn btn-neutral float-left" title="Aligning MIDI to audio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -211,11 +212,19 @@ the given Song.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -227,27 +236,16 @@ the given Song.</p>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

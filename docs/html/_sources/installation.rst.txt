@@ -14,7 +14,7 @@ How to install DECIBEL?
    Installation instructions for other operating systems can be found at
    https://github.com/FluidSynth/fluidsynth/wiki/Download
 
-2. Download data folder from https://drive.google.com/drive/folders/1U7FPx29Ugbv7ff-160qnDKrYTQZtIfJL and store it on
+2. Download data folder from https://drive.google.com/drive/u/1/folders/1WhMnm76ZXkEOARdzoFoHeBfykHRdqkJ_ and store it on
    your computer. This folder will be filled with (intermediate) results, tables, figures, etc.
    The total size of this folder will be around 12 GB, so make sure that you have enough space. It is possible to store
    the data on an external hard drive.

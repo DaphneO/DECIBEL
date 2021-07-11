@@ -2,17 +2,7 @@
 Utility Functions
 =================
 
-.. automodule:: decibel.utils.musicobjects
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: decibel.utils.filehandler
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. automodule:: decibel.utils.chordtemplategenerator
+.. automodule:: decibel.utils.find_item_in_list
     :members:
     :undoc-members:
     :show-inheritance:

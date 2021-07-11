@@ -64,7 +64,7 @@ should be played or sung together at the same time. For example, in a typical ch
 consisting of a *chord line* above a *lyrics line*, as the chords in the chord line should be played at the same time
 as the word in the lyrics line should be sung.
 
-.. automodule:: decibel.tab_chord_parser.tabparser
+.. automodule:: decibel.tab_chord_parser.tab_parser
     :members:
     :undoc-members:
     :show-inheritance:

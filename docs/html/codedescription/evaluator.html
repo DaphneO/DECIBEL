@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,43 +11,47 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Visualisation" href="visualisation.html" />
     <link rel="prev" title="Data Fusion" href="datafusion.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> DECIBEL
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -71,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -96,6 +100,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -134,7 +139,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Evaluation</li>
     
@@ -177,111 +182,91 @@ in the audio is correct. It it therefore widely used in the evaluation of ACE sy
 highest CSR is not always the annotation that would be considered the best by human listeners. For this purpose,
 we also use measures based on the <strong>directional hamming distance</strong>, which describes how fragmented a chord segmentation
 is with respect to the ground truth chord segmentation.</p>
-<span class="target" id="module-decibel.evaluator.evaluator"></span><dl class="function">
+<span class="target" id="module-decibel.evaluator.evaluator"></span><dl class="py function">
 <dt id="decibel.evaluator.evaluator.evaluate">
-<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate</code><span class="sig-paren">(</span><em>ground_truth_lab_path</em>, <em>my_lab_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.evaluator.</code><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ground_truth_lab_path</span></em>, <em class="sig-param"><span class="n">my_lab_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the chord label sequence in my_lab_path, compared to the ground truth sequence in ground_truth_lab_path</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ground_truth_lab_path</strong> – Path to .lab file of ground truth chord label sequence</li>
-<li><strong>my_lab_path</strong> – Path to .lab file of estimated chord label sequence</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ground_truth_lab_path</strong> – Path to .lab file of ground truth chord label sequence</p></li>
+<li><p><strong>my_lab_path</strong> – Path to .lab file of estimated chord label sequence</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">CSR, over-segmentation, under-segmentation, segmentation</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CSR, over-segmentation, under-segmentation, segmentation</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.evaluator.evaluator.evaluate_method">
-<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_method</code><span class="sig-paren">(</span><em>all_songs</em>, <em>method_name</em>, <em>get_lab_function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_method" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.evaluator.</code><code class="sig-name descname">evaluate_method</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_songs</span></em>, <em class="sig-param"><span class="n">method_name</span></em>, <em class="sig-param"><span class="n">get_lab_function</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate all songs from our data set for one specific chord estimation technique, for which you get the labels using
 get_lab_function</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>all_songs</strong> – All songs in our data set</li>
-<li><strong>method_name</strong> – Name of the method (e.g. ‘CHF_2017_DF_BEST’)</li>
-<li><strong>get_lab_function</strong> – A function that takes the song and outputs the lab path</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_songs</strong> – All songs in our data set</p></li>
+<li><p><strong>method_name</strong> – Name of the method (e.g. ‘CHF_2017_DF_BEST’)</p></li>
+<li><p><strong>get_lab_function</strong> – A function that takes the song and outputs the lab path</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Pandas DataFrame with results</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Pandas DataFrame with results</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.evaluator.evaluator.evaluate_midis">
-<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_midis</code><span class="sig-paren">(</span><em>all_songs</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_midis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_midis" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.evaluator.</code><code class="sig-name descname">evaluate_midis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_songs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_midis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_midis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate all lab files based on MIDI alignment and chord estimation</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>all_songs</strong> – All songs in the data set</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>all_songs</strong> – All songs in the data set</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.evaluator.evaluator.evaluate_song_based">
-<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_song_based</code><span class="sig-paren">(</span><em>all_songs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_song_based"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_song_based" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.evaluator.</code><code class="sig-name descname">evaluate_song_based</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_songs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_song_based"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_song_based" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate all songs in the data set in parallel</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>all_songs</strong> – All song in the data set</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Print statement indicating that the evaluation was finished</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>all_songs</strong> – All song in the data set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Print statement indicating that the evaluation was finished</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.evaluator.evaluator.evaluate_tabs">
-<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">evaluate_tabs</code><span class="sig-paren">(</span><em>all_songs</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_tabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_tabs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.evaluator.</code><code class="sig-name descname">evaluate_tabs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_songs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#evaluate_tabs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.evaluate_tabs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate all lab files based on tab parsing and alignment.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>all_songs</strong> – All songs in our data set.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>all_songs</strong> – All songs in our data set.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="decibel.evaluator.evaluator.write_method_evaluations">
-<code class="descclassname">decibel.evaluator.evaluator.</code><code class="descname">write_method_evaluations</code><span class="sig-paren">(</span><em>all_songs</em>, <em>method_name</em>, <em>get_lab_function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#write_method_evaluations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.write_method_evaluations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">decibel.evaluator.evaluator.</code><code class="sig-name descname">write_method_evaluations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">all_songs</span></em>, <em class="sig-param"><span class="n">method_name</span></em>, <em class="sig-param"><span class="n">get_lab_function</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/decibel/evaluator/evaluator.html#write_method_evaluations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.evaluator.evaluator.write_method_evaluations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write evaluations for all songs from our data set that have not been evaluated yet.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>all_songs</strong> – All songs in our data set</li>
-<li><strong>method_name</strong> – Name of the method (e.g. ‘CHF_2017_DF_BEST’)</li>
-<li><strong>get_lab_function</strong> – A function that takes the song and outputs the lab path</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_songs</strong> – All songs in our data set</p></li>
+<li><p><strong>method_name</strong> – Name of the method (e.g. ‘CHF_2017_DF_BEST’)</p></li>
+<li><p><strong>get_lab_function</strong> – A function that takes the song and outputs the lab path</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -297,7 +282,7 @@ get_lab_function</p>
         <a href="visualisation.html" class="btn btn-neutral float-right" title="Visualisation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="datafusion.html" class="btn btn-neutral" title="Data Fusion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="datafusion.html" class="btn btn-neutral float-left" title="Data Fusion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -306,11 +291,19 @@ get_lab_function</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -322,27 +315,16 @@ get_lab_function</p>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

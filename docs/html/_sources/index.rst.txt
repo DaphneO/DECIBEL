@@ -14,8 +14,8 @@ aligned to the audio, followed by a MIDI chord estimation step. Tab files are fi
 and then aligned to the audio. In a final step, DECIBEL uses a data fusion method that integrates all estimated chord
 sequences into one final output sequence.
 
-We tested DECIBEL on the Isophonics reference annotations. Our results show that DECIBEL improves all of the MIREX 2017
-and 2018 ACE submissions, as well as a state-of-the-art commercial ACE method.
+We tested DECIBEL on the Isophonics reference annotations. Our results show that DECIBEL improves all of the MIREX 2017,
+2018, 2019 and 2020 ACE submissions, as well as a state-of-the-art commercial ACE method.
 
 Try DECIBEL yourself
 --------------------

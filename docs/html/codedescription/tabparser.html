@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,43 +11,47 @@
   
 
   
-  
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Aligning tab to audio" href="audiotabaligner.html" />
     <link rel="prev" title="Extracting chords from MIDI" href="midiace.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../index.html" class="icon icon-home"> DECIBEL
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> DECIBEL
           
 
           
@@ -71,6 +74,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -101,6 +105,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -139,7 +144,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Extracting chords from tabs</li>
     
@@ -177,37 +182,40 @@ tab-audio alignment step.</p>
 We distinguish the following line types: <em>empty</em>, <em>chords</em>, <em>tuning definition</em>, <em>capo change</em>, <em>structural marker</em>,
 <em>chord definition</em>, <em>tablature</em>, <em>lyrics</em> and <em>combined chord and lyrics</em>.</p>
 <ul class="simple">
-<li>A line has the <em>empty</em> line type if it is empty or consists only of a space.</li>
-<li>To determine if a line has the <em>chords</em> line type, the system first splits the line by spaces.
-Then it checks if each element of the line matches the chord pattern. An element is a chord if:<ul>
-<li>It consists of at most 10 characters;</li>
-<li>The first character is a note letter (a, b, c, d, e, f or g);</li>
-<li>The element does not contain sequences of four digits (as this would indicate a chord definition);</li>
-<li>The element does not contain symbols; and</li>
-<li>Any three letter sequence is in the following list: {<em>min</em>, <em>add</em>, <em>aug</em>, <em>dim</em>, <em>maj</em>, <em>sus</em>, <em>flat</em>}.</li>
+<li><p>A line has the <em>empty</em> line type if it is empty or consists only of a space.</p></li>
+<li><p>To determine if a line has the <em>chords</em> line type, the system first splits the line by spaces.
+Then it checks if each element of the line matches the chord pattern. An element is a chord if:</p>
+<ul>
+<li><p>It consists of at most 10 characters;</p></li>
+<li><p>The first character is a note letter (a, b, c, d, e, f or g);</p></li>
+<li><p>The element does not contain sequences of four digits (as this would indicate a chord definition);</p></li>
+<li><p>The element does not contain symbols; and</p></li>
+<li><p>Any three letter sequence is in the following list: {<em>min</em>, <em>add</em>, <em>aug</em>, <em>dim</em>, <em>maj</em>, <em>sus</em>, <em>flat</em>}.</p></li>
 </ul>
 </li>
-<li>A line has the <em>tuning</em> line type if it contains the word “tuning”.</li>
-<li>To find out if a line is a <em>structural marker</em>, our parser searches for words like “verse”, “chorus” or “bridge”.</li>
-<li>A line is a <em>chord definition</em> if it contains a sequence of exactly 6 digits.</li>
-<li>A line is a <em>tablature line</em> if it contains at least 10 characters which are a digit, hyphen, vertical bar, slash,
-letter “h”, “b” or “p” or a space and the number of hyphens is larger than the number of spaces.</li>
-<li>A <em>lyrics line</em> fulfills each of the following conditions:<ul>
-<li>It does not contain square brackets, the equals sign or the at sign;</li>
-<li>It contains at most 10 hyphens;</li>
-<li>Either:<ul>
-<li>It consists of just one word, which has only letter characters and contains at least three of the same letters
-after each other, like “oooh” or “aaah”; or</li>
-<li>It contains at least two words.</li>
+<li><p>A line has the <em>tuning</em> line type if it contains the word “tuning”.</p></li>
+<li><p>To find out if a line is a <em>structural marker</em>, our parser searches for words like “verse”, “chorus” or “bridge”.</p></li>
+<li><p>A line is a <em>chord definition</em> if it contains a sequence of exactly 6 digits.</p></li>
+<li><p>A line is a <em>tablature line</em> if it contains at least 10 characters which are a digit, hyphen, vertical bar, slash,
+letter “h”, “b” or “p” or a space and the number of hyphens is larger than the number of spaces.</p></li>
+<li><p>A <em>lyrics line</em> fulfills each of the following conditions:</p>
+<ul>
+<li><p>It does not contain square brackets, the equals sign or the at sign;</p></li>
+<li><p>It contains at most 10 hyphens;</p></li>
+<li><p>Either:</p>
+<ul>
+<li><p>It consists of just one word, which has only letter characters and contains at least three of the same letters
+after each other, like “oooh” or “aaah”; or</p></li>
+<li><p>It contains at least two words.</p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li>To find out if a line is a <em>combined chords and lyrics</em> line, DECIBEL first extracts all characters between
+<li><p>To find out if a line is a <em>combined chords and lyrics</em> line, DECIBEL first extracts all characters between
 square brackets ([ and ]). If these characters form a chord, it removes all characters between each pair of square
 brackets. If the remaining line is a lyrics line, we can conclude that our original line was a combined chords and
-lyrics file.</li>
-<li>If a line does not satisfy any of these requirements, the parser assigns the line type <em>undefined</em>.</li>
+lyrics file.</p></li>
+<li><p>If a line does not satisfy any of these requirements, the parser assigns the line type <em>undefined</em>.</p></li>
 </ul>
 </div>
 <div class="section" id="segmentation">
@@ -223,19 +231,21 @@ extract the chord labels, but we only extract them from a suitable system. A <em
 should be played or sung together at the same time. For example, in a typical chord sheet, we will find a lot of systems
 consisting of a <em>chord line</em> above a <em>lyrics line</em>, as the chords in the chord line should be played at the same time
 as the word in the lyrics line should be sung.</p>
-<span class="target" id="module-decibel.tab_chord_parser.tabparser"></span><dl class="function">
-<dt id="decibel.tab_chord_parser.tabparser.classify_all_tabs_of_song">
-<code class="descclassname">decibel.tab_chord_parser.tabparser.</code><code class="descname">classify_all_tabs_of_song</code><span class="sig-paren">(</span><em>song</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/decibel/tab_chord_parser/tabparser.html#classify_all_tabs_of_song"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.tab_chord_parser.tabparser.classify_all_tabs_of_song" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="module-decibel.tab_chord_parser.tab_parser"></span><dl class="py function">
+<dt id="decibel.tab_chord_parser.tab_parser.classify_all_tabs_of_song">
+<code class="sig-prename descclassname">decibel.tab_chord_parser.tab_parser.</code><code class="sig-name descname">classify_all_tabs_of_song</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">song</span><span class="p">:</span> <span class="n">decibel.music_objects.song.Song</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a><a class="reference internal" href="../_modules/decibel/tab_chord_parser/tab_parser.html#classify_all_tabs_of_song"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.tab_chord_parser.tab_parser.classify_all_tabs_of_song" title="Permalink to this definition">¶</a></dt>
 <dd><p>Classify all tabs of a song, by (1) LineType classification; (2) Segmenting lines; (3) System and Chord extraction.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song</strong> – A Song in our data set, for which we want to parse all tabs</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>song</strong> – A Song in our data set, for which we want to parse all tabs</p>
+</dd>
+</dl>
 </dd></dl>
+
+<dl class="py function">
+<dt id="decibel.tab_chord_parser.tab_parser.classify_tabs_from_file">
+<code class="sig-prename descclassname">decibel.tab_chord_parser.tab_parser.</code><code class="sig-name descname">classify_tabs_from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tab_path</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span> &#x2192; decibel.music_objects.untimed_chord_sequence.UntimedChordSequence<a class="reference internal" href="../_modules/decibel/tab_chord_parser/tab_parser.html#classify_tabs_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#decibel.tab_chord_parser.tab_parser.classify_tabs_from_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 </div>
@@ -251,7 +261,7 @@ as the word in the lyrics line should be sung.</p>
         <a href="audiotabaligner.html" class="btn btn-neutral float-right" title="Aligning tab to audio" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="midiace.html" class="btn btn-neutral" title="Extracting chords from MIDI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="midiace.html" class="btn btn-neutral float-left" title="Extracting chords from MIDI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -260,11 +270,19 @@ as the word in the lyrics line should be sung.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2019, Daphne Odekerken
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -276,27 +294,16 @@ as the word in the lyrics line should be sung.</p>
   </div>
   
 
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
