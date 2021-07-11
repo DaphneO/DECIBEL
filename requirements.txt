@@ -11,7 +11,7 @@ future==0.18.2
 guzzle-sphinx-theme==0.7.11
 idna==2.9
 imagesize==1.2.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 joblib==0.15.1
 kiwisolver==1.2.0
 librosa==0.7.2
@@ -27,7 +27,7 @@ pandas==1.0.5
 patsy==0.5.1
 pretty-midi==0.2.8
 pyFluidSynth==1.2.5
-Pygments==2.6.1
+Pygments==2.7.4
 pyparsing==2.4.7
 python-dateutil==2.8.1
 pytz==2020.1
@@ -50,4 +50,4 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 sphinxcontrib-websupport==1.2.2
 statsmodels==0.11.1
-urllib3==1.25.9
+urllib3==1.26.5

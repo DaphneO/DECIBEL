@@ -8,9 +8,6 @@ from decibel.audio_tab_aligner import feature_extractor, jump_alignment
 from decibel.audio_tab_aligner.hmm_parameters import HMMParameters
 from decibel.data_fusion import data_fusion
 from decibel.evaluator import evaluator, result_table_generator, chord_label_visualiser, figure_generator
-from decibel.evaluator.chord_label_comparator import print_overlap_audio_df_best, print_overlap_audio_methods, \
-    print_overlap_df_best_methods
-from decibel.evaluator.chord_label_visualiser import export_result_image
 from decibel.evaluator.result_table_generator import print_max_improvements
 from decibel.import_export import filehandler, hmm_parameter_io
 from decibel.midi_chord_recognizer import cassette
@@ -19,7 +16,6 @@ from decibel.midi_chord_recognizer.midi_beat_segmenter import MIDIBeatSegmenter
 from decibel.music_objects.chord_vocabulary import ChordVocabulary
 from decibel.music_objects.song import Song
 from decibel.tab_chord_parser import tab_parser
-
 
 NR_CPU = max(mp.cpu_count() - 1, 1)
 
@@ -56,8 +52,6 @@ for song_key in all_songs:
 pool.close()
 pool.join()
 print('Pre-processing finished')
-# for song_key in all_songs:
-#     prepare_song(all_songs[song_key])
 
 # Train HMM parameters for jump alignment
 kf = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -102,9 +96,6 @@ def estimate_chords_of_song(song: Song, chord_vocab: ChordVocabulary, hmm_parame
     return '{} is estimated.'.format(str(song))
 
 
-# for song_key in all_songs:
-#     estimate_chords_of_song(all_songs[song_key], chord_vocabulary, hmm_parameter_dict[song_key])
-
 # Estimate chords for all songs
 pool2 = mp.Pool(NR_CPU)
 for song_key in all_songs:
@@ -136,8 +127,6 @@ for song_key in all_songs:
                       callback=print)
 pool3.close()
 pool3.join()
-# for song_key in all_songs:
-#     additional_actual_best_df_round(all_songs[song_key], chord_vocabulary)
 
 evaluator.evaluate_song_based(all_songs)
 
@@ -148,8 +137,8 @@ print('Evaluation finished!')
 ###############################
 
 # Generate lab visualisations for each song and audio method
-all_method_names = ['CHF_2017','CM2_2017','JLW1_2017','JLW2_2017','KBK1_2017','KBK2_2017','WL1_2017','JLCX1_2018',
-                        'JLCX2_2018','SG1_2018','CLSYJ1_2019','HL2_2020']
+all_method_names = ['CHF_2017', 'CM2_2017', 'JLW1_2017', 'JLW2_2017', 'KBK1_2017', 'KBK2_2017', 'WL1_2017',
+                    'JLCX1_2018', 'JLCX2_2018', 'SG1_2018', 'CLSYJ1_2019', 'HL2_2020']
 pool4 = mp.Pool(NR_CPU)
 for song_key in all_songs:
     for audio_method in all_method_names:
@@ -166,24 +155,3 @@ result_table_generator.print_wcsr_midi_information()
 figure_generator.export_figures(all_songs)
 
 print_max_improvements(all_songs)
-
-# audio_vs_df_best_overlaps = print_overlap_audio_df_best(all_songs)
-# audio_vs_df_best_overlaps.to_csv('audio_vs_df_best_overlaps.csv')
-# audio_overlaps = print_overlap_audio_methods(all_songs)
-# audio_overlaps.to_csv('audio_overlaps.csv')
-# df_best_overlaps = print_overlap_df_best_methods(all_songs)
-# df_best_overlaps.to_csv('df_best_overlaps.csv')
-
-# chord_label_visualiser.export_result_image(all_songs[165], chord_vocabulary, True, True, 'CHF_2017', True)
-# chord_label_visualiser.export_result_image(all_songs[187], chord_vocabulary, True, True, 'CHF_2017', True)
-# chord_label_visualiser.export_result_image(all_songs[197], chord_vocabulary, True, True, 'CHF_2017', True)
-# chord_label_visualiser.export_result_image(all_songs[88], chord_vocabulary, True, True, 'CHF_2017', True)
-# chord_label_visualiser.export_result_image(all_songs[167], chord_vocabulary, True, True, 'JLCX1_2018', True)
-
-
-# for method in all_method_names:
-#     chord_label_visualiser.export_result_image(all_songs[167], chord_vocabulary, True, True, method, True)
-#     chord_label_visualiser.export_result_image(all_songs[135], chord_vocabulary, True, True, method, True)
-#     chord_label_visualiser.export_result_image(all_songs[167], chord_vocabulary, True, True, method, True)
-#     chord_label_visualiser.export_result_image(all_songs[87], chord_vocabulary, True, True, method, True)
-#     chord_label_visualiser.export_result_image(all_songs[177], chord_vocabulary, True, True, method, True)
